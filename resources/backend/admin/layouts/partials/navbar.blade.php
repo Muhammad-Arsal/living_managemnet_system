@@ -8,30 +8,48 @@
 
     <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
         <ul class="navbar-nav align-items-center ms-auto flex-row">
+            @php($authUser = Auth::guard('admin')->user())
             <li class="nav-item navbar-dropdown dropdown dropdown-user">
                 <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
                     <div class="avatar avatar-online">
-                        <span class="avatar-initial rounded-circle bg-label-primary">
-                            {{ Auth::guard('admin')->user()?->initials ?? 'AD' }}
-                        </span>
+                        @if ($authUser?->avatar_url)
+                            <img src="{{ $authUser->avatar_url }}" alt="Avatar" class="rounded-circle">
+                        @else
+                            <span class="avatar-initial rounded-circle bg-label-primary">
+                                {{ $authUser?->initials ?? 'AD' }}
+                            </span>
+                        @endif
                     </div>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li>
-                        <a class="dropdown-item" href="javascript:void(0);">
+                        <a class="dropdown-item" href="{{ route('admin.profile.edit') }}">
                             <div class="d-flex">
                                 <div class="me-3 flex-shrink-0">
                                     <div class="avatar avatar-online">
-                                        <span class="avatar-initial rounded-circle bg-label-primary">
-                                            {{ Auth::guard('admin')->user()?->initials ?? 'AD' }}
-                                        </span>
+                                        @if ($authUser?->avatar_url)
+                                            <img src="{{ $authUser->avatar_url }}" alt="Avatar" class="rounded-circle">
+                                        @else
+                                            <span class="avatar-initial rounded-circle bg-label-primary">
+                                                {{ $authUser?->initials ?? 'AD' }}
+                                            </span>
+                                        @endif
                                     </div>
                                 </div>
                                 <div class="flex-grow-1">
-                                    <span class="fw-semibold d-block">{{ Auth::guard('admin')->user()->name ?? 'Admin' }}</span>
-                                    <small class="text-muted">{{ Auth::guard('admin')->user()->email ?? '' }}</small>
+                                    <span class="fw-semibold d-block">{{ $authUser->name ?? 'Admin' }}</span>
+                                    <small class="text-muted">{{ $authUser->email ?? '' }}</small>
                                 </div>
                             </div>
+                        </a>
+                    </li>
+                    <li>
+                        <div class="dropdown-divider"></div>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="{{ route('admin.profile.edit') }}">
+                            <i class="iconify me-2" data-icon="bx:bx-user"></i>
+                            <span class="align-middle">My Profile</span>
                         </a>
                     </li>
                     <li>

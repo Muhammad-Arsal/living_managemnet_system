@@ -40,6 +40,22 @@ class AdminRepository implements AdminRepositoryInterface
         });
     }
 
+    public function updateWithProfile(Admin $admin, array $adminData, array $profileData = []): Admin
+    {
+        return DB::transaction(function () use ($admin, $adminData, $profileData) {
+            if ($adminData !== []) {
+                $admin->update($adminData);
+            }
+
+            $admin->profile()->updateOrCreate(
+                ['admin_id' => $admin->id],
+                $profileData
+            );
+
+            return $admin->refresh()->load('profile');
+        });
+    }
+
     public function markLastLogin(Admin $admin): void
     {
         $admin->forceFill(['last_login_at' => now()])->save();

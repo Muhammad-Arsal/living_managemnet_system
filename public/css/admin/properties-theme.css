@@ -260,6 +260,12 @@ a:hover {
   margin-bottom: 1rem;
 }
 
+/* Profile account photo */
+#uploadedAvatar {
+  border: 1px solid rgba(30, 41, 59, 0.12);
+  background-color: #f8fafc;
+}
+
 /* Form controls */
 .form-control:focus,
 .form-select:focus {
@@ -336,15 +342,37 @@ textarea:focus {
 
 /* Alerts */
 .alert-success {
-  background-color: rgba(51, 65, 85, 0.1);
-  border-color: var(--r8-slate-medium);
-  color: var(--r8-slate-dark);
+  --bs-alert-close-icon: #065f46;
+  background-color: #d1fae5 !important;
+  border-color: #6ee7b7 !important;
+  color: #065f46 !important;
 }
 
 .alert-danger {
-  background-color: rgba(16, 185, 129, 0.1);
-  border-color: var(--r8-accent);
-  color: var(--r8-accent-hover);
+  --bs-alert-close-icon: #991b1b;
+  background-color: #fee2e2 !important;
+  border-color: #fca5a5 !important;
+  color: #991b1b !important;
+}
+
+.alert-warning {
+  --bs-alert-close-icon: #92400e;
+  background-color: #fef3c7 !important;
+  border-color: #fcd34d !important;
+  color: #92400e !important;
+}
+
+.alert-info {
+  --bs-alert-close-icon: #075985;
+  background-color: #e0f2fe !important;
+  border-color: #7dd3fc !important;
+  color: #075985 !important;
+}
+
+.alert-dismissible .btn-close {
+  opacity: 1 !important;
+  background-color: var(--bs-alert-close-icon) !important;
+  background-image: none !important;
 }
 
 /* Footer */

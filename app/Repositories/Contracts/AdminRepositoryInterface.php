@@ -16,5 +16,7 @@ interface AdminRepositoryInterface
 
     public function createWithProfile(array $adminData, array $profileData = []): Admin;
 
+    public function updateWithProfile(Admin $admin, array $adminData, array $profileData = []): Admin;
+
     public function markLastLogin(Admin $admin): void;
 }

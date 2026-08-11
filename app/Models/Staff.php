@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasInitials;
+use App\Models\Concerns\HasProfileAvatar;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class Staff extends Authenticatable
 {
-    use HasInitials, Notifiable;
+    use HasInitials, HasProfileAvatar, Notifiable;
 
     protected $table = 'staff';
 

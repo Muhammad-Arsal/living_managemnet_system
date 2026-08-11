@@ -40,6 +40,22 @@ class StaffRepository implements StaffRepositoryInterface
         });
     }
 
+    public function updateWithProfile(Staff $staff, array $staffData, array $profileData = []): Staff
+    {
+        return DB::transaction(function () use ($staff, $staffData, $profileData) {
+            if ($staffData !== []) {
+                $staff->update($staffData);
+            }
+
+            $staff->profile()->updateOrCreate(
+                ['staff_id' => $staff->id],
+                $profileData
+            );
+
+            return $staff->refresh()->load('profile');
+        });
+    }
+
     public function markLastLogin(Staff $staff): void
     {
         $staff->forceFill(['last_login_at' => now()])->save();

@@ -16,5 +16,7 @@ interface CouncilRepositoryInterface
 
     public function createWithProfile(array $councilData, array $profileData = []): Council;
 
+    public function updateWithProfile(Council $council, array $councilData, array $profileData = []): Council;
+
     public function markLastLogin(Council $council): void;
 }

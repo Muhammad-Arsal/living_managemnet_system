@@ -52,6 +52,7 @@
     <script src="{{ asset('vendor/sneat/vendor/js/menu.js') }}"></script>
     <script src="{{ asset('vendor/sneat/js/main.js') }}"></script>
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
+    <script src="{{ asset('js/backend/alerts.js') }}"></script>
 
     @yield('scripts')
 </body>

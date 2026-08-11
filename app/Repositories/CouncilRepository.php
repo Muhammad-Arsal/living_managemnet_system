@@ -40,6 +40,22 @@ class CouncilRepository implements CouncilRepositoryInterface
         });
     }
 
+    public function updateWithProfile(Council $council, array $councilData, array $profileData = []): Council
+    {
+        return DB::transaction(function () use ($council, $councilData, $profileData) {
+            if ($councilData !== []) {
+                $council->update($councilData);
+            }
+
+            $council->profile()->updateOrCreate(
+                ['council_id' => $council->id],
+                $profileData
+            );
+
+            return $council->refresh()->load('profile');
+        });
+    }
+
     public function markLastLogin(Council $council): void
     {
         $council->forceFill(['last_login_at' => now()])->save();

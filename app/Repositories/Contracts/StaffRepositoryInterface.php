@@ -16,5 +16,7 @@ interface StaffRepositoryInterface
 
     public function createWithProfile(array $staffData, array $profileData = []): Staff;
 
+    public function updateWithProfile(Staff $staff, array $staffData, array $profileData = []): Staff;
+
     public function markLastLogin(Staff $staff): void;
 }
