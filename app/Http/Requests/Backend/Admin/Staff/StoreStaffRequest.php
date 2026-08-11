@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests\Backend\Admin\Staff;
 
-use App\Rules\StrongPassword;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -21,7 +20,6 @@ class StoreStaffRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', 'max:255', Rule::unique('staff', 'email')],
-            'password' => ['required', 'confirmed', StrongPassword::rule()],
             'is_active' => ['sometimes', 'boolean'],
         ];
     }

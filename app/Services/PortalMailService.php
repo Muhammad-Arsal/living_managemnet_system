@@ -50,25 +50,38 @@ class PortalMailService
         );
     }
 
-    public function sendPasswordSetup(PortalUser $user, string $token): void
+    public function sendWelcome(PortalUser $user, string $token): void
     {
         $resetLink = $this->passwordResetLink($user->portalKey(), $token, $user->email, setup: true);
-
-        $rendered = $this->renderTemplate($user->portalKey(), 'password_setup', [
+        $replacements = [
             'name' => $user->name,
             'email' => $user->email,
             'reset_link' => $resetLink,
             'portal_label' => $this->label($user->portalKey()),
-        ]);
+        ];
 
-        if (! $rendered) {
-            $rendered = $this->renderTemplate($user->portalKey(), 'welcome', [
-                'name' => $user->name,
-                'email' => $user->email,
-                'reset_link' => $resetLink,
-                'portal_label' => $this->label($user->portalKey()),
-            ]);
-        }
+        $rendered = $this->renderTemplate($user->portalKey(), 'welcome', $replacements)
+            ?? $this->renderTemplate($user->portalKey(), 'password_setup', $replacements);
+
+        $this->send(
+            $user->email,
+            $rendered['subject'] ?? 'Set your password',
+            $rendered['content'] ?? '<p><a href="'.$resetLink.'">Set your password</a></p>',
+        );
+    }
+
+    public function sendPasswordSetup(PortalUser $user, string $token): void
+    {
+        $resetLink = $this->passwordResetLink($user->portalKey(), $token, $user->email, setup: true);
+        $replacements = [
+            'name' => $user->name,
+            'email' => $user->email,
+            'reset_link' => $resetLink,
+            'portal_label' => $this->label($user->portalKey()),
+        ];
+
+        $rendered = $this->renderTemplate($user->portalKey(), 'password_setup', $replacements)
+            ?? $this->renderTemplate($user->portalKey(), 'welcome', $replacements);
 
         $this->send(
             $user->email,
@@ -84,7 +97,7 @@ class PortalMailService
         return Password::broker($this->config($portal, 'password_broker'))->sendResetLink(
             ['email' => $user->email],
             function (PortalUser $portalUser, string $token) {
-                $this->sendPasswordSetup($portalUser, $token);
+                $this->sendWelcome($portalUser, $token);
             }
         );
     }

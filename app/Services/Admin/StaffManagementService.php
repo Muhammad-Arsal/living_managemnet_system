@@ -4,11 +4,14 @@ namespace App\Services\Admin;
 
 use App\Models\Staff;
 use App\Repositories\Contracts\StaffRepositoryInterface;
+use App\Services\StaffMailService;
+use Illuminate\Support\Str;
 
 class StaffManagementService
 {
     public function __construct(
         private readonly StaffRepositoryInterface $staffRepository,
+        private readonly StaffMailService $staffMailService,
     ) {}
 
     public function store(array $data): Staff
@@ -16,11 +19,11 @@ class StaffManagementService
         $staff = $this->staffRepository->createWithProfile([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => $data['password'],
+            'password' => Str::password(32),
             'is_active' => $data['is_active'] ?? true,
         ]);
 
-        $staff->sendEmailVerificationNotification();
+        $this->staffMailService->sendWelcomeWithPasswordSetup($staff);
 
         return $staff;
     }

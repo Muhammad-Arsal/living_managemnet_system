@@ -15,10 +15,11 @@
     <link rel="stylesheet" href="{{ asset('vendor/sneat/vendor/css/core.css') }}" />
     <link rel="stylesheet" href="{{ asset('vendor/sneat/css/demo.css') }}" />
     <link rel="stylesheet" href="{{ asset('vendor/perfect-scrollbar/perfect-scrollbar.css') }}" />
-    <link rel="stylesheet" href="{{ asset('css/admin/properties-theme.css') }}" />
+    <link rel="stylesheet" href="{{ asset('css/admin/properties-theme.css') }}?v={{ filemtime(public_path('css/admin/properties-theme.css')) }}" />
 
     <script src="{{ asset('vendor/sneat/vendor/js/helpers.js') }}"></script>
     <script src="{{ asset('vendor/sneat/js/config.js') }}"></script>
+    @include('backend::layouts.partials.sneat-layout-fix')
 
     @yield('styles')
 </head>
@@ -33,6 +34,7 @@
 
                 <div class="content-wrapper">
                     <div class="container-fluid flex-grow-1 container-p-y">
+                        @include('backend::admin.layouts.partials.verify-email-banner')
                         @include('backend::admin.layouts.partials.alerts')
                         @yield('content')
                     </div>
@@ -51,6 +53,7 @@
     <script src="{{ asset('vendor/perfect-scrollbar/perfect-scrollbar.js') }}"></script>
     <script src="{{ asset('vendor/sneat/vendor/js/menu.js') }}"></script>
     <script src="{{ asset('vendor/sneat/js/main.js') }}"></script>
+    @include('backend::layouts.partials.sneat-layout-fix')
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <script src="{{ asset('js/backend/alerts.js') }}"></script>
 

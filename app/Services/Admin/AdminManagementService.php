@@ -4,11 +4,14 @@ namespace App\Services\Admin;
 
 use App\Models\Admin;
 use App\Repositories\Contracts\AdminRepositoryInterface;
+use App\Services\AdminMailService;
+use Illuminate\Support\Str;
 
 class AdminManagementService
 {
     public function __construct(
         private readonly AdminRepositoryInterface $adminRepository,
+        private readonly AdminMailService $adminMailService,
     ) {}
 
     public function store(array $data): Admin
@@ -16,11 +19,11 @@ class AdminManagementService
         $admin = $this->adminRepository->createWithProfile([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => $data['password'],
+            'password' => Str::password(32),
             'is_active' => $data['is_active'] ?? true,
         ]);
 
-        $admin->sendEmailVerificationNotification();
+        $this->adminMailService->sendWelcomeWithPasswordSetup($admin);
 
         return $admin;
     }

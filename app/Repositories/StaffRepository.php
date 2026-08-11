@@ -67,6 +67,7 @@ class StaffRepository implements StaffRepositoryInterface
         $allowed = ['name', 'email'];
 
         return Staff::query()
+            ->with('profile')
             ->when(
                 $search !== null && $search !== '' && $column !== null && in_array($column, $allowed, true),
                 fn ($query) => $query->where($column, 'like', '%'.$search.'%')

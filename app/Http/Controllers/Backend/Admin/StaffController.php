@@ -50,7 +50,7 @@ class StaffController extends Controller
 
         return redirect()
             ->route('admin.staff.index')
-            ->with('success', 'Staff created successfully. A verification email has been sent.');
+            ->with('success', 'Staff created successfully. A welcome email with a set-password link has been sent.');
     }
 
     public function edit(Staff $staff): View
@@ -78,6 +78,10 @@ class StaffController extends Controller
 
     public function sendVerificationEmail(Staff $staff): RedirectResponse
     {
+        if ($staff->hasVerifiedEmail()) {
+            return back()->with('info', 'This staff member is already verified.');
+        }
+
         $staff->sendEmailVerificationNotification();
 
         return back()->with('success', 'Verification email has been sent.');

@@ -8,7 +8,7 @@
             <div class="card">
                 <h5 class="card-header">Create Staff</h5>
                 <div class="card-body">
-                    <p class="text-muted">A verification email will be sent after creation.</p>
+                    <p class="text-muted">A welcome email with a set-password link will be sent after creation.</p>
                     <form action="{{ route('admin.staff.store') }}" method="POST" autocomplete="off">
                         @csrf
                         <div class="row">
@@ -25,25 +25,6 @@
                                 <input type="email" class="form-control @error('email') is-invalid @enderror"
                                     id="email" name="email" value="{{ old('email') }}" autocomplete="off">
                                 @error('email')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="password" class="form-label">Password <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                    id="password" name="password" autocomplete="new-password">
-                                <small class="text-muted">{{ password_rule_hint() }}</small>
-                                @error('password')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="password_confirmation" class="form-label">Confirm Password <span class="text-danger">*</span></label>
-                                <input type="password" class="form-control @error('password_confirmation') is-invalid @enderror"
-                                    id="password_confirmation" name="password_confirmation" autocomplete="new-password">
-                                @error('password_confirmation')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>

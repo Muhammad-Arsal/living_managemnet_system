@@ -23,5 +23,11 @@
                 <div>Dashboard</div>
             </a>
         </li>
+        <li class="menu-item {{ request()->routeIs('council.profile.*') ? 'active' : '' }}">
+            <a href="{{ route('council.profile.edit') }}" class="menu-link">
+                <i class="menu-icon tf-icon iconify iconify-lg" data-icon="bx:bx-user"></i>
+                <div>My Profile</div>
+            </a>
+        </li>
     </ul>
 </aside>

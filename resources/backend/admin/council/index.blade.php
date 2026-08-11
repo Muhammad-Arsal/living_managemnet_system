@@ -5,17 +5,21 @@
 @section('content')
     <div class="row">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Council</h5>
-                    <a href="{{ route('admin.council.create') }}" class="btn btn-primary">
-                        <i class="iconify me-1" data-icon="bx:bx-plus"></i>
+            <div class="card lms-page-card">
+                <div class="card-header lms-page-header">
+                    <div class="lms-page-header__copy">
+                        <p class="lms-page-header__eyebrow">Directory</p>
+                        <h5 class="lms-page-header__title">Council</h5>
+                        <p class="lms-page-header__subtitle">Search, review, and manage council member accounts.</p>
+                    </div>
+                    <a href="{{ route('admin.council.create') }}" class="btn btn-primary lms-btn-add">
+                        <i class="iconify" data-icon="bx:bx-plus"></i>
                         Add New Council Member
                     </a>
                 </div>
                 <div class="card-body">
-                    <form method="GET" action="{{ route('admin.council.index') }}" class="row g-3 mb-4 align-items-end">
-                        <div class="col-md-3">
+                    <form method="GET" action="{{ route('admin.council.index') }}" class="lms-filter-bar">
+                        <div>
                             <label for="column" class="form-label">Select By Column</label>
                             <select name="column" id="column" class="form-select">
                                 <option value="">Select By Column</option>
@@ -24,61 +28,104 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-4">
+                        <div>
                             <label for="search" class="form-label">Search</label>
                             <div class="input-group input-group-merge">
                                 <span class="input-group-text"><i class="iconify" data-icon="bx:bx-search"></i></span>
-                                <input type="text" name="search" id="search" class="form-control" placeholder="Search" value="{{ request('search') }}">
+                                <input type="text" name="search" id="search" class="form-control" placeholder="Search by name or email" value="{{ request('search') }}">
                             </div>
                         </div>
-                        <div class="col-md-5 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                            <a href="{{ route('admin.council.index') }}" class="btn btn-secondary">Reset</a>
+                        <div class="lms-filter-bar__actions">
+                            <button type="submit" class="lms-filter-btn lms-filter-btn--primary">
+                                <i class="iconify" data-icon="bx:bx-filter-alt"></i>
+                                Submit
+                            </button>
+                            <a href="{{ route('admin.council.index') }}" class="lms-filter-btn lms-filter-btn--ghost">
+                                <i class="iconify" data-icon="bx:bx-reset"></i>
+                                Reset
+                            </a>
                         </div>
                     </form>
 
                     @if ($councils->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-hover">
+                        <div class="table-responsive lms-table-shell">
+                            <table class="table table-hover lms-data-table align-middle mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Name</th>
-                                        <th>Email</th>
+                                        <th>Member</th>
                                         <th>Verified</th>
                                         <th>Active</th>
-                                        <th>Last Login</th>
-                                        <th>Created At</th>
-                                        <th>Actions</th>
+                                        <th class="d-none d-lg-table-cell">Last Login</th>
+                                        <th class="d-none d-md-table-cell">Created</th>
+                                        <th class="text-end">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($councils as $council)
                                         <tr>
-                                            <td>{{ $council->name }}</td>
-                                            <td>{{ $council->email }}</td>
+                                            <td>
+                                                <div class="lms-person">
+                                                    @if ($council->avatar_url)
+                                                        <img src="{{ $council->avatar_url }}" alt="{{ $council->name }}" class="lms-person__avatar">
+                                                    @else
+                                                        <span class="lms-person__initials">{{ $council->initials }}</span>
+                                                    @endif
+                                                    <div class="lms-person__meta">
+                                                        <span class="lms-person__name">{{ $council->name }}</span>
+                                                        <span class="lms-person__email">{{ $council->email }}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
                                             <td>
                                                 @if ($council->hasVerifiedEmail())
-                                                    <span class="badge bg-success">Yes</span>
+                                                    <span class="lms-badge lms-badge--success">
+                                                        <span class="lms-badge__dot"></span>
+                                                        Verified
+                                                    </span>
                                                 @else
-                                                    <span class="badge bg-warning">No</span>
+                                                    <span class="lms-badge lms-badge--warning">
+                                                        <span class="lms-badge__dot"></span>
+                                                        Pending
+                                                    </span>
                                                 @endif
                                             </td>
                                             <td>
                                                 @if ($council->is_active)
-                                                    <span class="badge bg-success">Active</span>
+                                                    <span class="lms-badge lms-badge--success">
+                                                        <span class="lms-badge__dot"></span>
+                                                        Active
+                                                    </span>
                                                 @else
-                                                    <span class="badge bg-secondary">Inactive</span>
+                                                    <span class="lms-badge lms-badge--muted">
+                                                        <span class="lms-badge__dot"></span>
+                                                        Inactive
+                                                    </span>
                                                 @endif
                                             </td>
-                                            <td>{{ $council->last_login_at?->format('M d, Y H:i') ?? '—' }}</td>
-                                            <td>{{ $council->created_at->format('M d, Y') }}</td>
-                                            <td>
-                                                <div class="d-flex gap-2">
-                                                    <a href="{{ route('admin.council.edit', $council) }}" class="btn btn-sm btn-primary">Edit</a>
-                                                    <button type="button" class="btn btn-sm btn-danger"
-                                                        data-bs-toggle="modal" data-bs-target="#deleteCouncilModal"
+                                            <td class="d-none d-lg-table-cell">
+                                                <span class="lms-muted-date">{{ $council->last_login_at?->format('M d, Y H:i') ?? '—' }}</span>
+                                            </td>
+                                            <td class="d-none d-md-table-cell">
+                                                <span class="lms-muted-date">{{ $council->created_at->format('M d, Y') }}</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="lms-actions justify-content-end">
+                                                    <a href="{{ route('admin.council.edit', $council) }}"
+                                                        class="lms-action-btn lms-action-btn--edit"
+                                                        title="Edit council member">
+                                                        <i class="iconify" data-icon="bx:bx-edit-alt"></i>
+                                                        <span>Edit</span>
+                                                    </a>
+                                                    <button type="button"
+                                                        class="lms-action-btn lms-action-btn--delete"
+                                                        title="Delete council member"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#deleteCouncilModal"
                                                         data-delete-url="{{ route('admin.council.destroy', $council) }}"
-                                                        data-council-name="{{ $council->name }}">Delete</button>
+                                                        data-council-name="{{ $council->name }}">
+                                                        <i class="iconify" data-icon="bx:bx-trash"></i>
+                                                        <span>Delete</span>
+                                                    </button>
                                                 </div>
                                             </td>
                                         </tr>
@@ -88,12 +135,15 @@
                         </div>
                         <div class="mt-3">{{ $councils->links() }}</div>
                     @else
-                        <div class="text-center py-5">
+                        <div class="lms-empty-state">
+                            <div class="lms-empty-state__icon">
+                                <i class="iconify" data-icon="bx:bx-buildings"></i>
+                            </div>
                             @if (request()->filled('search') || request()->filled('column'))
-                                <p class="text-muted">No council members match your search.</p>
+                                <p class="mb-3">No council members match your search.</p>
                                 <a href="{{ route('admin.council.index') }}" class="btn btn-outline-secondary">Reset</a>
                             @else
-                                <p class="text-muted">No council members found.</p>
+                                <p class="mb-3">No council members found.</p>
                                 <a href="{{ route('admin.council.create') }}" class="btn btn-primary">Create First Council Member</a>
                             @endif
                         </div>
@@ -118,7 +168,10 @@
                     <form id="deleteCouncilForm" method="POST" class="d-inline">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-danger">Delete</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="iconify me-1" data-icon="bx:bx-trash"></i>
+                            Delete
+                        </button>
                     </form>
                 </div>
             </div>

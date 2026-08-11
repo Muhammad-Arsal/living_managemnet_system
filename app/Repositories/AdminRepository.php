@@ -67,6 +67,7 @@ class AdminRepository implements AdminRepositoryInterface
         $allowed = ['name', 'email'];
 
         return Admin::query()
+            ->with('profile')
             ->when(
                 $search !== null && $search !== '' && $column !== null && in_array($column, $allowed, true),
                 fn ($query) => $query->where($column, 'like', '%'.$search.'%')

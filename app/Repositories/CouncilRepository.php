@@ -67,6 +67,7 @@ class CouncilRepository implements CouncilRepositoryInterface
         $allowed = ['name', 'email'];
 
         return Council::query()
+            ->with('profile')
             ->when(
                 $search !== null && $search !== '' && $column !== null && in_array($column, $allowed, true),
                 fn ($query) => $query->where($column, 'like', '%'.$search.'%')

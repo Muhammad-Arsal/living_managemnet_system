@@ -5,50 +5,72 @@
 @section('content')
     <div class="row">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Email Templates</h5>
-                    <a href="{{ route('admin.settings.email-templates.create') }}" class="btn btn-primary">
-                        <i class="iconify me-1" data-icon="bx:bx-plus"></i>
+            <div class="card lms-page-card">
+                <div class="card-header lms-page-header">
+                    <div class="lms-page-header__copy">
+                        <p class="lms-page-header__eyebrow">Settings</p>
+                        <h5 class="lms-page-header__title">Email Templates</h5>
+                        <p class="lms-page-header__subtitle">Customize welcome, verification, and password emails for each portal.</p>
+                    </div>
+                    <a href="{{ route('admin.settings.email-templates.create') }}" class="btn btn-primary lms-btn-add">
+                        <i class="iconify" data-icon="bx:bx-plus"></i>
                         Add New Template
                     </a>
                 </div>
                 <div class="card-body">
                     @if ($emailTemplates->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-hover">
+                        <div class="table-responsive lms-table-shell">
+                            <table class="table table-hover lms-data-table align-middle mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Email Type</th>
-                                        <th>Subject</th>
+                                        <th>Template</th>
                                         <th>Status</th>
-                                        <th>Created At</th>
-                                        <th>Actions</th>
+                                        <th class="d-none d-md-table-cell">Created</th>
+                                        <th class="text-end">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($emailTemplates as $template)
                                         <tr>
-                                            <td><code>{{ $template->email_type }}</code></td>
-                                            <td>{{ $template->subject }}</td>
+                                            <td>
+                                                <div class="lms-person__meta">
+                                                    <span class="lms-person__name"><code>{{ $template->email_type }}</code></span>
+                                                    <span class="lms-person__email">{{ $template->subject }}</span>
+                                                </div>
+                                            </td>
                                             <td>
                                                 @if ($template->status)
-                                                    <span class="badge bg-success">Active</span>
+                                                    <span class="lms-badge lms-badge--success">
+                                                        <span class="lms-badge__dot"></span>
+                                                        Active
+                                                    </span>
                                                 @else
-                                                    <span class="badge bg-secondary">Inactive</span>
+                                                    <span class="lms-badge lms-badge--muted">
+                                                        <span class="lms-badge__dot"></span>
+                                                        Inactive
+                                                    </span>
                                                 @endif
                                             </td>
-                                            <td>{{ $template->created_at->format('M d, Y') }}</td>
-                                            <td>
-                                                <div class="d-flex gap-2">
+                                            <td class="d-none d-md-table-cell">
+                                                <span class="lms-muted-date">{{ $template->created_at->format('M d, Y') }}</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="lms-actions justify-content-end">
                                                     <a href="{{ route('admin.settings.email-templates.edit', $template) }}"
-                                                        class="btn btn-sm btn-primary">Edit</a>
+                                                        class="lms-action-btn lms-action-btn--edit"
+                                                        title="Edit template">
+                                                        <i class="iconify" data-icon="bx:bx-edit-alt"></i>
+                                                        <span>Edit</span>
+                                                    </a>
                                                     <form action="{{ route('admin.settings.email-templates.destroy', $template) }}"
                                                         method="POST" class="d-inline"
                                                         onsubmit="return confirm('Are you sure you want to delete this template?');">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                                        <button type="submit" class="lms-action-btn lms-action-btn--delete" title="Delete template">
+                                                            <i class="iconify" data-icon="bx:bx-trash"></i>
+                                                            <span>Delete</span>
+                                                        </button>
                                                     </form>
                                                 </div>
                                             </td>
@@ -59,8 +81,11 @@
                         </div>
                         <div class="mt-3">{{ $emailTemplates->links() }}</div>
                     @else
-                        <div class="text-center py-5">
-                            <p class="text-muted">No email templates found.</p>
+                        <div class="lms-empty-state">
+                            <div class="lms-empty-state__icon">
+                                <i class="iconify" data-icon="bx:bx-envelope"></i>
+                            </div>
+                            <p class="mb-3">No email templates found.</p>
                             <a href="{{ route('admin.settings.email-templates.create') }}" class="btn btn-primary">Create First Template</a>
                         </div>
                     @endif

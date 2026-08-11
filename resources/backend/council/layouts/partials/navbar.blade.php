@@ -6,11 +6,19 @@
         </a>
     </div>
 
-    <div class="navbar-nav-right d-flex align-items-center" id="navbar-collapse">
+    <div class="navbar-nav-right d-flex align-items-center w-100" id="navbar-collapse">
+        <div class="d-none d-md-flex align-items-center gap-2 me-auto text-muted">
+            <i class="iconify" data-icon="bx:bx-grid-alt" style="font-size: 1.1rem; color: #10b981;"></i>
+            <span class="fw-semibold" style="color: #0f172a;">Council Panel</span>
+        </div>
         <ul class="navbar-nav align-items-center ms-auto flex-row">
             @php($authUser = Auth::guard('council')->user())
             <li class="nav-item navbar-dropdown dropdown dropdown-user">
-                <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+                <a class="nav-link dropdown-toggle hide-arrow d-flex align-items-center gap-2" href="javascript:void(0);" data-bs-toggle="dropdown">
+                    <div class="d-none d-sm-flex flex-column text-end">
+                        <span class="fw-semibold" style="font-size: 0.875rem; color: #0f172a; line-height: 1.2;">{{ $authUser->name ?? 'Council' }}</span>
+                        <small class="text-muted" style="font-size: 0.72rem;">Signed in</small>
+                    </div>
                     <div class="avatar avatar-online">
                         @if ($authUser?->avatar_url)
                             <img src="{{ $authUser->avatar_url }}" alt="Avatar" class="rounded-circle">

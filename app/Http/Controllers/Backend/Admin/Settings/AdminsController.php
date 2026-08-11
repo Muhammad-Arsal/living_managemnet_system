@@ -51,7 +51,7 @@ class AdminsController extends Controller
 
         return redirect()
             ->route('admin.settings.admins.index')
-            ->with('success', 'Admin created successfully. A verification email has been sent.');
+            ->with('success', 'Admin created successfully. A welcome email with a set-password link has been sent.');
     }
 
     public function edit(Admin $admin): View
@@ -83,6 +83,10 @@ class AdminsController extends Controller
 
     public function sendVerificationEmail(Admin $admin): RedirectResponse
     {
+        if ($admin->hasVerifiedEmail()) {
+            return back()->with('info', 'This admin is already verified.');
+        }
+
         $admin->sendEmailVerificationNotification();
 
         return back()->with('success', 'Verification email has been sent.');

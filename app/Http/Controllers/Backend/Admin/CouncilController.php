@@ -50,7 +50,7 @@ class CouncilController extends Controller
 
         return redirect()
             ->route('admin.council.index')
-            ->with('success', 'Council member created successfully. A verification email has been sent.');
+            ->with('success', 'Council member created successfully. A welcome email with a set-password link has been sent.');
     }
 
     public function edit(Council $council): View
@@ -78,6 +78,10 @@ class CouncilController extends Controller
 
     public function sendVerificationEmail(Council $council): RedirectResponse
     {
+        if ($council->hasVerifiedEmail()) {
+            return back()->with('info', 'This council member is already verified.');
+        }
+
         $council->sendEmailVerificationNotification();
 
         return back()->with('success', 'Verification email has been sent.');

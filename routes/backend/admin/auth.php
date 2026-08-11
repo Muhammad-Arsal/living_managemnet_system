@@ -24,6 +24,11 @@ Route::prefix('admin')->name('admin.')->group(function () {
     });
 
     Route::middleware('auth:admin')->group(function () {
+        Route::get('email/verify', [EmailVerificationController::class, 'notice'])
+            ->name('verification.notice');
+        Route::post('email/verification-notification', [EmailVerificationController::class, 'send'])
+            ->middleware('throttle:6,1')
+            ->name('verification.send');
         Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
     });
 });

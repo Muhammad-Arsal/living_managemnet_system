@@ -5,17 +5,21 @@
 @section('content')
     <div class="row">
         <div class="col-12">
-            <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Staff</h5>
-                    <a href="{{ route('admin.staff.create') }}" class="btn btn-primary">
-                        <i class="iconify me-1" data-icon="bx:bx-plus"></i>
+            <div class="card lms-page-card">
+                <div class="card-header lms-page-header">
+                    <div class="lms-page-header__copy">
+                        <p class="lms-page-header__eyebrow">Directory</p>
+                        <h5 class="lms-page-header__title">Staff</h5>
+                        <p class="lms-page-header__subtitle">Search, review, and manage staff accounts from one place.</p>
+                    </div>
+                    <a href="{{ route('admin.staff.create') }}" class="btn btn-primary lms-btn-add">
+                        <i class="iconify" data-icon="bx:bx-plus"></i>
                         Add New Staff
                     </a>
                 </div>
                 <div class="card-body">
-                    <form method="GET" action="{{ route('admin.staff.index') }}" class="row g-3 mb-4 align-items-end">
-                        <div class="col-md-3">
+                    <form method="GET" action="{{ route('admin.staff.index') }}" class="lms-filter-bar">
+                        <div>
                             <label for="column" class="form-label">Select By Column</label>
                             <select name="column" id="column" class="form-select">
                                 <option value="">Select By Column</option>
@@ -24,66 +28,104 @@
                                 @endforeach
                             </select>
                         </div>
-                        <div class="col-md-4">
+                        <div>
                             <label for="search" class="form-label">Search</label>
                             <div class="input-group input-group-merge">
                                 <span class="input-group-text"><i class="iconify" data-icon="bx:bx-search"></i></span>
                                 <input type="text" name="search" id="search" class="form-control"
-                                    placeholder="Search" value="{{ request('search') }}">
+                                    placeholder="Search by name or email" value="{{ request('search') }}">
                             </div>
                         </div>
-                        <div class="col-md-5 d-flex gap-2">
-                            <button type="submit" class="btn btn-primary">Submit</button>
-                            <a href="{{ route('admin.staff.index') }}" class="btn btn-secondary">Reset</a>
+                        <div class="lms-filter-bar__actions">
+                            <button type="submit" class="lms-filter-btn lms-filter-btn--primary">
+                                <i class="iconify" data-icon="bx:bx-filter-alt"></i>
+                                Submit
+                            </button>
+                            <a href="{{ route('admin.staff.index') }}" class="lms-filter-btn lms-filter-btn--ghost">
+                                <i class="iconify" data-icon="bx:bx-reset"></i>
+                                Reset
+                            </a>
                         </div>
                     </form>
 
                     @if ($staffMembers->count() > 0)
-                        <div class="table-responsive">
-                            <table class="table table-hover">
+                        <div class="table-responsive lms-table-shell">
+                            <table class="table table-hover lms-data-table align-middle mb-0">
                                 <thead>
                                     <tr>
-                                        <th>Name</th>
-                                        <th>Email</th>
+                                        <th>Staff</th>
                                         <th>Verified</th>
                                         <th>Active</th>
-                                        <th>Last Login</th>
-                                        <th>Created At</th>
-                                        <th>Actions</th>
+                                        <th class="d-none d-lg-table-cell">Last Login</th>
+                                        <th class="d-none d-md-table-cell">Created</th>
+                                        <th class="text-end">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach ($staffMembers as $staff)
                                         <tr>
-                                            <td>{{ $staff->name }}</td>
-                                            <td>{{ $staff->email }}</td>
+                                            <td>
+                                                <div class="lms-person">
+                                                    @if ($staff->avatar_url)
+                                                        <img src="{{ $staff->avatar_url }}" alt="{{ $staff->name }}" class="lms-person__avatar">
+                                                    @else
+                                                        <span class="lms-person__initials">{{ $staff->initials }}</span>
+                                                    @endif
+                                                    <div class="lms-person__meta">
+                                                        <span class="lms-person__name">{{ $staff->name }}</span>
+                                                        <span class="lms-person__email">{{ $staff->email }}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
                                             <td>
                                                 @if ($staff->hasVerifiedEmail())
-                                                    <span class="badge bg-success">Yes</span>
+                                                    <span class="lms-badge lms-badge--success">
+                                                        <span class="lms-badge__dot"></span>
+                                                        Verified
+                                                    </span>
                                                 @else
-                                                    <span class="badge bg-warning">No</span>
+                                                    <span class="lms-badge lms-badge--warning">
+                                                        <span class="lms-badge__dot"></span>
+                                                        Pending
+                                                    </span>
                                                 @endif
                                             </td>
                                             <td>
                                                 @if ($staff->is_active)
-                                                    <span class="badge bg-success">Active</span>
+                                                    <span class="lms-badge lms-badge--success">
+                                                        <span class="lms-badge__dot"></span>
+                                                        Active
+                                                    </span>
                                                 @else
-                                                    <span class="badge bg-secondary">Inactive</span>
+                                                    <span class="lms-badge lms-badge--muted">
+                                                        <span class="lms-badge__dot"></span>
+                                                        Inactive
+                                                    </span>
                                                 @endif
                                             </td>
-                                            <td>{{ $staff->last_login_at?->format('M d, Y H:i') ?? '—' }}</td>
-                                            <td>{{ $staff->created_at->format('M d, Y') }}</td>
-                                            <td>
-                                                <div class="d-flex gap-2">
+                                            <td class="d-none d-lg-table-cell">
+                                                <span class="lms-muted-date">{{ $staff->last_login_at?->format('M d, Y H:i') ?? '—' }}</span>
+                                            </td>
+                                            <td class="d-none d-md-table-cell">
+                                                <span class="lms-muted-date">{{ $staff->created_at->format('M d, Y') }}</span>
+                                            </td>
+                                            <td class="text-end">
+                                                <div class="lms-actions justify-content-end">
                                                     <a href="{{ route('admin.staff.edit', $staff) }}"
-                                                        class="btn btn-sm btn-primary">Edit</a>
+                                                        class="lms-action-btn lms-action-btn--edit"
+                                                        title="Edit staff">
+                                                        <i class="iconify" data-icon="bx:bx-edit-alt"></i>
+                                                        <span>Edit</span>
+                                                    </a>
                                                     <button type="button"
-                                                        class="btn btn-sm btn-danger"
+                                                        class="lms-action-btn lms-action-btn--delete"
+                                                        title="Delete staff"
                                                         data-bs-toggle="modal"
                                                         data-bs-target="#deleteStaffModal"
                                                         data-delete-url="{{ route('admin.staff.destroy', $staff) }}"
                                                         data-staff-name="{{ $staff->name }}">
-                                                        Delete
+                                                        <i class="iconify" data-icon="bx:bx-trash"></i>
+                                                        <span>Delete</span>
                                                     </button>
                                                 </div>
                                             </td>
@@ -94,12 +136,15 @@
                         </div>
                         <div class="mt-3">{{ $staffMembers->links() }}</div>
                     @else
-                        <div class="text-center py-5">
+                        <div class="lms-empty-state">
+                            <div class="lms-empty-state__icon">
+                                <i class="iconify" data-icon="bx:bx-group"></i>
+                            </div>
                             @if (request()->filled('search') || request()->filled('column'))
-                                <p class="text-muted">No staff match your search.</p>
+                                <p class="mb-3">No staff match your search.</p>
                                 <a href="{{ route('admin.staff.index') }}" class="btn btn-outline-secondary">Reset</a>
                             @else
-                                <p class="text-muted">No staff found.</p>
+                                <p class="mb-3">No staff found.</p>
                                 <a href="{{ route('admin.staff.create') }}" class="btn btn-primary">Create First Staff</a>
                             @endif
                         </div>
@@ -124,7 +169,10 @@
                     <form id="deleteStaffForm" method="POST" class="d-inline">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="btn btn-danger">Delete</button>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="iconify me-1" data-icon="bx:bx-trash"></i>
+                            Delete
+                        </button>
                     </form>
                 </div>
             </div>

@@ -4,11 +4,14 @@ namespace App\Services\Admin;
 
 use App\Models\Council;
 use App\Repositories\Contracts\CouncilRepositoryInterface;
+use App\Services\CouncilMailService;
+use Illuminate\Support\Str;
 
 class CouncilManagementService
 {
     public function __construct(
         private readonly CouncilRepositoryInterface $councilRepository,
+        private readonly CouncilMailService $councilMailService,
     ) {}
 
     public function store(array $data): Council
@@ -16,11 +19,11 @@ class CouncilManagementService
         $council = $this->councilRepository->createWithProfile([
             'name' => $data['name'],
             'email' => $data['email'],
-            'password' => $data['password'],
+            'password' => Str::password(32),
             'is_active' => $data['is_active'] ?? true,
         ]);
 
-        $council->sendEmailVerificationNotification();
+        $this->councilMailService->sendWelcomeWithPasswordSetup($council);
 
         return $council;
     }
