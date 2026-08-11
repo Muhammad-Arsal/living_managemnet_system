@@ -1,4 +1,4 @@
-﻿@extends('backend::staff.layouts.auth')
+@extends('backend::staff.layouts.auth')
 
 @section('title', 'Staff Login')
 @section('page-title', 'Staff Login')

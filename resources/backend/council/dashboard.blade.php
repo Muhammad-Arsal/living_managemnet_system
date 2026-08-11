@@ -1,4 +1,4 @@
-﻿@extends('backend::council.layouts.app')
+@extends('backend::council.layouts.app')
 
 @section('title', 'Dashboard')
 

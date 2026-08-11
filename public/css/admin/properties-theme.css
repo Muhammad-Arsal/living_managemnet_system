@@ -157,6 +157,48 @@ body,
 }
 
 /*
+ * Flex sidebar in normal document flow (no layout-menu-fixed / no 100vh sticky).
+ * - Zero any leftover padding-inline-start from Sneat fixed-menu mode
+ * - Keep Sneat's flex shrink trick (inline-size: 0 + flex-basis: 100%)
+ * - Never force menu height: 100vh (that creates a phantom vertical scrollbar
+ *   and a white strip beside the scrollbar gutter)
+ */
+.layout-wrapper,
+.layout-container {
+  width: 100%;
+  max-width: 100%;
+}
+
+.layout-wrapper.layout-content-navbar .layout-menu {
+  position: relative !important;
+  inset: auto !important;
+  top: auto !important;
+  left: auto !important;
+  flex: 0 0 var(--bs-menu-width);
+  height: auto !important;
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.layout-wrapper.layout-content-navbar .layout-page,
+html.layout-menu-fixed .layout-wrapper.layout-content-navbar .layout-page,
+body.layout-menu-fixed .layout-wrapper.layout-content-navbar .layout-page,
+.layout-menu-fixed:not(.layout-menu-collapsed) .layout-page,
+.layout-menu-fixed-offcanvas:not(.layout-menu-collapsed) .layout-page {
+  padding-inline-start: 0 !important;
+  margin-inline-start: 0 !important;
+}
+
+.layout-wrapper.layout-content-navbar .layout-page {
+  flex: 1 1 auto;
+  flex-basis: 100%;
+  min-width: 0;
+  min-inline-size: 0;
+  inline-size: 0;
+  max-inline-size: 100%;
+}
+
+/*
  * LMS panels use an in-flow detached navbar.
  * Sneat demo.css adds:
  *   .layout-navbar-fixed .layout-wrapper:not(...):not(...) .layout-page { padding-top: 74px !important; }

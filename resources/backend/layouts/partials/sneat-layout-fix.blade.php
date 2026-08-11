@@ -4,23 +4,43 @@
             var root = document.documentElement;
             var body = document.body;
 
-            root.classList.remove('layout-navbar-fixed');
-            root.classList.add('layout-menu-fixed');
+            // In-flow navbar + in-flow sidebar. Fixed-menu mode adds left padding that
+            // overflows horizontally; 100vh sticky menus create phantom vertical scroll.
+            root.classList.remove('layout-navbar-fixed', 'layout-menu-fixed', 'layout-menu-fixed-offcanvas');
             if (body) {
-                body.classList.remove('layout-navbar-fixed');
-                body.classList.add('layout-menu-fixed');
+                body.classList.remove('layout-navbar-fixed', 'layout-menu-fixed', 'layout-menu-fixed-offcanvas');
             }
 
             var page = document.querySelector('.layout-content-navbar .layout-page');
             if (page) {
                 page.style.setProperty('padding-top', '0px', 'important');
                 page.style.setProperty('padding-block-start', '0px', 'important');
+                page.style.setProperty('padding-inline-start', '0px', 'important');
+                page.style.removeProperty('width');
+                page.style.removeProperty('max-width');
+                page.style.removeProperty('height');
+                page.style.removeProperty('max-height');
             }
 
             var content = document.querySelector('.layout-content-navbar .content-wrapper');
             if (content) {
                 content.style.setProperty('padding-top', '0px', 'important');
                 content.style.setProperty('padding-block-start', '0px', 'important');
+            }
+
+            var menu = document.getElementById('layout-menu');
+            if (menu) {
+                menu.style.removeProperty('position');
+                menu.style.removeProperty('inset');
+                menu.style.removeProperty('inset-block');
+                menu.style.removeProperty('inset-inline-start');
+                menu.style.removeProperty('top');
+                menu.style.removeProperty('left');
+                menu.style.removeProperty('bottom');
+                menu.style.removeProperty('height');
+                menu.style.removeProperty('max-height');
+                menu.style.removeProperty('overflow');
+                menu.style.removeProperty('overflow-y');
             }
 
             var navbar = document.getElementById('layout-navbar');
@@ -49,7 +69,7 @@
                         var data = JSON.parse(raw);
                         if (data && typeof data === 'object') {
                             data.navbarFixed = false;
-                            data.menuFixed = true;
+                            data.menuFixed = false;
                             localStorage.setItem(key, JSON.stringify(data));
                         }
                     } catch (e) {}

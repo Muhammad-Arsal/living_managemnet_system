@@ -1,4 +1,4 @@
-﻿@extends('backend::council.layouts.auth')
+@extends('backend::council.layouts.auth')
 
 @section('title', 'Council Login')
 @section('page-title', 'Council Login')
