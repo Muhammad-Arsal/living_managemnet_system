@@ -2,15 +2,24 @@
 
 namespace App\Models;
 
+use App\Contracts\PortalUser;
 use App\Models\Concerns\HasInitials;
 use App\Models\Concerns\HasProfileAvatar;
+use App\Models\Concerns\IsPortalUser;
+use App\Services\StaffMailService;
+use Illuminate\Auth\Passwords\CanResetPassword as CanResetPasswordTrait;
+use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class Staff extends Authenticatable
+class Staff extends Authenticatable implements CanResetPassword, PortalUser
 {
-    use HasInitials, HasProfileAvatar, Notifiable;
+    use CanResetPasswordTrait;
+    use HasInitials;
+    use HasProfileAvatar;
+    use IsPortalUser;
+    use Notifiable;
 
     protected $table = 'staff';
 
@@ -46,5 +55,20 @@ class Staff extends Authenticatable
     public function hasVerifiedEmail(): bool
     {
         return $this->email_verified_at !== null;
+    }
+
+    public function portalKey(): string
+    {
+        return 'staff';
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        app(StaffMailService::class)->sendPasswordReset($this, $token);
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        app(StaffMailService::class)->sendEmailVerification($this);
     }
 }

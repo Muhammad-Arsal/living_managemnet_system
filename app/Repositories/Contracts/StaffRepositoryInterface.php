@@ -3,6 +3,7 @@
 namespace App\Repositories\Contracts;
 
 use App\Models\Staff;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface StaffRepositoryInterface
 {
@@ -19,4 +20,8 @@ interface StaffRepositoryInterface
     public function updateWithProfile(Staff $staff, array $staffData, array $profileData = []): Staff;
 
     public function markLastLogin(Staff $staff): void;
+
+    public function paginateFiltered(?string $column, ?string $search, int $perPage = 15): LengthAwarePaginator;
+
+    public function delete(Staff $staff): void;
 }

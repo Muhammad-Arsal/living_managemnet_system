@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Council;
 use App\Repositories\Contracts\CouncilRepositoryInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
 class CouncilRepository implements CouncilRepositoryInterface
@@ -59,5 +60,24 @@ class CouncilRepository implements CouncilRepositoryInterface
     public function markLastLogin(Council $council): void
     {
         $council->forceFill(['last_login_at' => now()])->save();
+    }
+
+    public function paginateFiltered(?string $column, ?string $search, int $perPage = 15): LengthAwarePaginator
+    {
+        $allowed = ['name', 'email'];
+
+        return Council::query()
+            ->when(
+                $search !== null && $search !== '' && $column !== null && in_array($column, $allowed, true),
+                fn ($query) => $query->where($column, 'like', '%'.$search.'%')
+            )
+            ->latest()
+            ->paginate($perPage)
+            ->withQueryString();
+    }
+
+    public function delete(Council $council): void
+    {
+        $council->delete();
     }
 }

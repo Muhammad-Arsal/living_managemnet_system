@@ -2,15 +2,24 @@
 
 namespace App\Models;
 
+use App\Contracts\PortalUser;
 use App\Models\Concerns\HasInitials;
 use App\Models\Concerns\HasProfileAvatar;
+use App\Models\Concerns\IsPortalUser;
+use App\Services\AdminMailService;
+use Illuminate\Auth\Passwords\CanResetPassword as CanResetPasswordTrait;
+use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class Admin extends Authenticatable
+class Admin extends Authenticatable implements CanResetPassword, PortalUser
 {
-    use HasInitials, HasProfileAvatar, Notifiable;
+    use CanResetPasswordTrait;
+    use HasInitials;
+    use HasProfileAvatar;
+    use IsPortalUser;
+    use Notifiable;
 
     protected $fillable = [
         'name',
@@ -44,5 +53,20 @@ class Admin extends Authenticatable
     public function hasVerifiedEmail(): bool
     {
         return $this->email_verified_at !== null;
+    }
+
+    public function portalKey(): string
+    {
+        return 'admin';
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        app(AdminMailService::class)->sendPasswordReset($this, $token);
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        app(AdminMailService::class)->sendEmailVerification($this);
     }
 }

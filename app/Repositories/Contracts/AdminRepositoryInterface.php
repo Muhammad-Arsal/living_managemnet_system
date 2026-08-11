@@ -3,6 +3,7 @@
 namespace App\Repositories\Contracts;
 
 use App\Models\Admin;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface AdminRepositoryInterface
 {
@@ -19,4 +20,8 @@ interface AdminRepositoryInterface
     public function updateWithProfile(Admin $admin, array $adminData, array $profileData = []): Admin;
 
     public function markLastLogin(Admin $admin): void;
+
+    public function paginateFiltered(?string $column, ?string $search, int $perPage = 15): LengthAwarePaginator;
+
+    public function delete(Admin $admin): void;
 }

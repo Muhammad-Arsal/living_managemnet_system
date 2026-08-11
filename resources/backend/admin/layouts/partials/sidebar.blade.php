@@ -23,5 +23,43 @@
                 <div>Dashboard</div>
             </a>
         </li>
+
+        <li class="menu-item {{ request()->routeIs('admin.staff.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.staff.index') }}" class="menu-link">
+                <i class="menu-icon tf-icon iconify iconify-lg" data-icon="bx:bx-user"></i>
+                <div>Staff</div>
+            </a>
+        </li>
+
+        <li class="menu-item {{ request()->routeIs('admin.council.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.council.index') }}" class="menu-link">
+                <i class="menu-icon tf-icon iconify iconify-lg" data-icon="bx:bx-group"></i>
+                <div>Council</div>
+            </a>
+        </li>
+
+        <li class="menu-item {{ request()->routeIs('admin.settings.*') ? 'active open' : '' }}">
+            <a href="javascript:void(0);" class="menu-link menu-toggle">
+                <i class="menu-icon tf-icon iconify iconify-lg" data-icon="bx:bx-cog"></i>
+                <div>Settings</div>
+            </a>
+            <ul class="menu-sub">
+                <li class="menu-item {{ request()->routeIs('admin.settings.admins.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.settings.admins.index') }}" class="menu-link">
+                        <div>Admins</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('admin.settings.email-templates.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.settings.email-templates.index') }}" class="menu-link">
+                        <div>Email Templates</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('admin.settings.site-settings.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.settings.site-settings.index') }}" class="menu-link">
+                        <div>Site Settings</div>
+                    </a>
+                </li>
+            </ul>
+        </li>
     </ul>
 </aside>

@@ -3,6 +3,7 @@
 namespace App\Repositories\Contracts;
 
 use App\Models\Council;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface CouncilRepositoryInterface
 {
@@ -19,4 +20,8 @@ interface CouncilRepositoryInterface
     public function updateWithProfile(Council $council, array $councilData, array $profileData = []): Council;
 
     public function markLastLogin(Council $council): void;
+
+    public function paginateFiltered(?string $column, ?string $search, int $perPage = 15): LengthAwarePaginator;
+
+    public function delete(Council $council): void;
 }

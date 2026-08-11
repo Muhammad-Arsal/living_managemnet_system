@@ -11,6 +11,11 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->call([
+            SiteSettingSeeder::class,
+            EmailTemplateSeeder::class,
+        ]);
+
         $admins = app(AdminRepositoryInterface::class);
         $staff = app(StaffRepositoryInterface::class);
         $councils = app(CouncilRepositoryInterface::class);

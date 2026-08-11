@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Staff;
 use App\Repositories\Contracts\StaffRepositoryInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
 class StaffRepository implements StaffRepositoryInterface
@@ -59,5 +60,24 @@ class StaffRepository implements StaffRepositoryInterface
     public function markLastLogin(Staff $staff): void
     {
         $staff->forceFill(['last_login_at' => now()])->save();
+    }
+
+    public function paginateFiltered(?string $column, ?string $search, int $perPage = 15): LengthAwarePaginator
+    {
+        $allowed = ['name', 'email'];
+
+        return Staff::query()
+            ->when(
+                $search !== null && $search !== '' && $column !== null && in_array($column, $allowed, true),
+                fn ($query) => $query->where($column, 'like', '%'.$search.'%')
+            )
+            ->latest()
+            ->paginate($perPage)
+            ->withQueryString();
+    }
+
+    public function delete(Staff $staff): void
+    {
+        $staff->delete();
     }
 }

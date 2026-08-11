@@ -32,5 +32,9 @@
         </div>
 
         <button type="submit" class="btn-login">Sign In</button>
+
+        <div class="auth-link-container">
+            <a href="{{ route('council.password.request') }}" class="auth-link">Forgot password?</a>
+        </div>
     </form>
 @endsection

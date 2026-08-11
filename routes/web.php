@@ -12,6 +12,9 @@ Route::view('/', 'frontend::home')->name('home');
 require __DIR__.'/backend/admin/auth.php';
 require __DIR__.'/backend/admin/dashboard.php';
 require __DIR__.'/backend/admin/profile.php';
+require __DIR__.'/backend/admin/staff.php';
+require __DIR__.'/backend/admin/council.php';
+require __DIR__.'/backend/admin/settings.php';
 
 /*
 |--------------------------------------------------------------------------

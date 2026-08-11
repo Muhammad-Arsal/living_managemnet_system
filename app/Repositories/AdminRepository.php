@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Admin;
 use App\Repositories\Contracts\AdminRepositoryInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 
 class AdminRepository implements AdminRepositoryInterface
@@ -59,5 +60,24 @@ class AdminRepository implements AdminRepositoryInterface
     public function markLastLogin(Admin $admin): void
     {
         $admin->forceFill(['last_login_at' => now()])->save();
+    }
+
+    public function paginateFiltered(?string $column, ?string $search, int $perPage = 15): LengthAwarePaginator
+    {
+        $allowed = ['name', 'email'];
+
+        return Admin::query()
+            ->when(
+                $search !== null && $search !== '' && $column !== null && in_array($column, $allowed, true),
+                fn ($query) => $query->where($column, 'like', '%'.$search.'%')
+            )
+            ->latest()
+            ->paginate($perPage)
+            ->withQueryString();
+    }
+
+    public function delete(Admin $admin): void
+    {
+        $admin->delete();
     }
 }

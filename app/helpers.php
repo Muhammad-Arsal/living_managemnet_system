@@ -1,8 +1,25 @@
 <?php
 
+use App\Models\SiteSetting;
+use Illuminate\Support\Facades\Storage;
+
 if (! function_exists('site_logo')) {
     function site_logo(): string
     {
+        try {
+            $logo = SiteSetting::getValue('logo');
+
+            if (! empty($logo) && Storage::disk('public_uploads')->exists($logo)) {
+                $publicUrl = rtrim((string) config('filesystems.disks.public_uploads.url'), '/');
+
+                if ($publicUrl !== '') {
+                    return $publicUrl.'/'.ltrim($logo, '/');
+                }
+            }
+        } catch (Throwable) {
+            // Settings table may not exist yet during early boot/migrate.
+        }
+
         if (file_exists(public_path('img/logo.svg'))) {
             return asset('img/logo.svg');
         }
@@ -18,6 +35,20 @@ if (! function_exists('site_logo')) {
 if (! function_exists('site_favicon')) {
     function site_favicon(): string
     {
+        try {
+            $favicon = SiteSetting::getValue('favicon');
+
+            if (! empty($favicon) && Storage::disk('public_uploads')->exists($favicon)) {
+                $publicUrl = rtrim((string) config('filesystems.disks.public_uploads.url'), '/');
+
+                if ($publicUrl !== '') {
+                    return $publicUrl.'/'.ltrim($favicon, '/');
+                }
+            }
+        } catch (Throwable) {
+            // Settings table may not exist yet during early boot/migrate.
+        }
+
         if (file_exists(public_path('favicon.ico'))) {
             return asset('favicon.ico');
         }
