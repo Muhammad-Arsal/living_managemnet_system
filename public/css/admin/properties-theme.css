@@ -394,12 +394,50 @@ textarea:focus {
 }
 
 /* App brand logo container */
+.app-brand {
+  padding: 1rem 1.25rem 0.75rem !important;
+  min-height: 64px;
+}
+
 .app-brand-link {
-  padding: 0.5rem 0;
+  display: flex !important;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+  text-decoration: none !important;
 }
 
 .app-brand-logo {
-  filter: brightness(0) invert(1);
+  filter: none !important;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.app-brand-logo img {
+  width: 36px;
+  height: 36px;
+  display: block;
+}
+
+.layout-menu .app-brand-text,
+.menu-vertical .app-brand-text {
+  color: #ffffff !important;
+  font-size: 1.05rem !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.layout-menu .app-brand-text small,
+.menu-vertical .app-brand-text small {
+  display: block;
+  color: rgba(255, 255, 255, 0.65) !important;
+  font-size: 0.7rem !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
 /* Text colors */

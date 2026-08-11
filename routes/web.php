@@ -1,21 +1,29 @@
 <?php
 
-use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return auth()->check()
-        ? redirect()->route('dashboard')
-        : redirect()->route('login');
-});
+Route::view('/', 'frontend::home')->name('home');
 
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [LoginController::class, 'show'])->name('login');
-    Route::post('/login', [LoginController::class, 'store'])->name('login.post');
-});
+/*
+|--------------------------------------------------------------------------
+| Backend — Admin
+|--------------------------------------------------------------------------
+*/
+require __DIR__.'/backend/admin/auth.php';
+require __DIR__.'/backend/admin/dashboard.php';
 
-Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', DashboardController::class)->name('dashboard');
-    Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
-});
+/*
+|--------------------------------------------------------------------------
+| Backend — Staff
+|--------------------------------------------------------------------------
+*/
+require __DIR__.'/backend/staff/auth.php';
+require __DIR__.'/backend/staff/dashboard.php';
+
+/*
+|--------------------------------------------------------------------------
+| Backend — Council
+|--------------------------------------------------------------------------
+*/
+require __DIR__.'/backend/council/auth.php';
+require __DIR__.'/backend/council/dashboard.php';

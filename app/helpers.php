@@ -7,8 +7,8 @@ if (! function_exists('site_logo')) {
             return asset('img/logo.svg');
         }
 
-        if (file_exists(public_path('img/logo.png'))) {
-            return asset('img/logo.png');
+        if (file_exists(public_path('img/logo-mark.svg'))) {
+            return asset('img/logo-mark.svg');
         }
 
         return asset('vendor/sneat/img/favicon/favicon.ico');
