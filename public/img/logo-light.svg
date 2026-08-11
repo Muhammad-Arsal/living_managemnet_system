@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 56" role="img" aria-label="Living Management System">
+  <rect x="0" y="8" width="40" height="40" rx="10" fill="#10b981"/>
+  <path d="M12 36V20h5.2l5.1 11.4L27.4 20H32v16h-4.2V26.2L23.4 36h-4.6l-4.4-9.8V36H12z" fill="#fff"/>
+  <text x="56" y="36" font-family="Helvetica Neue, Arial, sans-serif" font-size="22" font-weight="600" fill="#ffffff">Living Management</text>
+</svg>

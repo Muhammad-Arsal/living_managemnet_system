@@ -1,0 +1,1254 @@
+/* Reloc8uk Admin Theme Colors */
+:root {
+  /* Reloc8uk Brand Colors */
+  --r8-accent: #10b981;
+  --r8-accent-hover: #059669;
+  --r8-slate-dark: #1e293b;
+  --r8-slate-darker: #162032;
+  --r8-slate-darkest: #0f172a;
+  --r8-slate-medium: #334155;
+  --r8-slate-medium-hover: #293548;
+  --r8-light: #f1f5f9;
+  --r8-white: #ffffff;
+}
+
+/* Override Sneat sidebar colors */
+.layout-menu {
+  background-color: var(--r8-slate-dark) !important;
+}
+
+/* Override any CSS variables that might be purple/blue */
+.layout-menu,
+.bg-menu-theme {
+  --bs-primary: var(--r8-accent) !important;
+  --bs-primary-rgb: 16, 185, 129 !important;
+}
+
+/* Remove any purple/blue backgrounds from menu items */
+.menu-item.active .menu-link,
+.menu-item.active.open .menu-link,
+.menu-item.open .menu-link,
+.menu-item.active .menu-link:hover,
+.menu-item.active.open .menu-link:hover,
+.menu-item.open .menu-link:hover {
+  background-color: rgba(16, 185, 129, 0.2) !important;
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: var(--r8-white) !important;
+}
+
+/* All menu links should have white text */
+.menu-vertical .menu-link {
+  color: var(--r8-white) !important;
+}
+
+.menu-vertical .menu-link div,
+.menu-vertical .menu-link [data-i18n] {
+  color: var(--r8-white) !important;
+}
+
+.menu-vertical .menu-inner > .menu-item.active > .menu-link {
+  background-color: var(--r8-accent) !important;
+  color: var(--r8-white) !important;
+}
+
+.menu-vertical .menu-inner > .menu-item.active > .menu-link div,
+.menu-vertical .menu-inner > .menu-item.active > .menu-link [data-i18n] {
+  color: var(--r8-white) !important;
+}
+
+.menu-vertical .menu-inner > .menu-item > .menu-link:hover {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+  color: var(--r8-white) !important;
+}
+
+.menu-vertical .menu-inner > .menu-item > .menu-link:hover div,
+.menu-vertical .menu-inner > .menu-item > .menu-link:hover [data-i18n] {
+  color: var(--r8-white) !important;
+}
+
+/* Active parent menu items (with open submenu) */
+.menu-vertical .menu-inner > .menu-item.active.open > .menu-link,
+.menu-vertical .menu-inner > .menu-item.open > .menu-link {
+  background-color: rgba(16, 185, 129, 0.2) !important;
+  color: var(--r8-white) !important;
+}
+
+.menu-vertical .menu-inner > .menu-item.active.open > .menu-link div,
+.menu-vertical .menu-inner > .menu-item.active.open > .menu-link [data-i18n],
+.menu-vertical .menu-inner > .menu-item.open > .menu-link div,
+.menu-vertical .menu-inner > .menu-item.open > .menu-link [data-i18n] {
+  color: var(--r8-white) !important;
+}
+
+/* Override any purple/blue colors from Sneat theme */
+.menu-item.active .menu-link,
+.menu-item.active.open .menu-link,
+.menu-item.open .menu-link {
+  background-color: rgba(16, 185, 129, 0.2) !important;
+  color: var(--r8-white) !important;
+}
+
+.menu-item.active .menu-link::before,
+.menu-item.active.open .menu-link::before,
+.menu-item.open .menu-link::before {
+  background-color: var(--r8-accent) !important;
+}
+
+/* Remove any default active colors */
+.menu-item.active .menu-link *,
+.menu-item.active.open .menu-link *,
+.menu-item.open .menu-link * {
+  color: var(--r8-white) !important;
+}
+
+/* Submenu items */
+.menu-sub .menu-link {
+  color: var(--r8-white) !important;
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+.menu-sub .menu-link div,
+.menu-sub .menu-link [data-i18n] {
+  color: var(--r8-white) !important;
+}
+
+/* Only active submenu items should have accent background */
+.menu-sub .menu-item.active > .menu-link {
+  background-color: var(--r8-accent) !important;
+  color: var(--r8-white) !important;
+}
+
+.menu-sub .menu-item.active > .menu-link div,
+.menu-sub .menu-item.active > .menu-link [data-i18n] {
+  color: var(--r8-white) !important;
+}
+
+/* Hover state for submenu items */
+.menu-sub .menu-item > .menu-link:hover {
+  background-color: rgba(16, 185, 129, 0.1) !important;
+}
+
+.menu-sub .menu-item > .menu-link:hover div,
+.menu-sub .menu-item > .menu-link:hover [data-i18n] {
+  color: var(--r8-white) !important;
+}
+
+/* Ensure non-active, non-hovered submenu items have no background */
+.menu-sub .menu-item:not(.active) > .menu-link:not(:hover) {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+/* Navbar theming */
+.bg-navbar-theme {
+  background-color: var(--r8-white) !important;
+  border-bottom: 1px solid rgba(30, 41, 59, 0.1);
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--r8-accent) !important;
+  border-color: var(--r8-accent) !important;
+}
+
+.btn-primary:hover {
+  background-color: var(--r8-accent-hover) !important;
+  border-color: var(--r8-accent-hover) !important;
+}
+
+.btn-primary:focus,
+.btn-primary:active {
+  background-color: var(--r8-accent-hover) !important;
+  border-color: var(--r8-accent-hover) !important;
+}
+
+/* Success / green buttons use theme slate (incl. all shadow colors) */
+.btn-success {
+  --bs-success-rgb: 30, 41, 59;
+  --bs-btn-box-shadow-rgb: 30, 41, 59;
+  --bs-btn-focus-box-shadow: 0 0 0 0.25rem rgba(30, 41, 59, 0.25);
+  background-color: var(--r8-slate-dark) !important;
+  border-color: var(--r8-slate-dark) !important;
+  color: var(--r8-white) !important;
+  box-shadow: 0 0.125rem 0.25rem rgba(30, 41, 59, 0.25) !important;
+}
+
+.btn-success:hover {
+  background-color: var(--r8-slate-darker) !important;
+  border-color: var(--r8-slate-darker) !important;
+  color: var(--r8-white) !important;
+  box-shadow: 0 0.125rem 0.25rem rgba(30, 41, 59, 0.3) !important;
+}
+
+.btn-success:focus,
+.btn-success:active {
+  background-color: var(--r8-slate-darker) !important;
+  border-color: var(--r8-slate-darker) !important;
+  color: var(--r8-white) !important;
+  box-shadow: 0 0 0 0.25rem rgba(30, 41, 59, 0.25) !important;
+}
+
+.btn-success:focus-visible {
+  box-shadow: 0 0 0 0.25rem rgba(30, 41, 59, 0.25) !important;
+}
+
+/* Links - but not in sidebar */
+a {
+  color: var(--r8-accent);
+}
+
+a:hover {
+  color: var(--r8-accent-hover);
+}
+
+/* Don't override sidebar links */
+.layout-menu a,
+.layout-menu .menu-link {
+  color: var(--r8-white) !important;
+}
+
+/* Dropdown menu */
+.dropdown-menu {
+  border-color: rgba(30, 41, 59, 0.1);
+}
+
+.dropdown-item:hover,
+.dropdown-item:focus {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--r8-slate-dark);
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+  background-color: var(--r8-accent);
+  color: var(--r8-white);
+}
+
+/* Cards */
+.card {
+  border-color: rgba(30, 41, 59, 0.1);
+}
+
+.card-header {
+  background-color: var(--r8-white);
+  border-bottom-color: rgba(30, 41, 59, 0.1);
+  color: var(--r8-slate-dark);
+}
+
+/* Property create/edit — single card, section dividers (no stacked cards) */
+.property-form-tabs {
+  border-bottom-color: rgba(30, 41, 59, 0.1);
+}
+
+.property-form-section {
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+  border-top: 1px solid rgba(30, 41, 59, 0.1);
+}
+
+.property-form-section:first-child {
+  padding-top: 0;
+  margin-top: 0;
+  border-top: 0;
+}
+
+.property-form-section__title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--r8-slate-dark);
+  margin-bottom: 1rem;
+}
+
+/* Form controls */
+.form-control:focus,
+.form-select:focus {
+  border-color: var(--r8-accent) !important;
+  box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25) !important;
+}
+
+/* Input group focus */
+.input-group:focus-within .input-group-text {
+  border-color: var(--r8-accent) !important;
+}
+
+/* Fix input-group focus ring covering only the input */
+.input-group.input-group-merge {
+  border-radius: 0.375rem;
+}
+
+.input-group.input-group-merge:focus-within {
+  box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25) !important;
+}
+
+.input-group.input-group-merge:focus-within .input-group-text,
+.input-group.input-group-merge:focus-within .form-control {
+  border-color: var(--r8-accent) !important;
+}
+
+.input-group.input-group-merge .form-control:focus {
+  box-shadow: none !important;
+}
+
+/* Override Bootstrap blue focus colors globally */
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: var(--r8-accent) !important;
+  box-shadow: 0 0 0 0.25rem rgba(16, 185, 129, 0.25) !important;
+  outline: none !important;
+}
+
+/* Remove any blue outline */
+*:focus {
+  outline-color: var(--r8-accent) !important;
+}
+
+/* Override any Bootstrap primary color variables for focus */
+:root {
+  --bs-focus-ring-color: rgba(16, 185, 129, 0.25) !important;
+}
+
+.focus,
+.focus-visible {
+  outline-color: var(--r8-accent) !important;
+}
+
+/* Iconify icons should be visible */
+.iconify {
+  display: inline-block !important;
+  vertical-align: middle !important;
+}
+
+.input-group-text .iconify {
+  font-size: 1.25rem;
+  color: var(--r8-slate-dark);
+}
+
+/* Ensure icons in buttons are visible */
+.btn .iconify,
+.dropdown-item .iconify {
+  vertical-align: middle;
+}
+
+/* Alerts */
+.alert-success {
+  background-color: rgba(51, 65, 85, 0.1);
+  border-color: var(--r8-slate-medium);
+  color: var(--r8-slate-dark);
+}
+
+.alert-danger {
+  background-color: rgba(16, 185, 129, 0.1);
+  border-color: var(--r8-accent);
+  color: var(--r8-accent-hover);
+}
+
+/* Footer */
+.bg-footer-theme {
+  background-color: var(--r8-white) !important;
+  border-top: 1px solid rgba(30, 41, 59, 0.1);
+  color: var(--r8-slate-dark);
+}
+
+/* Menu icons */
+.menu-icon,
+.menu-icon.iconify {
+  color: var(--r8-white) !important;
+}
+
+.menu-item .menu-icon,
+.menu-item .menu-icon.iconify {
+  color: var(--r8-white) !important;
+}
+
+.menu-item.active .menu-icon,
+.menu-item.active .menu-icon.iconify,
+.menu-item.active.open .menu-icon,
+.menu-item.active.open .menu-icon.iconify,
+.menu-item.open .menu-icon,
+.menu-item.open .menu-icon.iconify {
+  color: var(--r8-white) !important;
+}
+
+.menu-item:hover .menu-icon,
+.menu-item:hover .menu-icon.iconify {
+  color: var(--r8-white) !important;
+}
+
+/* Override any purple/blue background colors from Sneat */
+.menu-item.active,
+.menu-item.active.open,
+.menu-item.open {
+  background-color: transparent !important;
+}
+
+.menu-item.active .menu-link,
+.menu-item.active.open .menu-link,
+.menu-item.open .menu-link {
+  background-color: rgba(16, 185, 129, 0.2) !important;
+  background: rgba(16, 185, 129, 0.2) !important;
+}
+
+/* App brand logo container */
+.app-brand-link {
+  padding: 0.5rem 0;
+}
+
+.app-brand-logo {
+  filter: brightness(0) invert(1);
+}
+
+/* Text colors */
+.text-primary {
+  color: var(--r8-accent) !important;
+}
+
+.text-muted {
+  color: var(--r8-slate-medium) !important;
+}
+
+/* Badges */
+.badge.bg-primary {
+  background-color: var(--r8-accent) !important;
+}
+
+/* Bookings list — slate/blue period tabs (match sidebar tone) */
+.bookings-period-tabs .nav-link {
+  color: var(--r8-slate-medium);
+  font-weight: 600;
+}
+
+.bookings-period-tabs .nav-link:hover {
+  color: var(--r8-slate-dark);
+  background-color: rgba(30, 41, 59, 0.08);
+}
+
+.bookings-period-tabs .nav-link.active {
+  color: #fff !important;
+  background-color: var(--r8-slate-dark) !important;
+}
+
+.bookings-view-btn {
+  color: #fff !important;
+  background-color: var(--r8-slate-dark) !important;
+  border-color: var(--r8-slate-dark) !important;
+}
+
+.bookings-view-btn:hover,
+.bookings-view-btn:focus {
+  color: #fff !important;
+  background-color: var(--r8-slate-darker) !important;
+  border-color: var(--r8-slate-darker) !important;
+}
+
+/* Confirmed booking badge — blue (not green) */
+.badge.bg-label-info {
+  background-color: rgba(59, 130, 246, 0.16) !important;
+  color: #1d4ed8 !important;
+}
+
+/* Pagination */
+.page-link {
+  color: var(--r8-accent);
+}
+
+.page-link:hover {
+  color: var(--r8-accent-hover);
+  background-color: rgba(16, 185, 129, 0.1);
+}
+
+.page-item.active .page-link {
+  background-color: var(--r8-accent);
+  border-color: var(--r8-accent);
+}
+
+/* Fixed impersonation / login-as-user banner (tenant & staff portals) */
+body.impersonation-active {
+  padding-top: 3.5rem;
+}
+
+.impersonation-banner-fixed {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10050;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
+/* Admin FAQ translation manager: CKEditor keeps the named <textarea> in the DOM for POST;
+   Sneat/Bootstrap .form-control + rows can still show it beside the real editor — force it screen-reader only. */
+#faq-translation-manager .translation-panel textarea.translation-answer.ckeditor-answer {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  clip-path: inset(50%) !important;
+  border: 0 !important;
+  resize: none !important;
+  white-space: nowrap !important;
+  box-shadow: none !important;
+}
+
+/* Dashboard summary cards */
+.dashboard-summary-header {
+  background: linear-gradient(135deg, var(--r8-slate-darkest) 0%, var(--r8-slate-dark) 100%);
+  border-radius: 0.75rem;
+  padding: 1.25rem 1.5rem;
+  color: var(--r8-white);
+}
+
+.dashboard-summary-header__date {
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.dashboard-summary-header__pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.dashboard-summary-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--r8-white);
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: background-color 0.15s ease;
+}
+
+.dashboard-summary-pill:hover {
+  background: rgba(255, 255, 255, 0.14);
+  color: var(--r8-white);
+}
+
+.dashboard-summary-pill__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  height: 1.5rem;
+  padding: 0 0.4rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 0.15rem;
+}
+
+.dashboard-summary-pill--warning .dashboard-summary-pill__badge {
+  background: #f59e0b;
+  color: #111827;
+}
+
+.dashboard-summary-pill--danger .dashboard-summary-pill__badge {
+  background: #ef4444;
+  color: #fff;
+}
+
+.dashboard-summary-pill--primary .dashboard-summary-pill__badge {
+  background: var(--r8-accent);
+  color: #fff;
+}
+
+.dashboard-summary-card {
+  display: block;
+  border: 0;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+  color: inherit;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.dashboard-summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+  color: inherit;
+}
+
+.dashboard-summary-card__body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.25rem 1.35rem;
+  min-height: 7.5rem;
+}
+
+.dashboard-summary-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.dashboard-summary-card__label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: rgba(15, 23, 42, 0.65);
+}
+
+.dashboard-summary-card__value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--r8-slate-darkest);
+  word-break: break-word;
+}
+
+.dashboard-summary-card__subtitle {
+  font-size: 0.75rem;
+  color: rgba(15, 23, 42, 0.55);
+}
+
+.dashboard-summary-card__icon {
+  flex-shrink: 0;
+  font-size: 2.5rem;
+  opacity: 0.85;
+}
+
+.dashboard-summary-card--sky {
+  background: #e0f2fe;
+}
+
+.dashboard-summary-card--sky .dashboard-summary-card__icon {
+  color: #0284c7;
+}
+
+.dashboard-summary-card--violet {
+  background: #ede9fe;
+}
+
+.dashboard-summary-card--violet .dashboard-summary-card__icon {
+  color: #7c3aed;
+}
+
+.dashboard-summary-card--emerald {
+  background: #d1fae5;
+}
+
+.dashboard-summary-card--emerald .dashboard-summary-card__icon {
+  color: #059669;
+}
+
+.dashboard-summary-card--amber {
+  background: #fef3c7;
+}
+
+.dashboard-summary-card--amber .dashboard-summary-card__icon {
+  color: #d97706;
+}
+
+.dashboard-summary-card--orange {
+  background: #ffedd5;
+}
+
+.dashboard-summary-card--orange .dashboard-summary-card__icon {
+  color: #ea580c;
+}
+
+.dashboard-summary-card--rose {
+  background: #ffe4e6;
+}
+
+.dashboard-summary-card--rose .dashboard-summary-card__icon {
+  color: #e11d48;
+}
+
+.dashboard-summary-card--indigo {
+  background: #e0e7ff;
+}
+
+.dashboard-summary-card--indigo .dashboard-summary-card__icon {
+  color: #4f46e5;
+}
+
+.dashboard-summary-card--slate {
+  background: #f1f5f9;
+}
+
+.dashboard-summary-card--slate .dashboard-summary-card__icon {
+  color: #475569;
+}
+
+@media (max-width: 575.98px) {
+  .dashboard-summary-card__value {
+    font-size: 1.5rem;
+  }
+
+  .dashboard-summary-card__body {
+    min-height: 6.5rem;
+    padding: 1rem 1.1rem;
+  }
+}
+
+/* Task detail */
+.task-detail-card {
+  border: 0;
+  box-shadow: 0 0.125rem 0.5rem rgba(15, 23, 42, 0.06);
+  border-radius: 0.75rem;
+}
+
+.task-detail-assigner {
+  color: #64748b;
+  font-size: 0.95rem;
+}
+
+.task-detail-assigner strong {
+  color: #1e293b;
+}
+
+.task-status-pill {
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  padding: 0.4rem 0.75rem;
+  border-radius: 999px;
+}
+
+.task-status-badge {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  border: 0;
+}
+
+.task-status-badge--pending {
+  background-color: #f1f5f9;
+  color: #475569;
+}
+
+.task-status-badge--review {
+  background-color: #e2e8f0;
+  color: #1e293b;
+}
+
+.task-status-badge--completed {
+  background-color: #1e293b;
+  color: #ffffff;
+}
+
+.task-status-pill.task-status-badge--pending,
+.task-status-pill.task-status-badge--review,
+.task-status-pill.task-status-badge--completed {
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+  padding: 0.4rem 0.75rem;
+}
+
+.task-meta-label {
+  color: #94a3b8;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.task-meta-value {
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.task-detail-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.25rem;
+  margin: 1.25rem 0 0;
+  padding-top: 1.15rem;
+  border-top: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.task-detail-facts strong {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.task-detail-facts__due.is-today {
+  color: #dc2626;
+}
+
+.task-detail-facts__due.is-today strong {
+  color: #dc2626;
+}
+
+.task-detail-body {
+  display: grid;
+  gap: 1.5rem;
+  margin-top: 1.35rem;
+}
+
+@media (min-width: 992px) {
+  .task-detail-body.has-costs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.task-detail-body__main {
+  min-width: 0;
+}
+
+.task-description {
+  color: #334155;
+  line-height: 1.65;
+  font-size: 1rem;
+}
+
+.task-cost-receipt {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 1.15rem 1.25rem 1.2rem;
+}
+
+.task-cost-receipt__title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #94a3b8;
+  margin-bottom: 0.85rem;
+}
+
+.task-cost-sidebar {
+  position: sticky;
+  top: 1.25rem;
+}
+
+.task-cost-receipt__row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 0.65rem;
+}
+
+.task-cost-receipt__label {
+  color: #334155;
+  font-size: 0.92rem;
+  line-height: 1.35;
+  min-width: 0;
+}
+
+.task-cost-receipt__hint {
+  display: block;
+  margin-top: 0.15rem;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+.task-cost-receipt__value {
+  color: #0f172a;
+  font-weight: 600;
+  font-size: 0.92rem;
+  white-space: nowrap;
+}
+
+.task-cost-receipt__divider {
+  height: 1px;
+  background: #e2e8f0;
+  margin: 0.35rem 0 0.75rem;
+}
+
+.task-cost-receipt__total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid #cbd5e1;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.task-cost-receipt__total strong {
+  color: #0f172a;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.task-detail-actions {
+  margin-top: 1.25rem;
+  padding-top: 1.15rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.task-submit-title {
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.task-progress {
+  list-style: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0;
+  padding: 0;
+  margin: 0;
+  position: relative;
+}
+
+.task-progress::before {
+  content: "";
+  position: absolute;
+  top: calc(0.95rem / 2 - 1px);
+  left: 12.5%;
+  right: 12.5%;
+  height: 2px;
+  background: #e2e8f0;
+  z-index: 0;
+}
+
+.task-progress__step {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  min-width: 0;
+}
+
+.task-progress__dot {
+  width: 0.95rem;
+  height: 0.95rem;
+  border-radius: 50%;
+  background: #e2e8f0;
+  border: 2px solid #e2e8f0;
+  display: block;
+  margin-bottom: 0.5rem;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 2;
+}
+
+.task-progress__label {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.task-progress__step--done .task-progress__dot {
+  background: var(--r8-accent);
+  border-color: var(--r8-accent);
+}
+
+.task-progress__step--done .task-progress__label {
+  color: #334155;
+}
+
+.task-progress__step--current .task-progress__dot {
+  background: #fff;
+  border-color: #d97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.18);
+}
+
+.task-progress__step--current .task-progress__label {
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.task-progress__step--done + .task-progress__step--current::before,
+.task-progress__step--done + .task-progress__step--done::before {
+  content: "";
+  position: absolute;
+  top: calc(0.95rem / 2 - 1px);
+  right: 50%;
+  left: -50%;
+  height: 2px;
+  background: var(--r8-accent);
+  z-index: 1;
+}
+
+.task-dropzone {
+  position: relative;
+  border: 1.5px dashed #cbd5e1;
+  border-radius: 0.75rem;
+  background: #f8fafc;
+  padding: 1.75rem 1rem;
+  text-align: center;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.task-dropzone.is-dragover,
+.task-dropzone:hover {
+  border-color: var(--r8-accent);
+  background: rgba(16, 185, 129, 0.04);
+}
+
+.task-dropzone.is-invalid {
+  border-color: #ef4444;
+}
+
+.task-dropzone__input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+}
+
+.task-dropzone__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.5rem;
+  background: rgba(16, 185, 129, 0.12);
+  color: var(--r8-accent-hover);
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+  pointer-events: none;
+}
+
+.task-dropzone__text {
+  color: #475569;
+  font-size: 0.95rem;
+  pointer-events: none;
+}
+
+.task-dropzone__browse {
+  font-weight: 600;
+  color: var(--r8-accent-hover);
+}
+
+.task-dropzone__hint {
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.task-attachment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 0.75rem 0.9rem;
+  background: #fff;
+}
+
+.task-attachment-item__meta {
+  min-width: 0;
+}
+
+.task-file-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.15rem;
+}
+
+.task-file-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  max-width: 100%;
+  padding: 0.4rem 0.7rem;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #334155;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.task-file-chip:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.task-file-chip__icon {
+  display: inline-flex;
+  color: #64748b;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.task-file-chip__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 14rem;
+}
+
+.task-thread {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.task-thread__empty {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 0.92rem;
+}
+
+.task-thread__item {
+  padding: 0.85rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.task-thread__item:first-child {
+  padding-top: 0;
+}
+
+.task-thread__item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.task-thread__meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.3rem;
+}
+
+.task-thread__author {
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.task-thread__item.is-mine .task-thread__author {
+  color: var(--r8-accent-hover, #0d9668);
+}
+
+.task-thread__time {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  white-space: nowrap;
+}
+
+.task-thread__body {
+  color: #334155;
+  line-height: 1.55;
+  font-size: 0.95rem;
+}
+
+.task-composer {
+  margin-top: 1.15rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.task-composer__row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+@media (min-width: 576px) {
+  .task-composer__row {
+    flex-direction: row;
+    align-items: flex-end;
+  }
+
+  .task-composer__row .form-control {
+    flex: 1;
+  }
+
+  .task-composer__row .btn {
+    flex-shrink: 0;
+  }
+}
+
+.task-composer textarea.form-control {
+  min-height: 2.75rem;
+  resize: vertical;
+}
+
+.task-followup-files {
+  margin-top: 0.85rem;
+}
+
+.task-followup-files summary {
+  cursor: pointer;
+  color: #64748b;
+  font-size: 0.875rem;
+  font-weight: 500;
+  user-select: none;
+}
+
+.task-followup-files summary:hover {
+  color: #0f172a;
+}
+
+.task-followup-files[open] summary {
+  margin-bottom: 0.75rem;
+}
+
+.task-comment {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.65rem;
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.75rem;
+  background: #fff;
+}
+
+.task-comment--highlight {
+  background: #f8fafc;
+}
+
+.task-comment__header {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.task-comment__author {
+  font-weight: 600;
+  color: #334155;
+}
+
+.task-comment__body {
+  color: #1e293b;
+  line-height: 1.55;
+}
+
+@media (max-width: 575.98px) {
+  .task-progress__label {
+    font-size: 0.7rem;
+  }
+}

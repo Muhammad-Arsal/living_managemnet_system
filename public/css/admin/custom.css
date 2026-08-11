@@ -1,0 +1,195 @@
+:root {
+    --bg-body: #f4f6fb;
+    --sidebar-bg: linear-gradient(180deg, #1d1f2c 0%, #2b2f44 100%);
+    --sidebar-accent: #5f6bff;
+    --sidebar-muted: rgba(255, 255, 255, 0.65);
+    --card-bg: #ffffff;
+    --text-dark: #20253a;
+    --text-muted: #8a8fa7;
+    --border-color: #e6e9f2;
+    --shadow-soft: 0 15px 30px rgba(15, 23, 42, 0.08);
+    --radius-lg: 18px;
+}
+
+body {
+    margin: 0;
+    font-family: "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont,
+        sans-serif;
+    background: var(--bg-body);
+    color: var(--text-dark);
+}
+
+.admin-shell {
+    min-height: 100vh;
+    display: flex;
+}
+
+/* Sidebar */
+.sidebar {
+    width: 300px;
+    background: var(--sidebar-bg);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 1.75rem;
+    gap: 2rem;
+}
+
+.sidebar-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0;
+    color: #fff;
+}
+
+.sidebar-nav {
+    flex: 1;
+}
+
+.accordion-item {
+    border: none;
+}
+
+.accordion-button {
+    color: #fff;
+    font-weight: 600;
+}
+
+.sidebar-menu-item {
+    display: block;
+    padding: 0.6rem 0.9rem;
+    border-radius: 10px;
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: background 0.25s ease;
+}
+
+.sidebar-menu-item:hover,
+.sidebar-menu-item.active {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+.user-info {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 1rem;
+    font-size: 0.9rem;
+}
+
+/* Main area */
+.main-content {
+    flex: 1;
+    background: var(--bg-body);
+    padding: 2rem 3rem;
+    min-width: 0;
+}
+
+.admin-topbar {
+    background: var(--card-bg);
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+}
+
+.page-header {
+    background: var(--card-bg);
+    padding: 1.5rem 2rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
+    margin-bottom: 2rem;
+}
+
+.page-title {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 600;
+}
+
+.admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.25rem;
+}
+
+.stat-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-soft);
+}
+
+.stat-card h6 {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.stat-card strong {
+    display: block;
+    font-size: 1.8rem;
+    margin-top: 0.6rem;
+}
+
+.panel-card {
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-soft);
+}
+
+.panel-card h5 {
+    margin-top: 0;
+    font-size: 1.1rem;
+}
+
+.btn-primary-custom {
+    background: var(--sidebar-accent);
+    border: none;
+    color: #fff;
+    border-radius: 999px;
+    padding: 0.65rem 1.6rem;
+    font-weight: 600;
+    box-shadow: 0 10px 20px rgba(95, 107, 255, 0.3);
+}
+
+.btn-outline-secondary {
+    border-radius: 999px;
+    border: 1px solid var(--border-color);
+    color: var(--text-dark);
+}
+
+.admin-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.admin-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.admin-list li:last-child {
+    border-bottom: none;
+}
+
+@media (max-width: 992px) {
+    .admin-shell {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        flex-direction: row;
+        overflow-x: auto;
+    }
+
+    .main-content {
+        padding: 1.5rem;
+    }
+}
+
