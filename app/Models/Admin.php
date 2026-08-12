@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Contracts\PortalUser;
+use App\Models\Concerns\AuditsModelChanges;
 use App\Models\Concerns\HasInitials;
 use App\Models\Concerns\HasProfileAvatar;
 use App\Models\Concerns\IsPortalUser;
@@ -12,9 +13,11 @@ use Illuminate\Contracts\Auth\CanResetPassword;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class Admin extends Authenticatable implements CanResetPassword, PortalUser
+class Admin extends Authenticatable implements Auditable, CanResetPassword, PortalUser
 {
+    use AuditsModelChanges;
     use CanResetPasswordTrait;
     use HasInitials;
     use HasProfileAvatar;

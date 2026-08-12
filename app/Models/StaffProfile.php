@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\AuditsModelChanges;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class StaffProfile extends Model
+class StaffProfile extends Model implements Auditable
 {
+    use AuditsModelChanges;
+
     protected $fillable = [
         'staff_id',
         'phone',

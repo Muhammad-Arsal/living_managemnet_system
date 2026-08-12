@@ -1783,6 +1783,61 @@ body.impersonation-active {
   background: #94a3b8;
 }
 
+.lms-badge--audit-created {
+  color: #047857;
+  background: rgba(16, 185, 129, 0.12);
+  border-color: rgba(16, 185, 129, 0.18);
+}
+
+.lms-badge--audit-updated {
+  color: #0e7490;
+  background: rgba(6, 182, 212, 0.14);
+  border-color: rgba(6, 182, 212, 0.2);
+}
+
+.lms-badge--audit-deleted {
+  color: #b91c1c;
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.18);
+}
+
+.lms-badge--audit-restored {
+  color: #1d4ed8;
+  background: rgba(59, 130, 246, 0.12);
+  border-color: rgba(59, 130, 246, 0.18);
+}
+
+.lms-audit-model {
+  color: #334155;
+  font-size: 0.875rem;
+  text-transform: lowercase;
+}
+
+.lms-filter-bar--audit {
+  grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr));
+}
+
+.lms-action-btn--view {
+  color: #1e293b;
+  background: #e2e8f0;
+  border-color: #94a3b8;
+}
+
+.lms-action-btn--view:hover {
+  color: #0f172a;
+  background: #cbd5e1;
+  border-color: #64748b;
+}
+
+.lms-audit-details dt {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.lms-audit-details dd {
+  color: #0f172a;
+}
+
 .lms-muted-date {
   color: #64748b;
   font-size: 0.875rem;

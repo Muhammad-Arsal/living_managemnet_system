@@ -15,6 +15,7 @@ require __DIR__.'/backend/admin/profile.php';
 require __DIR__.'/backend/admin/staff.php';
 require __DIR__.'/backend/admin/council.php';
 require __DIR__.'/backend/admin/settings.php';
+require __DIR__.'/backend/admin/audit-logs.php';
 
 /*
 |--------------------------------------------------------------------------

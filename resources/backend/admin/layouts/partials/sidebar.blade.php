@@ -59,6 +59,11 @@
                         <div>Site Settings</div>
                     </a>
                 </li>
+                <li class="menu-item {{ request()->routeIs('admin.settings.audit-logs.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.settings.audit-logs.index') }}" class="menu-link">
+                        <div>Audit Logs</div>
+                    </a>
+                </li>
             </ul>
         </li>
     </ul>

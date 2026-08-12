@@ -79,3 +79,23 @@ if (! function_exists('avatar_placeholder')) {
         return 'data:image/svg+xml,'.rawurlencode($svg);
     }
 }
+
+if (! function_exists('audit_model_label')) {
+    function audit_model_label(?string $auditableType): string
+    {
+        if ($auditableType === null || $auditableType === '') {
+            return '—';
+        }
+
+        return strtolower(class_basename($auditableType));
+    }
+}
+
+if (! function_exists('audit_event_label')) {
+    function audit_event_label(?string $event): string
+    {
+        return $event !== null && $event !== ''
+            ? ucfirst($event)
+            : '—';
+    }
+}

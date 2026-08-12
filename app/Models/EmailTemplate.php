@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\AuditsModelChanges;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class EmailTemplate extends Model
+class EmailTemplate extends Model implements Auditable
 {
+    use AuditsModelChanges;
+
     protected $fillable = [
         'email_type',
         'subject',

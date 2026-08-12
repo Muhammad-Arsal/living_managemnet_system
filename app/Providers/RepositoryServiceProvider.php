@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Repositories\AdminRepository;
+use App\Repositories\AuditRepository;
 use App\Repositories\Contracts\AdminRepositoryInterface;
+use App\Repositories\Contracts\AuditRepositoryInterface;
 use App\Repositories\Contracts\CouncilRepositoryInterface;
 use App\Repositories\Contracts\EmailTemplateRepositoryInterface;
 use App\Repositories\Contracts\SiteSettingRepositoryInterface;
@@ -22,5 +24,6 @@ class RepositoryServiceProvider extends ServiceProvider
         CouncilRepositoryInterface::class => CouncilRepository::class,
         EmailTemplateRepositoryInterface::class => EmailTemplateRepository::class,
         SiteSettingRepositoryInterface::class => SiteSettingRepository::class,
+        AuditRepositoryInterface::class => AuditRepository::class,
     ];
 }

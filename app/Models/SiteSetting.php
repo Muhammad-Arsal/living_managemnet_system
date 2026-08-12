@@ -2,10 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\AuditsModelChanges;
 use Illuminate\Database\Eloquent\Model;
+use OwenIt\Auditing\Contracts\Auditable;
 
-class SiteSetting extends Model
+class SiteSetting extends Model implements Auditable
 {
+    use AuditsModelChanges;
+
     protected $table = 'site_settings';
 
     protected $fillable = [
