@@ -5,10 +5,26 @@ namespace App\Repositories;
 use App\Models\Staff;
 use App\Repositories\Contracts\StaffRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class StaffRepository implements StaffRepositoryInterface
 {
+    public function listActive(): Collection
+    {
+        return Staff::query()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+    }
+
+    public function findActiveById(int $id): ?Staff
+    {
+        return Staff::query()
+            ->where('is_active', true)
+            ->find($id);
+    }
+
     public function findById(int $id): ?Staff
     {
         return Staff::query()->with('profile')->find($id);

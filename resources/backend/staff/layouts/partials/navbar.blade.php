@@ -12,6 +12,7 @@
             <span class="fw-semibold" style="color: #0f172a;">Staff Panel</span>
         </div>
         <ul class="navbar-nav align-items-center ms-auto flex-row">
+            @include('backend::partials.notifications-dropdown')
             @php($authUser = Auth::guard('staff')->user())
             <li class="nav-item navbar-dropdown dropdown dropdown-user">
                 <a class="nav-link dropdown-toggle hide-arrow d-flex align-items-center gap-2" href="javascript:void(0);" data-bs-toggle="dropdown">

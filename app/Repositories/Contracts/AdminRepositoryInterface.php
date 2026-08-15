@@ -4,9 +4,14 @@ namespace App\Repositories\Contracts;
 
 use App\Models\Admin;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 interface AdminRepositoryInterface
 {
+    public function listActive(): Collection;
+
+    public function findActiveById(int $id): ?Admin;
+
     public function findById(int $id): ?Admin;
 
     public function findByEmail(string $email): ?Admin;

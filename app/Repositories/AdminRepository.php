@@ -5,10 +5,26 @@ namespace App\Repositories;
 use App\Models\Admin;
 use App\Repositories\Contracts\AdminRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
 class AdminRepository implements AdminRepositoryInterface
 {
+    public function listActive(): Collection
+    {
+        return Admin::query()
+            ->where('is_active', true)
+            ->orderBy('name')
+            ->get();
+    }
+
+    public function findActiveById(int $id): ?Admin
+    {
+        return Admin::query()
+            ->where('is_active', true)
+            ->find($id);
+    }
+
     public function findById(int $id): ?Admin
     {
         return Admin::query()->with('profile')->find($id);

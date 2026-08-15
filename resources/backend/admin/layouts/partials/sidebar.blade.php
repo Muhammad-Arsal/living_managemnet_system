@@ -38,6 +38,13 @@
             </a>
         </li>
 
+        <li class="menu-item {{ request()->routeIs('admin.tickets.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.tickets.index') }}" class="menu-link">
+                <i class="menu-icon tf-icon iconify iconify-lg" data-icon="bx:bx-headphone"></i>
+                <div>Support Tickets</div>
+            </a>
+        </li>
+
         <li class="menu-item {{ request()->routeIs('admin.settings.*') ? 'active open' : '' }}">
             <a href="javascript:void(0);" class="menu-link menu-toggle">
                 <i class="menu-icon tf-icon iconify iconify-lg" data-icon="bx:bx-cog"></i>
@@ -57,6 +64,16 @@
                 <li class="menu-item {{ request()->routeIs('admin.settings.site-settings.*') ? 'active' : '' }}">
                     <a href="{{ route('admin.settings.site-settings.index') }}" class="menu-link">
                         <div>Site Settings</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('admin.settings.ticket-types.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.settings.ticket-types.index') }}" class="menu-link">
+                        <div>Ticket Types</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('admin.settings.ticket-priorities.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.settings.ticket-priorities.index') }}" class="menu-link">
+                        <div>Ticket Priorities</div>
                     </a>
                 </li>
                 <li class="menu-item {{ request()->routeIs('admin.settings.audit-logs.*') ? 'active' : '' }}">

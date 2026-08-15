@@ -4,9 +4,14 @@ namespace App\Repositories\Contracts;
 
 use App\Models\Staff;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 interface StaffRepositoryInterface
 {
+    public function listActive(): Collection;
+
+    public function findActiveById(int $id): ?Staff;
+
     public function findById(int $id): ?Staff;
 
     public function findByEmail(string $email): ?Staff;

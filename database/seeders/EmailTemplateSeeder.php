@@ -17,6 +17,8 @@ class EmailTemplateSeeder extends Seeder
                 );
             }
         }
+
+        $this->seedTicketTemplates();
     }
 
     /**
@@ -68,5 +70,37 @@ class EmailTemplateSeeder extends Seeder
                     .'<p>If you did not expect this email, you can ignore it.</p>',
             ],
         ];
+    }
+
+    protected function seedTicketTemplates(): void
+    {
+        $templates = [
+            [
+                'email_type' => config('tickets.email_types.created'),
+                'subject' => 'New ticket assigned: {{ticket_reference}}',
+                'status' => true,
+                'html_content' => '<p>Hello {{name}},</p>'
+                    .'<p>{{sender_name}} created ticket <strong>{{ticket_reference}}</strong> ({{ticket_subject}}).</p>'
+                    .'<p>Type: {{ticket_type}} · Priority: {{ticket_priority}}</p>'
+                    .'<p>{{message_excerpt}}</p>'
+                    .'<p><a href="{{ticket_url}}" style="color: #059669;">View ticket</a></p>',
+            ],
+            [
+                'email_type' => config('tickets.email_types.replied'),
+                'subject' => 'New reply on {{ticket_reference}}',
+                'status' => true,
+                'html_content' => '<p>Hello {{name}},</p>'
+                    .'<p>{{sender_name}} replied to ticket <strong>{{ticket_reference}}</strong> ({{ticket_subject}}).</p>'
+                    .'<p>{{message_excerpt}}</p>'
+                    .'<p><a href="{{ticket_url}}" style="color: #059669;">View ticket</a></p>',
+            ],
+        ];
+
+        foreach ($templates as $data) {
+            EmailTemplate::query()->updateOrCreate(
+                ['email_type' => $data['email_type']],
+                $data
+            );
+        }
     }
 }
