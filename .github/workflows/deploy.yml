@@ -1,0 +1,66 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Install rsync and sshpass
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass rsync
+
+      - name: Deploy code to Hostinger
+        env:
+          SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_PORT: ${{ secrets.SFTP_PORT }}
+          REMOTE_PATH: ${{ secrets.REMOTE_PATH }}
+        run: |
+          set -e
+          sshpass -p "$SFTP_PASSWORD" rsync -avz \
+            --no-times --omit-dir-times --no-owner --no-group \
+            -e "ssh -p ${SFTP_PORT} -o StrictHostKeyChecking=no" \
+            --exclude ".git" \
+            --exclude ".env" \
+            --exclude ".github" \
+            --exclude "vendor" \
+            --exclude "node_modules" \
+            --exclude "storage" \
+            --exclude "public/uploads" \
+            --exclude "public/storage" \
+            ./ \
+            "${SFTP_USER}@${SFTP_HOST}:${REMOTE_PATH}/"
+
+      - name: Composer install & Laravel cache
+        env:
+          SFTP_PASSWORD: ${{ secrets.SFTP_PASSWORD }}
+          SFTP_USER: ${{ secrets.SFTP_USER }}
+          SFTP_HOST: ${{ secrets.SFTP_HOST }}
+          SFTP_PORT: ${{ secrets.SFTP_PORT }}
+          REMOTE_PATH: ${{ secrets.REMOTE_PATH }}
+        run: |
+          set -e
+          {
+            echo "set -e"
+            echo "cd \"${REMOTE_PATH}\""
+            echo "php -d disable_functions= -d memory_limit=512M /usr/local/bin/composer install --no-dev --no-interaction --optimize-autoloader"
+            echo "php artisan migrate --force"
+            echo "php artisan config:cache"
+            echo "php artisan route:cache"
+            echo "php artisan view:cache"
+            echo "php artisan cache:clear"
+          } | sshpass -p "$SFTP_PASSWORD" ssh -p "${SFTP_PORT}" -o StrictHostKeyChecking=no \
+              "${SFTP_USER}@${SFTP_HOST}" bash -s
