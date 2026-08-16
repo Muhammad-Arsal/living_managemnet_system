@@ -140,8 +140,8 @@
 
                         <div class="tab-pane fade @if ($activeTab === 'current') show active @endif" id="property-current">
                             @if ($current)
-                                <div class="property-form-section">
-                                    <h6 class="property-form-section__title">Current occupant</h6>
+                                <div class="lms-panel">
+                                    <h6 class="lms-panel__title">Current occupant</h6>
                                     <div class="lms-meta-grid">
                                         <div>
                                             <span class="lms-meta-grid__label">Tenant</span>
@@ -163,9 +163,9 @@
                                     <a href="{{ route('admin.tenants.edit', $current->tenant) }}" class="lms-filter-btn lms-filter-btn--ghost">Open tenant record</a>
                                 </div>
 
-                                <div class="property-form-section">
-                                    <h6 class="property-form-section__title">End tenancy</h6>
-                                    <p class="text-muted mb-3">Ending keeps the history on both the property and the tenant. The property becomes vacant and can be assigned again.</p>
+                                <div class="lms-panel lms-panel--danger">
+                                    <h6 class="lms-panel__title">End tenancy</h6>
+                                    <p class="lms-panel__lede">Ending keeps the history on both the property and the tenant. The property becomes vacant and can be assigned again.</p>
                                     <form action="{{ route('admin.properties.tenancies.end', $property) }}" method="POST" class="row g-3 align-items-end">
                                         @csrf
                                         @method('PUT')
@@ -180,9 +180,9 @@
                                     </form>
                                 </div>
                             @else
-                                <div class="property-form-section">
-                                    <h6 class="property-form-section__title">Assign tenant</h6>
-                                    <p class="text-muted mb-3">Choose a tenant who does not already have a current property, then set the tenancy start date.</p>
+                                <div class="lms-panel">
+                                    <h6 class="lms-panel__title">Assign tenant</h6>
+                                    <p class="lms-panel__lede">Choose a tenant who does not already have a current property, then set the tenancy start date.</p>
                                     @if ($assignableTenants->isEmpty())
                                         <p class="mb-0">There are no tenants available to assign. Create a tenant first, or end another current tenancy.</p>
                                     @else
