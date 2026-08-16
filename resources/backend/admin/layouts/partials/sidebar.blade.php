@@ -38,6 +38,20 @@
             </a>
         </li>
 
+        <li class="menu-item {{ request()->routeIs('admin.tenants.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.tenants.index') }}" class="menu-link">
+                <i class="menu-icon tf-icon iconify iconify-lg" data-icon="bx:bx-user-circle"></i>
+                <div>Tenants</div>
+            </a>
+        </li>
+
+        <li class="menu-item {{ request()->routeIs('admin.properties.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.properties.index') }}" class="menu-link">
+                <i class="menu-icon tf-icon iconify iconify-lg" data-icon="bx:bx-building-house"></i>
+                <div>Properties</div>
+            </a>
+        </li>
+
         <li class="menu-item {{ request()->routeIs('admin.tickets.*') ? 'active' : '' }}">
             <a href="{{ route('admin.tickets.index') }}" class="menu-link">
                 <i class="menu-icon tf-icon iconify iconify-lg" data-icon="bx:bx-headphone"></i>
@@ -64,6 +78,11 @@
                 <li class="menu-item {{ request()->routeIs('admin.settings.site-settings.*') ? 'active' : '' }}">
                     <a href="{{ route('admin.settings.site-settings.index') }}" class="menu-link">
                         <div>Site Settings</div>
+                    </a>
+                </li>
+                <li class="menu-item {{ request()->routeIs('admin.settings.property-types.*') ? 'active' : '' }}">
+                    <a href="{{ route('admin.settings.property-types.index') }}" class="menu-link">
+                        <div>Property Types</div>
                     </a>
                 </li>
                 <li class="menu-item {{ request()->routeIs('admin.settings.ticket-types.*') ? 'active' : '' }}">

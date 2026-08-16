@@ -18,6 +18,9 @@ require __DIR__.'/backend/admin/settings.php';
 require __DIR__.'/backend/admin/ticket-settings.php';
 require __DIR__.'/backend/admin/audit-logs.php';
 require __DIR__.'/backend/admin/tickets.php';
+require __DIR__.'/backend/admin/tenants.php';
+require __DIR__.'/backend/admin/properties.php';
+require __DIR__.'/backend/admin/property-types.php';
 
 /*
 |--------------------------------------------------------------------------

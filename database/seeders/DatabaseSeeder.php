@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             SiteSettingSeeder::class,
             EmailTemplateSeeder::class,
             TicketCatalogSeeder::class,
+            PropertyTypeSeeder::class,
         ]);
 
         $admins = app(AdminRepositoryInterface::class);
