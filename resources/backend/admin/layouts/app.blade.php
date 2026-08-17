@@ -47,6 +47,8 @@
         <div class="layout-overlay layout-menu-toggle"></div>
     </div>
 
+    @include('backend::partials.confirm-modal')
+
     <script src="{{ asset('vendor/jquery/jquery.js') }}"></script>
     <script src="{{ asset('vendor/popper/popper.js') }}"></script>
     <script src="{{ asset('vendor/bootstrap/bootstrap.js') }}"></script>
@@ -56,6 +58,7 @@
     @include('backend::layouts.partials.sneat-layout-fix')
     <script src="https://code.iconify.design/3/3.1.0/iconify.min.js"></script>
     <script src="{{ asset('js/backend/alerts.js') }}"></script>
+    <script src="{{ asset('js/backend/confirm-modal.js') }}"></script>
 
     @yield('scripts')
 </body>

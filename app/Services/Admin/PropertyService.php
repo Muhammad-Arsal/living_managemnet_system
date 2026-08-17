@@ -2,6 +2,7 @@
 
 namespace App\Services\Admin;
 
+use App\Models\Document;
 use App\Models\Property;
 use App\Models\PropertyImage;
 use App\Repositories\Contracts\PropertyRepositoryInterface;
@@ -16,6 +17,7 @@ class PropertyService
     public function __construct(
         private readonly PropertyRepositoryInterface $propertyRepository,
         private readonly TenancyRepositoryInterface $tenancyRepository,
+        private readonly DocumentService $documentService,
     ) {}
 
     public function store(array $data): Property
@@ -23,8 +25,9 @@ class PropertyService
         return DB::transaction(function () use ($data) {
             $property = $this->propertyRepository->create($this->payload($data));
             $this->storeImages($property, $data['images'] ?? []);
+            $this->documentService->storeMany($property, $data['documents'] ?? []);
 
-            return $property->load('images');
+            return $property->load(['images', 'documents']);
         });
     }
 
@@ -32,10 +35,34 @@ class PropertyService
     {
         return DB::transaction(function () use ($property, $data) {
             $this->propertyRepository->update($property, $this->payload($data));
-            $this->storeImages($property, $data['images'] ?? []);
 
-            return $property->refresh()->load(['images', 'propertyType']);
+            return $property->refresh()->load(['images', 'propertyType', 'documents']);
         });
+    }
+
+    /**
+     * @param  array<int, mixed>  $files
+     */
+    public function storeDocuments(Property $property, array $files): Property
+    {
+        $this->documentService->storeMany($property, $files);
+
+        return $property->refresh()->load('documents');
+    }
+
+    /**
+     * @param  array<int, mixed>  $files
+     */
+    public function addImages(Property $property, array $files): Property
+    {
+        $this->storeImages($property, $files);
+
+        return $property->refresh()->load('images');
+    }
+
+    public function deleteDocument(Property $property, Document $document): void
+    {
+        $this->documentService->delete($property, $document);
     }
 
     public function delete(Property $property): void
@@ -47,12 +74,13 @@ class PropertyService
         }
 
         DB::transaction(function () use ($property) {
-            $property->load('images');
+            $property->load(['images', 'documents']);
 
             foreach ($property->images as $image) {
                 $this->deleteImageFile($image);
             }
 
+            $this->documentService->deleteAll($property);
             $this->propertyRepository->delete($property);
         });
     }
@@ -72,7 +100,7 @@ class PropertyService
         $sortOrder = $this->propertyRepository->nextImageSortOrder($property);
 
         foreach ($files as $file) {
-            if (! $file instanceof UploadedFile) {
+            if (! $file instanceof UploadedFile || ! $file->isValid()) {
                 continue;
             }
 

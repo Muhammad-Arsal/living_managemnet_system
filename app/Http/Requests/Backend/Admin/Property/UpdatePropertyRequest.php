@@ -23,8 +23,6 @@ class UpdatePropertyRequest extends FormRequest
     {
         /** @var Property $property */
         $property = $this->route('property');
-        $maxKb = (int) config('properties.images.max_kilobytes', 5120);
-        $mimes = implode(',', config('properties.images.mimes', ['jpg', 'jpeg', 'png', 'webp']));
 
         return array_merge([
             'name' => ['required', 'string', 'max:150'],
@@ -36,8 +34,6 @@ class UpdatePropertyRequest extends FormRequest
                         ->orWhere('id', $property->property_type_id);
                 }),
             ],
-            'images' => ['nullable', 'array'],
-            'images.*' => ['image', 'mimes:'.$mimes, 'max:'.$maxKb],
         ], $this->ukAddressRules());
     }
 

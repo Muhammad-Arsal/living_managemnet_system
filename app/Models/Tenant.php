@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\AuditsModelChanges;
+use App\Models\Concerns\HasDocuments;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -12,6 +13,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 class Tenant extends Model implements Auditable
 {
     use AuditsModelChanges;
+    use HasDocuments;
 
     protected $fillable = [
         'first_name',
@@ -59,6 +61,11 @@ class Tenant extends Model implements Auditable
     public function statusLabel(): string
     {
         return $this->isCurrent() ? 'Current' : 'Past';
+    }
+
+    public function formattedAddress(): ?string
+    {
+        return $this->currentTenancy?->property?->formattedAddress();
     }
 
     public function scopeCurrent(Builder $query): Builder

@@ -54,6 +54,10 @@
                             @error('images')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                             @error('images.*')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                         </div>
+                        <div class="property-form-section">
+                            <h6 class="property-form-section__title">Documents</h6>
+                            @include('backend::admin.partials.documents-field')
+                        </div>
                         <div class="property-form-actions">
                             <button type="submit" class="btn btn-primary lms-btn-add" @disabled($propertyTypes->isEmpty())>Create Property</button>
                             <a href="{{ route('admin.properties.index') }}" class="lms-filter-btn lms-filter-btn--ghost">Cancel</a>

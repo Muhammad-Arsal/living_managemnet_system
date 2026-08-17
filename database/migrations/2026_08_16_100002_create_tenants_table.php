@@ -14,12 +14,12 @@ return new class extends Migration
             $table->string('last_name', 100);
             $table->string('mobile_number', 32);
             $table->string('email')->unique();
-            $table->string('address_line_1');
+            $table->string('address_line_1')->nullable();
             $table->string('address_line_2')->nullable();
             $table->string('address_line_3')->nullable();
-            $table->string('city', 100);
+            $table->string('city', 100)->nullable();
             $table->string('county', 100)->nullable();
-            $table->string('postcode', 12);
+            $table->string('postcode', 12)->nullable();
             $table->string('country', 100)->default('United Kingdom');
             $table->timestamps();
 

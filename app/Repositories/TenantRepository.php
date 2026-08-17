@@ -17,7 +17,15 @@ class TenantRepository implements TenantRepositoryInterface
             ->with(['currentTenancy.property'])
             ->when(
                 $search !== null && $search !== '' && $column !== null && in_array($column, $allowed, true),
-                fn ($query) => $query->where($column, 'like', '%'.$search.'%')
+                function ($query) use ($column, $search) {
+                    if ($column === 'postcode') {
+                        return $query->whereHas('currentTenancy.property', function ($propertyQuery) use ($search) {
+                            $propertyQuery->where('postcode', 'like', '%'.$search.'%');
+                        });
+                    }
+
+                    return $query->where($column, 'like', '%'.$search.'%');
+                }
             )
             ->when($status === 'current', fn ($query) => $query->current())
             ->when($status === 'past', fn ($query) => $query->past())

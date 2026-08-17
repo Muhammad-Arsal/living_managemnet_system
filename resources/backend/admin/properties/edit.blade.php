@@ -7,6 +7,12 @@
     if ($errors->has('tenant_id') || $errors->has('started_on') || $errors->has('ended_on')) {
         $activeTab = 'current';
     }
+    if ($errors->has('documents') || $errors->has('documents.*')) {
+        $activeTab = 'documents';
+    }
+    if ($errors->has('images') || $errors->has('images.*')) {
+        $activeTab = 'images';
+    }
     $current = $property->currentTenancy;
 @endphp
 
@@ -76,11 +82,19 @@
                             <i class="iconify" data-icon="bx:bx-time-five"></i>
                             Tenant history
                         </button>
+                        <button class="lms-segmented__btn @if ($activeTab === 'images') active @endif" data-bs-toggle="tab" data-bs-target="#property-images" type="button">
+                            <i class="iconify" data-icon="bx:bx-image"></i>
+                            Images
+                        </button>
+                        <button class="lms-segmented__btn @if ($activeTab === 'documents') active @endif" data-bs-toggle="tab" data-bs-target="#property-documents" type="button">
+                            <i class="iconify" data-icon="bx:bx-file"></i>
+                            Documents
+                        </button>
                     </div>
 
                     <div class="tab-content">
                         <div class="tab-pane fade @if ($activeTab === 'overview') show active @endif" id="property-overview">
-                            <form action="{{ route('admin.properties.update', $property) }}" method="POST" enctype="multipart/form-data">
+                            <form action="{{ route('admin.properties.update', $property) }}" method="POST">
                                 @csrf
                                 @method('PUT')
                                 <div class="property-form-section">
@@ -107,29 +121,6 @@
                                 <div class="property-form-section">
                                     <h6 class="property-form-section__title">Property address</h6>
                                     @include('backend::admin.partials.uk-address-fields', ['record' => $property])
-                                </div>
-                                <div class="property-form-section">
-                                    <h6 class="property-form-section__title">Images</h6>
-                                    @if ($property->images->count() > 0)
-                                        <div class="property-image-grid mb-3">
-                                            @foreach ($property->images as $image)
-                                                <div class="property-image-card">
-                                                    <img src="{{ $image->url }}" alt="{{ $image->original_name }}">
-                                                    <form action="{{ route('admin.properties.images.destroy', [$property, $image]) }}" method="POST" onsubmit="return confirm('Remove this image?');">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="property-image-card__remove" title="Remove image">
-                                                            <i class="iconify" data-icon="bx:bx-x"></i>
-                                                        </button>
-                                                    </form>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    @endif
-                                    <p class="text-muted small">Add more photos (JPG, PNG or WebP). There is no limit on how many images a property can have.</p>
-                                    <input type="file" name="images[]" class="form-control mb-3 @error('images') is-invalid @enderror @error('images.*') is-invalid @enderror" accept="image/jpeg,image/png,image/webp" multiple>
-                                    @error('images')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
-                                    @error('images.*')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                                 </div>
                                 <div class="property-form-actions">
                                     <button type="submit" class="btn btn-primary lms-btn-add">Update Property</button>
@@ -166,16 +157,28 @@
                                 <div class="lms-panel lms-panel--danger">
                                     <h6 class="lms-panel__title">End tenancy</h6>
                                     <p class="lms-panel__lede">Ending keeps the history on both the property and the tenant. The property becomes vacant and can be assigned again.</p>
-                                    <form action="{{ route('admin.properties.tenancies.end', $property) }}" method="POST" class="row g-3 align-items-end">
+                                    <form action="{{ route('admin.properties.tenancies.end', $property) }}"
+                                        method="POST"
+                                        class="row g-3 align-items-end"
+                                        data-confirm-title="End tenancy"
+                                        data-confirm-body="End this tenancy? History will be kept on both the property and the tenant."
+                                        data-confirm-submit="End tenancy">
                                         @csrf
                                         @method('PUT')
                                         <div class="col-md-4">
                                             <label for="ended_on" class="form-label">End date <span class="text-danger">*</span></label>
-                                            <input type="date" class="form-control @error('ended_on') is-invalid @enderror" id="ended_on" name="ended_on" value="{{ old('ended_on', now()->toDateString()) }}" max="{{ now()->toDateString() }}">
+                                            <input type="date"
+                                                class="form-control @error('ended_on') is-invalid @enderror"
+                                                id="ended_on"
+                                                name="ended_on"
+                                                value="{{ old('ended_on', $current->started_on->isFuture() ? $current->started_on->toDateString() : now()->toDateString()) }}"
+                                                min="{{ $current->started_on->toDateString() }}"
+                                                @unless ($current->started_on->isFuture()) max="{{ now()->toDateString() }}" @endunless>
+                                            <div class="form-text">Must be on or after {{ $current->started_on->format('d M Y') }}.</div>
                                             @error('ended_on')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                         </div>
                                         <div class="col-md-4">
-                                            <button type="submit" class="btn lms-btn-danger" onclick="return confirm('End this tenancy? History will be kept.');">End tenancy</button>
+                                            <button type="submit" class="btn lms-btn-danger">End tenancy</button>
                                         </div>
                                     </form>
                                 </div>
@@ -250,6 +253,76 @@
                             @else
                                 <p class="mb-0 text-muted">No tenant history for this property.</p>
                             @endif
+                        </div>
+
+                        <div class="tab-pane fade @if ($activeTab === 'images') show active @endif" id="property-images">
+                            <div class="property-form-section">
+                                <h6 class="property-form-section__title">Uploaded images</h6>
+                                @if ($property->images->count() > 0)
+                                    <div class="property-image-grid">
+                                        @foreach ($property->images as $image)
+                                            <div class="property-image-card">
+                                                <img src="{{ $image->url }}" alt="{{ $image->original_name }}">
+                                                <form action="{{ route('admin.properties.images.destroy', [$property, $image]) }}"
+                                                    method="POST"
+                                                    data-confirm-title="Remove image"
+                                                    data-confirm-body="Remove {{ $image->original_name }}? This cannot be undone."
+                                                    data-confirm-submit="Remove">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="property-image-card__remove" title="Remove image">
+                                                        <i class="iconify" data-icon="bx:bx-x"></i>
+                                                    </button>
+                                                </form>
+                                                <p class="property-image-card__caption" title="{{ $image->original_name }}">{{ $image->original_name }}</p>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="lms-empty-state py-4">
+                                        <div class="lms-empty-state__icon">
+                                            <i class="iconify" data-icon="bx:bx-image"></i>
+                                        </div>
+                                        <p class="mb-0">No images uploaded yet.</p>
+                                    </div>
+                                @endif
+                            </div>
+                            <form action="{{ route('admin.properties.images.store', $property) }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="property-form-section">
+                                    <h6 class="property-form-section__title">Add images</h6>
+                                    <p class="text-muted small">Existing photos are kept. Upload additional photos (JPG, PNG or WebP, {{ (int) config('properties.images.max_kilobytes') / 1024 }}MB each).</p>
+                                    <input type="file" name="images[]" class="form-control mb-3 @error('images') is-invalid @enderror @error('images.*') is-invalid @enderror" accept="image/jpeg,image/png,image/webp" multiple>
+                                    @error('images')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                    @error('images.*')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                                </div>
+                                <div class="property-form-actions">
+                                    <button type="submit" class="btn btn-primary lms-btn-add">Upload images</button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="tab-pane fade @if ($activeTab === 'documents') show active @endif" id="property-documents">
+                            <div class="property-form-section">
+                                <h6 class="property-form-section__title">Uploaded documents</h6>
+                                @include('backend::admin.partials.documents-list', [
+                                    'documents' => $property->documents,
+                                    'downloadRouteName' => 'admin.properties.documents.download',
+                                    'destroyRouteName' => 'admin.properties.documents.destroy',
+                                    'parent' => $property,
+                                ])
+                            </div>
+                            <form action="{{ route('admin.properties.documents.store', $property) }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="property-form-section">
+                                    <h6 class="property-form-section__title">Add documents</h6>
+                                    <p class="text-muted small">Existing files are kept. Upload additional documents below.</p>
+                                    @include('backend::admin.partials.documents-field', ['required' => true])
+                                </div>
+                                <div class="property-form-actions">
+                                    <button type="submit" class="btn btn-primary lms-btn-add">Upload documents</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>

@@ -5,26 +5,32 @@ namespace App\Http\Controllers\Backend\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Backend\Admin\Property\AssignTenancyRequest;
 use App\Http\Requests\Backend\Admin\Property\EndTenancyRequest;
+use App\Http\Requests\Backend\Admin\Property\StorePropertyDocumentsRequest;
+use App\Http\Requests\Backend\Admin\Property\StorePropertyImagesRequest;
 use App\Http\Requests\Backend\Admin\Property\StorePropertyRequest;
 use App\Http\Requests\Backend\Admin\Property\UpdatePropertyRequest;
+use App\Models\Document;
 use App\Models\Property;
 use App\Models\PropertyImage;
 use App\Models\Tenant;
 use App\Repositories\Contracts\PropertyRepositoryInterface;
 use App\Repositories\Contracts\PropertyTypeRepositoryInterface;
 use App\Repositories\Contracts\TenantRepositoryInterface;
+use App\Services\Admin\DocumentService;
 use App\Services\Admin\PropertyService;
 use App\Services\Admin\TenancyService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class PropertyController extends Controller
 {
     public function __construct(
         private readonly PropertyService $propertyService,
         private readonly TenancyService $tenancyService,
+        private readonly DocumentService $documentService,
         private readonly PropertyRepositoryInterface $propertyRepository,
         private readonly PropertyTypeRepositoryInterface $propertyTypeRepository,
         private readonly TenantRepositoryInterface $tenantRepository,
@@ -70,6 +76,7 @@ class PropertyController extends Controller
         $property->load([
             'propertyType',
             'images',
+            'documents',
             'currentTenancy.tenant',
             'tenancies.tenant',
         ]);
@@ -109,8 +116,40 @@ class PropertyController extends Controller
         $this->propertyService->deleteImage($property, $propertyImage);
 
         return redirect()
-            ->route('admin.properties.edit', ['property' => $property, 'tab' => 'overview'])
+            ->route('admin.properties.edit', ['property' => $property, 'tab' => 'images'])
             ->with('success', 'Image removed.');
+    }
+
+    public function storeImages(StorePropertyImagesRequest $request, Property $property): RedirectResponse
+    {
+        $this->propertyService->addImages($property, $request->validated('images') ?? []);
+
+        return redirect()
+            ->route('admin.properties.edit', ['property' => $property, 'tab' => 'images'])
+            ->with('success', 'Images uploaded successfully.');
+    }
+
+    public function storeDocuments(StorePropertyDocumentsRequest $request, Property $property): RedirectResponse
+    {
+        $this->propertyService->storeDocuments($property, $request->validated('documents') ?? []);
+
+        return redirect()
+            ->route('admin.properties.edit', ['property' => $property, 'tab' => 'documents'])
+            ->with('success', 'Documents uploaded successfully.');
+    }
+
+    public function downloadDocument(Property $property, Document $document): StreamedResponse
+    {
+        return $this->documentService->download($property, $document);
+    }
+
+    public function destroyDocument(Property $property, Document $document): RedirectResponse
+    {
+        $this->propertyService->deleteDocument($property, $document);
+
+        return redirect()
+            ->route('admin.properties.edit', ['property' => $property, 'tab' => 'documents'])
+            ->with('success', 'Document removed.');
     }
 
     public function storeTenancy(AssignTenancyRequest $request, Property $property): RedirectResponse

@@ -4,9 +4,8 @@ namespace App\Http\Requests\Backend\Admin\Tenant;
 
 use App\Http\Requests\Concerns\ValidatesDocuments;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class StoreTenantRequest extends FormRequest
+class StoreTenantDocumentsRequest extends FormRequest
 {
     use ValidatesDocuments;
 
@@ -20,12 +19,7 @@ class StoreTenantRequest extends FormRequest
      */
     public function rules(): array
     {
-        return array_merge([
-            'first_name' => ['required', 'string', 'max:100'],
-            'last_name' => ['required', 'string', 'max:100'],
-            'mobile_number' => ['required', 'string', 'max:32'],
-            'email' => ['required', 'email', 'max:255', Rule::unique('tenants', 'email')],
-        ], $this->documentRules());
+        return $this->documentRules(required: true);
     }
 
     /**

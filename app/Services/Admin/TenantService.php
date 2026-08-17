@@ -2,9 +2,11 @@
 
 namespace App\Services\Admin;
 
+use App\Models\Document;
 use App\Models\Tenant;
 use App\Repositories\Contracts\TenancyRepositoryInterface;
 use App\Repositories\Contracts\TenantRepositoryInterface;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class TenantService
@@ -12,16 +14,37 @@ class TenantService
     public function __construct(
         private readonly TenantRepositoryInterface $tenantRepository,
         private readonly TenancyRepositoryInterface $tenancyRepository,
+        private readonly DocumentService $documentService,
     ) {}
 
     public function store(array $data): Tenant
     {
-        return $this->tenantRepository->create($this->payload($data));
+        return DB::transaction(function () use ($data) {
+            $tenant = $this->tenantRepository->create($this->payload($data));
+            $this->documentService->storeMany($tenant, $data['documents'] ?? []);
+
+            return $tenant->load('documents');
+        });
     }
 
     public function update(Tenant $tenant, array $data): Tenant
     {
         return $this->tenantRepository->update($tenant, $this->payload($data));
+    }
+
+    /**
+     * @param  array<int, mixed>  $files
+     */
+    public function storeDocuments(Tenant $tenant, array $files): Tenant
+    {
+        $this->documentService->storeMany($tenant, $files);
+
+        return $tenant->refresh()->load('documents');
+    }
+
+    public function deleteDocument(Tenant $tenant, Document $document): void
+    {
+        $this->documentService->delete($tenant, $document);
     }
 
     public function delete(Tenant $tenant): void
@@ -32,7 +55,10 @@ class TenantService
             ]);
         }
 
-        $this->tenantRepository->delete($tenant);
+        DB::transaction(function () use ($tenant) {
+            $this->documentService->deleteAll($tenant);
+            $this->tenantRepository->delete($tenant);
+        });
     }
 
     /**
@@ -46,13 +72,6 @@ class TenantService
             'last_name' => $data['last_name'],
             'mobile_number' => $data['mobile_number'],
             'email' => $data['email'],
-            'address_line_1' => $data['address_line_1'],
-            'address_line_2' => $data['address_line_2'] ?? null,
-            'address_line_3' => $data['address_line_3'] ?? null,
-            'city' => $data['city'],
-            'county' => $data['county'] ?? null,
-            'postcode' => $data['postcode'],
-            'country' => $data['country'],
         ];
     }
 }

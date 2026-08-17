@@ -7,6 +7,9 @@
     if ($errors->has('property_id') || $errors->has('tenant_id') || $errors->has('started_on') || $errors->has('ended_on')) {
         $activeTab = 'current';
     }
+    if ($errors->has('documents') || $errors->has('documents.*')) {
+        $activeTab = 'documents';
+    }
     $current = $tenant->currentTenancy;
 @endphp
 
@@ -76,6 +79,10 @@
                             <i class="iconify" data-icon="bx:bx-time-five"></i>
                             Tenancy history
                         </button>
+                        <button class="lms-segmented__btn @if ($activeTab === 'documents') active @endif" data-bs-toggle="tab" data-bs-target="#tenant-documents" type="button">
+                            <i class="iconify" data-icon="bx:bx-file"></i>
+                            Documents
+                        </button>
                     </div>
 
                     <div class="tab-content">
@@ -109,8 +116,13 @@
                                     </div>
                                 </div>
                                 <div class="property-form-section">
-                                    <h6 class="property-form-section__title">Correspondence address</h6>
-                                    @include('backend::admin.partials.uk-address-fields', ['record' => $tenant])
+                                    <h6 class="property-form-section__title">Address</h6>
+                                    @if ($current)
+                                        <p class="mb-1">{{ $current->property->formattedAddress() }}</p>
+                                        <p class="text-muted small mb-0">Taken from the assigned property. Update it on the property record.</p>
+                                    @else
+                                        <p class="text-muted mb-0">Address comes from the assigned property. Assign a property to see it here.</p>
+                                    @endif
                                 </div>
                                 <div class="property-form-actions">
                                     <button type="submit" class="btn btn-primary lms-btn-add">Update Tenant</button>
@@ -143,16 +155,28 @@
                                 <div class="lms-panel lms-panel--danger">
                                     <h6 class="lms-panel__title">End tenancy</h6>
                                     <p class="lms-panel__lede">Ending keeps history on both records. The tenant becomes past and the property becomes vacant.</p>
-                                    <form action="{{ route('admin.tenants.tenancies.end', $tenant) }}" method="POST" class="row g-3 align-items-end">
+                                    <form action="{{ route('admin.tenants.tenancies.end', $tenant) }}"
+                                        method="POST"
+                                        class="row g-3 align-items-end"
+                                        data-confirm-title="End tenancy"
+                                        data-confirm-body="End this tenancy? History will be kept on both records. The tenant becomes past and the property becomes vacant."
+                                        data-confirm-submit="End tenancy">
                                         @csrf
                                         @method('PUT')
                                         <div class="col-md-4">
                                             <label for="ended_on" class="form-label">End date <span class="text-danger">*</span></label>
-                                            <input type="date" class="form-control @error('ended_on') is-invalid @enderror" id="ended_on" name="ended_on" value="{{ old('ended_on', now()->toDateString()) }}" max="{{ now()->toDateString() }}">
+                                            <input type="date"
+                                                class="form-control @error('ended_on') is-invalid @enderror"
+                                                id="ended_on"
+                                                name="ended_on"
+                                                value="{{ old('ended_on', $current->started_on->isFuture() ? $current->started_on->toDateString() : now()->toDateString()) }}"
+                                                min="{{ $current->started_on->toDateString() }}"
+                                                @unless ($current->started_on->isFuture()) max="{{ now()->toDateString() }}" @endunless>
+                                            <div class="form-text">Must be on or after {{ $current->started_on->format('d M Y') }}.</div>
                                             @error('ended_on')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                         </div>
                                         <div class="col-md-4">
-                                            <button type="submit" class="btn lms-btn-danger" onclick="return confirm('End this tenancy? History will be kept.');">End tenancy</button>
+                                            <button type="submit" class="btn lms-btn-danger">End tenancy</button>
                                         </div>
                                     </form>
                                 </div>
@@ -228,6 +252,29 @@
                             @else
                                 <p class="mb-0 text-muted">No tenancy records.</p>
                             @endif
+                        </div>
+
+                        <div class="tab-pane fade @if ($activeTab === 'documents') show active @endif" id="tenant-documents">
+                            <div class="property-form-section">
+                                <h6 class="property-form-section__title">Uploaded documents</h6>
+                                @include('backend::admin.partials.documents-list', [
+                                    'documents' => $tenant->documents,
+                                    'downloadRouteName' => 'admin.tenants.documents.download',
+                                    'destroyRouteName' => 'admin.tenants.documents.destroy',
+                                    'parent' => $tenant,
+                                ])
+                            </div>
+                            <form action="{{ route('admin.tenants.documents.store', $tenant) }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="property-form-section">
+                                    <h6 class="property-form-section__title">Add documents</h6>
+                                    <p class="text-muted small">Existing files are kept. Upload additional documents below.</p>
+                                    @include('backend::admin.partials.documents-field', ['required' => true])
+                                </div>
+                                <div class="property-form-actions">
+                                    <button type="submit" class="btn btn-primary lms-btn-add">Upload documents</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>

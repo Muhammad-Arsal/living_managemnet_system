@@ -49,7 +49,12 @@
                                                         <i class="iconify" data-icon="bx:bx-edit-alt"></i>
                                                         <span>Edit</span>
                                                     </a>
-                                                    <form action="{{ route('admin.settings.ticket-priorities.destroy', $ticketPriority) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this ticket priority? Tickets already using it must keep their reference — delete only unused priorities.');">
+                                                    <form action="{{ route('admin.settings.ticket-priorities.destroy', $ticketPriority) }}"
+                                                        method="POST"
+                                                        class="d-inline"
+                                                        data-confirm-title="Delete ticket priority"
+                                                        data-confirm-body="Delete {{ $ticketPriority->name }}? Priorities already used by tickets cannot be deleted."
+                                                        data-confirm-submit="Delete">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="lms-action-btn lms-action-btn--delete">

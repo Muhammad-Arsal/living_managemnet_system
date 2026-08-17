@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Models\Admin;
 use App\Models\Council;
+use App\Models\Property;
 use App\Models\Staff;
+use App\Models\Tenant;
 use App\View\Composers\NotificationDropdownComposer;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\Facades\View;
@@ -26,6 +28,8 @@ class AppServiceProvider extends ServiceProvider
             'admin' => Admin::class,
             'staff' => Staff::class,
             'council' => Council::class,
+            'property' => Property::class,
+            'tenant' => Tenant::class,
         ]);
 
         View::composer([

@@ -10,11 +10,11 @@
                     <div class="lms-page-header__copy">
                         <p class="lms-page-header__eyebrow">Occupancy</p>
                         <h5 class="lms-page-header__title">Create tenant</h5>
-                        <p class="lms-page-header__subtitle">Add contact details and correspondence address. Occupancy is assigned from a property.</p>
+                        <p class="lms-page-header__subtitle">Add contact details and optional documents. Address comes from the assigned property.</p>
                     </div>
                 </div>
                 <div class="card-body">
-                    <form action="{{ route('admin.tenants.store') }}" method="POST">
+                    <form action="{{ route('admin.tenants.store') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="property-form-section">
                             <h6 class="property-form-section__title">Basic information</h6>
@@ -42,8 +42,8 @@
                             </div>
                         </div>
                         <div class="property-form-section">
-                            <h6 class="property-form-section__title">Correspondence address</h6>
-                            @include('backend::admin.partials.uk-address-fields')
+                            <h6 class="property-form-section__title">Documents</h6>
+                            @include('backend::admin.partials.documents-field')
                         </div>
                         <div class="property-form-actions">
                             <button type="submit" class="btn btn-primary lms-btn-add">Create Tenant</button>

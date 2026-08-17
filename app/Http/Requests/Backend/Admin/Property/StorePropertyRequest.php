@@ -2,12 +2,14 @@
 
 namespace App\Http\Requests\Backend\Admin\Property;
 
+use App\Http\Requests\Concerns\ValidatesDocuments;
 use App\Http\Requests\Concerns\ValidatesUkAddress;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class StorePropertyRequest extends FormRequest
 {
+    use ValidatesDocuments;
     use ValidatesUkAddress;
 
     public function authorize(): bool
@@ -27,8 +29,8 @@ class StorePropertyRequest extends FormRequest
             'name' => ['required', 'string', 'max:150'],
             'property_type_id' => ['required', 'integer', Rule::exists('property_types', 'id')->where('is_active', true)],
             'images' => ['nullable', 'array'],
-            'images.*' => ['image', 'mimes:'.$mimes, 'max:'.$maxKb],
-        ], $this->ukAddressRules());
+            'images.*' => ['nullable', 'image', 'mimes:'.$mimes, 'max:'.$maxKb],
+        ], $this->ukAddressRules(), $this->documentRules());
     }
 
     /**
@@ -37,6 +39,14 @@ class StorePropertyRequest extends FormRequest
     public function messages(): array
     {
         return $this->ukAddressMessages();
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function attributes(): array
+    {
+        return $this->documentAttributes();
     }
 
     protected function prepareForValidation(): void

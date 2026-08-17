@@ -49,7 +49,12 @@
                                                         <i class="iconify" data-icon="bx:bx-edit-alt"></i>
                                                         <span>Edit</span>
                                                     </a>
-                                                    <form action="{{ route('admin.settings.ticket-types.destroy', $ticketType) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this ticket type? Tickets already using it must keep their reference — delete only unused types.');">
+                                                    <form action="{{ route('admin.settings.ticket-types.destroy', $ticketType) }}"
+                                                        method="POST"
+                                                        class="d-inline"
+                                                        data-confirm-title="Delete ticket type"
+                                                        data-confirm-body="Delete {{ $ticketType->name }}? Types already used by tickets cannot be deleted."
+                                                        data-confirm-submit="Delete">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="lms-action-btn lms-action-btn--delete">

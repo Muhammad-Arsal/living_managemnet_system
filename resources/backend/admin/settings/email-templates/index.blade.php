@@ -63,8 +63,11 @@
                                                         <span>Edit</span>
                                                     </a>
                                                     <form action="{{ route('admin.settings.email-templates.destroy', $template) }}"
-                                                        method="POST" class="d-inline"
-                                                        onsubmit="return confirm('Are you sure you want to delete this template?');">
+                                                        method="POST"
+                                                        class="d-inline"
+                                                        data-confirm-title="Delete email template"
+                                                        data-confirm-body="Delete the {{ $template->email_type }} template? This cannot be undone."
+                                                        data-confirm-submit="Delete">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="lms-action-btn lms-action-btn--delete" title="Delete template">

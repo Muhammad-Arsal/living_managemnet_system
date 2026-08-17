@@ -47,7 +47,12 @@
                                                         <i class="iconify" data-icon="bx:bx-edit-alt"></i>
                                                         <span>Edit</span>
                                                     </a>
-                                                    <form action="{{ route('admin.settings.property-types.destroy', $propertyType) }}" method="POST" class="d-inline" onsubmit="return confirm('Delete this property type? Properties already using it must keep their reference — delete only unused types.');">
+                                                    <form action="{{ route('admin.settings.property-types.destroy', $propertyType) }}"
+                                                        method="POST"
+                                                        class="d-inline"
+                                                        data-confirm-title="Delete property type"
+                                                        data-confirm-body="Delete {{ $propertyType->name }}? Types already used by properties cannot be deleted."
+                                                        data-confirm-submit="Delete">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="lms-action-btn lms-action-btn--delete">

@@ -69,9 +69,85 @@ class PropertyPortfolioTest extends TestCase
 
         $this->assertDatabaseHas('tenants', [
             'email' => 'jane.tenant@example.com',
-            'postcode' => 'SW1A 1AA',
             'mobile_number' => '07123456789',
         ]);
+        $this->assertDatabaseMissing('tenants', [
+            'email' => 'jane.tenant@example.com',
+            'address_line_1' => '10 Downing Street',
+        ]);
+    }
+
+    public function test_admin_can_create_tenant_with_multiple_documents(): void
+    {
+        Storage::fake('local');
+
+        $this->actingAs($this->admin, 'admin')
+            ->post(route('admin.tenants.store'), $this->tenantPayload([
+                'documents' => [
+                    UploadedFile::fake()->create('id.pdf', 120, 'application/pdf'),
+                    UploadedFile::fake()->create('contract.docx', 80, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'),
+                ],
+            ]))
+            ->assertRedirect(route('admin.tenants.index'));
+
+        $tenant = Tenant::query()->first();
+        $this->assertNotNull($tenant);
+        $this->assertSame(2, $tenant->documents()->count());
+        Storage::disk('local')->assertExists($tenant->documents->first()->path);
+    }
+
+    public function test_admin_can_update_tenant_and_upload_additional_documents(): void
+    {
+        Storage::fake('local');
+
+        $tenant = $this->createTenant();
+
+        $this->actingAs($this->admin, 'admin')
+            ->post(route('admin.tenants.documents.store', $tenant), [
+                'documents' => [
+                    UploadedFile::fake()->create('passport.pdf', 90, 'application/pdf'),
+                ],
+            ])
+            ->assertRedirect(route('admin.tenants.edit', ['tenant' => $tenant, 'tab' => 'documents']));
+
+        $this->actingAs($this->admin, 'admin')
+            ->put(route('admin.tenants.update', $tenant), [
+                'first_name' => 'Janet',
+                'last_name' => 'Tenant',
+                'mobile_number' => '07123456789',
+                'email' => 'jane.tenant@example.com',
+            ])
+            ->assertRedirect(route('admin.tenants.edit', ['tenant' => $tenant, 'tab' => 'overview']));
+
+        $tenant->refresh();
+        $this->assertSame('Janet', $tenant->first_name);
+        $this->assertSame(1, $tenant->documents()->count());
+        Storage::disk('local')->assertExists($tenant->documents->first()->path);
+
+        $this->actingAs($this->admin, 'admin')
+            ->get(route('admin.tenants.documents.download', [$tenant, $tenant->documents->first()]))
+            ->assertOk();
+    }
+
+    public function test_tenant_address_is_derived_from_assigned_property(): void
+    {
+        $tenant = $this->createTenant();
+        $property = $this->createProperty();
+
+        $this->actingAs($this->admin, 'admin')
+            ->post(route('admin.properties.tenancies.store', $property), [
+                'tenant_id' => $tenant->id,
+                'started_on' => '2026-01-01',
+            ])
+            ->assertRedirect();
+
+        $this->actingAs($this->admin, 'admin')
+            ->get(route('admin.tenants.edit', $tenant))
+            ->assertOk()
+            ->assertDontSee('name="address_line_1"', false)
+            ->assertSee($property->formattedAddress())
+            ->assertSee('lmsConfirmModal', false)
+            ->assertDontSee('return confirm(', false);
     }
 
     public function test_new_tenant_is_past_until_assigned(): void
@@ -99,6 +175,217 @@ class PropertyPortfolioTest extends TestCase
         $this->assertNotNull($property);
         $this->assertSame(2, $property->images()->count());
         Storage::disk('public')->assertExists($property->images->first()->path);
+    }
+
+    public function test_admin_can_create_property_with_documents(): void
+    {
+        Storage::fake('local');
+
+        $this->actingAs($this->admin, 'admin')
+            ->post(route('admin.properties.store'), $this->propertyPayload([
+                'documents' => [
+                    UploadedFile::fake()->create('epc.pdf', 200, 'application/pdf'),
+                    UploadedFile::fake()->create('floorplan.png', 40, 'image/png'),
+                ],
+            ]))
+            ->assertRedirect(route('admin.properties.index'));
+
+        $property = Property::query()->first();
+        $this->assertNotNull($property);
+        $this->assertSame(2, $property->documents()->count());
+        Storage::disk('local')->assertExists($property->documents->first()->path);
+
+        $this->actingAs($this->admin, 'admin')
+            ->get(route('admin.properties.documents.download', [$property, $property->documents->first()]))
+            ->assertOk();
+    }
+
+    public function test_admin_can_update_property_without_losing_images_or_relationships(): void
+    {
+        Storage::fake('public');
+        Storage::fake('local');
+
+        $this->actingAs($this->admin, 'admin')
+            ->post(route('admin.properties.store'), $this->propertyPayload([
+                'images' => [
+                    UploadedFile::fake()->image('front.jpg'),
+                ],
+                'documents' => [
+                    UploadedFile::fake()->create('lease.pdf', 150, 'application/pdf'),
+                ],
+            ]))
+            ->assertRedirect(route('admin.properties.index'));
+
+        $property = Property::query()->first();
+        $this->assertNotNull($property);
+        $existingImagePath = $property->images->first()->path;
+        $existingDocumentPath = $property->documents->first()->path;
+        $tenant = $this->createTenant();
+
+        $this->actingAs($this->admin, 'admin')
+            ->post(route('admin.properties.tenancies.store', $property), [
+                'tenant_id' => $tenant->id,
+                'started_on' => '2026-01-01',
+            ])
+            ->assertRedirect();
+
+        $this->actingAs($this->admin, 'admin')
+            ->put(route('admin.properties.update', $property), $this->propertyPayload([
+                'name' => '12 High Street — Updated',
+            ]))
+            ->assertRedirect(route('admin.properties.edit', ['property' => $property, 'tab' => 'overview']))
+            ->assertSessionHasNoErrors();
+
+        $this->actingAs($this->admin, 'admin')
+            ->post(route('admin.properties.images.store', $property), [
+                'images' => [
+                    UploadedFile::fake()->image('garden.jpg'),
+                ],
+            ])
+            ->assertRedirect(route('admin.properties.edit', ['property' => $property, 'tab' => 'images']));
+
+        $property->refresh()->load(['images', 'documents', 'currentTenancy']);
+        $this->assertSame('12 High Street — Updated', $property->name);
+        $this->assertSame(2, $property->images()->count());
+        $this->assertTrue($property->images->contains('path', $existingImagePath));
+        $this->assertSame(1, $property->documents()->count());
+        $this->assertSame($existingDocumentPath, $property->documents->first()->path);
+        $this->assertTrue($property->isOccupied());
+        $this->assertSame($tenant->id, $property->currentTenancy?->tenant_id);
+        Storage::disk('public')->assertExists($existingImagePath);
+        Storage::disk('local')->assertExists($existingDocumentPath);
+    }
+
+    public function test_admin_can_upload_additional_property_documents_on_edit(): void
+    {
+        Storage::fake('local');
+        $property = $this->createProperty();
+
+        $this->actingAs($this->admin, 'admin')
+            ->post(route('admin.properties.documents.store', $property), [
+                'documents' => [
+                    UploadedFile::fake()->create('gas-cert.pdf', 90, 'application/pdf'),
+                ],
+            ])
+            ->assertRedirect(route('admin.properties.edit', ['property' => $property, 'tab' => 'documents']));
+
+        $this->actingAs($this->admin, 'admin')
+            ->post(route('admin.properties.documents.store', $property), [
+                'documents' => [
+                    UploadedFile::fake()->create('insurance.pdf', 70, 'application/pdf'),
+                ],
+            ])
+            ->assertRedirect(route('admin.properties.edit', ['property' => $property, 'tab' => 'documents']));
+
+        $this->assertSame(2, $property->documents()->count());
+    }
+
+    public function test_admin_can_delete_a_property_document_without_removing_others(): void
+    {
+        Storage::fake('local');
+        $property = $this->createProperty();
+
+        $this->actingAs($this->admin, 'admin')
+            ->post(route('admin.properties.documents.store', $property), [
+                'documents' => [
+                    UploadedFile::fake()->create('keep.pdf', 40, 'application/pdf'),
+                    UploadedFile::fake()->create('remove.pdf', 40, 'application/pdf'),
+                ],
+            ]);
+
+        $keep = $property->documents()->where('original_name', 'keep.pdf')->first();
+        $remove = $property->documents()->where('original_name', 'remove.pdf')->first();
+        $this->assertNotNull($keep);
+        $this->assertNotNull($remove);
+
+        $this->actingAs($this->admin, 'admin')
+            ->delete(route('admin.properties.documents.destroy', [$property, $remove]))
+            ->assertRedirect(route('admin.properties.edit', ['property' => $property, 'tab' => 'documents']));
+
+        $this->assertSame(1, $property->documents()->count());
+        $this->assertDatabaseHas('documents', ['id' => $keep->id]);
+        $this->assertDatabaseMissing('documents', ['id' => $remove->id]);
+        Storage::disk('local')->assertMissing($remove->path);
+        Storage::disk('local')->assertExists($keep->path);
+    }
+
+    public function test_admin_can_delete_a_tenant_document(): void
+    {
+        Storage::fake('local');
+        $tenant = $this->createTenant();
+
+        $this->actingAs($this->admin, 'admin')
+            ->post(route('admin.tenants.documents.store', $tenant), [
+                'documents' => [
+                    UploadedFile::fake()->create('passport.pdf', 90, 'application/pdf'),
+                ],
+            ]);
+
+        $document = $tenant->documents()->first();
+        $this->assertNotNull($document);
+
+        $this->actingAs($this->admin, 'admin')
+            ->delete(route('admin.tenants.documents.destroy', [$tenant, $document]))
+            ->assertRedirect(route('admin.tenants.edit', ['tenant' => $tenant, 'tab' => 'documents']));
+
+        $this->assertSame(0, $tenant->documents()->count());
+        Storage::disk('local')->assertMissing($document->path);
+    }
+
+    public function test_property_edit_does_not_nest_image_delete_forms(): void
+    {
+        Storage::fake('public');
+
+        $this->actingAs($this->admin, 'admin')
+            ->post(route('admin.properties.store'), $this->propertyPayload([
+                'images' => [
+                    UploadedFile::fake()->image('front.jpg'),
+                ],
+            ]));
+
+        $property = Property::query()->first();
+        $this->assertNotNull($property);
+
+        $html = $this->actingAs($this->admin, 'admin')
+            ->get(route('admin.properties.edit', ['property' => $property, 'tab' => 'images']))
+            ->assertOk()
+            ->assertSee('property-images', false)
+            ->assertSee($property->images->first()->original_name)
+            ->assertSee('lmsConfirmModal', false)
+            ->assertDontSee('return confirm(', false)
+            ->getContent();
+
+        $this->assertStringContainsString(route('admin.properties.images.destroy', [$property, $property->images->first()]), $html);
+
+        $dom = new \DOMDocument;
+        @$dom->loadHTML($html);
+        foreach ($dom->getElementsByTagName('form') as $form) {
+            $this->assertSame(0, $form->getElementsByTagName('form')->length);
+        }
+    }
+
+    public function test_admin_can_delete_a_property_image_from_the_images_tab(): void
+    {
+        Storage::fake('public');
+
+        $this->actingAs($this->admin, 'admin')
+            ->post(route('admin.properties.store'), $this->propertyPayload([
+                'images' => [
+                    UploadedFile::fake()->image('front.jpg'),
+                    UploadedFile::fake()->image('kitchen.png'),
+                ],
+            ]));
+
+        $property = Property::query()->first();
+        $this->assertNotNull($property);
+        $image = $property->images->first();
+
+        $this->actingAs($this->admin, 'admin')
+            ->delete(route('admin.properties.images.destroy', [$property, $image]))
+            ->assertRedirect(route('admin.properties.edit', ['property' => $property, 'tab' => 'images']));
+
+        $this->assertSame(1, $property->images()->count());
+        Storage::disk('public')->assertMissing($image->path);
     }
 
     public function test_assigning_tenant_makes_tenant_current_and_property_occupied(): void
@@ -178,6 +465,36 @@ class PropertyPortfolioTest extends TestCase
         $this->assertFalse($tenant->fresh()->isCurrent());
         $this->assertFalse($property->fresh()->isOccupied());
         $this->assertSame(1, $property->tenancies()->count());
+    }
+
+    public function test_upcoming_tenancy_can_be_ended_on_or_after_start_date(): void
+    {
+        $tenant = $this->createTenant();
+        $property = $this->createProperty();
+
+        $this->actingAs($this->admin, 'admin')
+            ->post(route('admin.properties.tenancies.store', $property), [
+                'tenant_id' => $tenant->id,
+                'started_on' => '2026-10-12',
+            ])
+            ->assertRedirect();
+
+        $this->actingAs($this->admin, 'admin')
+            ->from(route('admin.properties.edit', ['property' => $property, 'tab' => 'current']))
+            ->put(route('admin.properties.tenancies.end', $property), [
+                'ended_on' => '2026-08-16',
+            ])
+            ->assertRedirect()
+            ->assertSessionHasErrors('ended_on');
+
+        $this->actingAs($this->admin, 'admin')
+            ->put(route('admin.properties.tenancies.end', $property), [
+                'ended_on' => '2026-10-16',
+            ])
+            ->assertRedirect(route('admin.properties.edit', ['property' => $property, 'tab' => 'current']))
+            ->assertSessionHasNoErrors();
+
+        $this->assertSame('2026-10-16', Tenancy::query()->first()?->ended_on?->toDateString());
     }
 
     public function test_cannot_delete_tenant_with_history(): void
@@ -285,13 +602,6 @@ class PropertyPortfolioTest extends TestCase
             'last_name' => 'Tenant',
             'mobile_number' => '07123456789',
             'email' => 'jane.tenant@example.com',
-            'address_line_1' => '10 Downing Street',
-            'address_line_2' => '',
-            'address_line_3' => '',
-            'city' => 'London',
-            'county' => 'Greater London',
-            'postcode' => 'sw1a1aa',
-            'country' => 'United Kingdom',
         ], $overrides);
     }
 
@@ -315,9 +625,7 @@ class PropertyPortfolioTest extends TestCase
      */
     private function createTenant(array $overrides = []): Tenant
     {
-        return Tenant::query()->create($this->tenantPayload(array_merge([
-            'postcode' => 'SW1A 1AA',
-        ], $overrides)));
+        return Tenant::query()->create($this->tenantPayload($overrides));
     }
 
     private function createProperty(): Property

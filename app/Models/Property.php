@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\AuditsModelChanges;
+use App\Models\Concerns\HasDocuments;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,6 +14,7 @@ use OwenIt\Auditing\Contracts\Auditable;
 class Property extends Model implements Auditable
 {
     use AuditsModelChanges;
+    use HasDocuments;
 
     protected $fillable = [
         'property_type_id',

@@ -7,6 +7,7 @@ use App\Repositories\AuditRepository;
 use App\Repositories\Contracts\AdminRepositoryInterface;
 use App\Repositories\Contracts\AuditRepositoryInterface;
 use App\Repositories\Contracts\CouncilRepositoryInterface;
+use App\Repositories\Contracts\DocumentRepositoryInterface;
 use App\Repositories\Contracts\EmailTemplateRepositoryInterface;
 use App\Repositories\Contracts\PropertyRepositoryInterface;
 use App\Repositories\Contracts\PropertyTypeRepositoryInterface;
@@ -18,6 +19,7 @@ use App\Repositories\Contracts\TicketPriorityRepositoryInterface;
 use App\Repositories\Contracts\TicketRepositoryInterface;
 use App\Repositories\Contracts\TicketTypeRepositoryInterface;
 use App\Repositories\CouncilRepository;
+use App\Repositories\DocumentRepository;
 use App\Repositories\EmailTemplateRepository;
 use App\Repositories\PropertyRepository;
 use App\Repositories\PropertyTypeRepository;
@@ -36,6 +38,7 @@ class RepositoryServiceProvider extends ServiceProvider
         AdminRepositoryInterface::class => AdminRepository::class,
         StaffRepositoryInterface::class => StaffRepository::class,
         CouncilRepositoryInterface::class => CouncilRepository::class,
+        DocumentRepositoryInterface::class => DocumentRepository::class,
         EmailTemplateRepositoryInterface::class => EmailTemplateRepository::class,
         SiteSettingRepositoryInterface::class => SiteSettingRepository::class,
         AuditRepositoryInterface::class => AuditRepository::class,
