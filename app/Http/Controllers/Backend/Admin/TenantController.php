@@ -66,10 +66,16 @@ class TenantController extends Controller
 
     public function edit(Tenant $tenant): View
     {
-        $tenant->load(['tenancies.property.propertyType', 'currentTenancy.property', 'documents']);
-        $vacantProperties = $this->propertyRepository->listVacant();
+        $tenant->load([
+            'tenancies.property.propertyType',
+            'tenancies.room',
+            'currentTenancy.property',
+            'currentTenancy.room',
+            'documents',
+        ]);
+        $assignableProperties = $this->propertyRepository->listAssignable();
 
-        return view('backend::admin.tenants.edit', compact('tenant', 'vacantProperties'));
+        return view('backend::admin.tenants.edit', compact('tenant', 'assignableProperties'));
     }
 
     public function update(UpdateTenantRequest $request, Tenant $tenant): RedirectResponse
@@ -120,9 +126,11 @@ class TenantController extends Controller
     public function storeTenancy(AssignPropertyRequest $request, Tenant $tenant): RedirectResponse
     {
         $property = Property::query()->findOrFail($request->validated('property_id'));
+        $roomId = $request->validated('room_id');
+        $room = $roomId ? $property->rooms()->whereKey($roomId)->firstOrFail() : null;
 
         try {
-            $this->tenancyService->assign($property, $tenant, $request->validated('started_on'));
+            $this->tenancyService->assign($property, $tenant, $request->validated('started_on'), $room);
         } catch (ValidationException $exception) {
             return back()
                 ->withInput()

@@ -3,6 +3,7 @@
 namespace App\Repositories\Contracts;
 
 use App\Models\Property;
+use App\Models\Room;
 use App\Models\Tenancy;
 use App\Models\Tenant;
 
@@ -14,13 +15,23 @@ interface TenancyRepositoryInterface
 
     public function currentForProperty(Property $property): ?Tenancy;
 
+    public function currentForRoom(Room $room): ?Tenancy;
+
     public function currentForTenant(Tenant $tenant): ?Tenancy;
 
     public function hasAnyForTenant(Tenant $tenant): bool;
 
     public function hasAnyForProperty(Property $property): bool;
 
+    public function hasAnyForRoom(Room $room): bool;
+
+    public function hasOpenForProperty(Property $property): bool;
+
+    public function anyRoomHasTenancyHistory(Property $property): bool;
+
     public function propertyHasOverlap(Property $property, string $startedOn): bool;
+
+    public function roomHasOverlap(Room $room, string $startedOn): bool;
 
     public function tenantHasOverlap(Tenant $tenant, string $startedOn): bool;
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Backend\Admin\Property;
 
 use App\Models\Property;
+use App\Models\Room;
 use App\Models\Tenant;
 use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
@@ -52,6 +53,13 @@ class EndTenancyRequest extends FormRequest
 
     private function tenancyStartDate(): ?string
     {
+        $room = $this->route('room');
+        if ($room instanceof Room) {
+            $room->loadMissing('currentTenancy');
+
+            return $room->currentTenancy?->started_on?->toDateString();
+        }
+
         $property = $this->route('property');
         if ($property instanceof Property) {
             $property->loadMissing('currentTenancy');

@@ -409,7 +409,7 @@ class PropertyPortfolioTest extends TestCase
             'tenant_id' => $tenant->id,
             'property_id' => $property->id,
             'active_tenant_id' => $tenant->id,
-            'active_property_id' => $property->id,
+            'active_whole_property_id' => $property->id,
             'ended_on' => null,
         ]);
     }
@@ -460,7 +460,8 @@ class PropertyPortfolioTest extends TestCase
         $this->assertNotNull($tenancy);
         $this->assertSame('2026-06-01', $tenancy->ended_on?->toDateString());
         $this->assertNull($tenancy->active_tenant_id);
-        $this->assertNull($tenancy->active_property_id);
+        $this->assertNull($tenancy->active_whole_property_id);
+        $this->assertNull($tenancy->active_room_id);
 
         $this->assertFalse($tenant->fresh()->isCurrent());
         $this->assertFalse($property->fresh()->isOccupied());
@@ -613,6 +614,7 @@ class PropertyPortfolioTest extends TestCase
         return array_merge([
             'name' => '12 High Street — Flat 2',
             'property_type_id' => $this->propertyType->id,
+            'rental_mode' => 'whole',
             'address_line_1' => '12 High Street',
             'city' => 'Manchester',
             'postcode' => 'M1 1AE',

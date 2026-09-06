@@ -578,6 +578,88 @@ a:hover {
   margin-bottom: 1rem;
 }
 
+.lms-rooms-panel {
+  background: #f8fafc;
+  border: 1px solid rgba(30, 41, 59, 0.08);
+  border-radius: 0.75rem;
+  padding: 1rem 1.1rem;
+}
+
+.lms-rooms-panel__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.85rem;
+}
+
+.lms-rooms-panel__hint {
+  color: #64748b;
+  font-size: 0.8125rem;
+}
+
+.lms-rooms-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lms-rooms-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  background: #fff;
+  border: 1px solid rgba(30, 41, 59, 0.08);
+  border-radius: 0.5rem;
+  padding: 0.45rem 0.5rem;
+}
+
+.lms-rooms-row__index {
+  flex: 0 0 1.75rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lms-rooms-row .form-control {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.lms-rooms-row__remove {
+  flex: 0 0 auto;
+  width: 2rem;
+  height: 2rem;
+  border: 0;
+  border-radius: 0.4rem;
+  background: transparent;
+  color: #94a3b8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.lms-rooms-row__remove:hover {
+  background: rgba(239, 68, 68, 0.08);
+  color: #ef4444;
+}
+
+@media (max-width: 575.98px) {
+  .lms-rooms-panel {
+    padding: 0.85rem;
+  }
+}
+
 .property-form-actions {
   margin-top: 1.5rem;
   display: flex;

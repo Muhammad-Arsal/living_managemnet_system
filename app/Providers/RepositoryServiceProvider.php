@@ -11,6 +11,7 @@ use App\Repositories\Contracts\DocumentRepositoryInterface;
 use App\Repositories\Contracts\EmailTemplateRepositoryInterface;
 use App\Repositories\Contracts\PropertyRepositoryInterface;
 use App\Repositories\Contracts\PropertyTypeRepositoryInterface;
+use App\Repositories\Contracts\RoomRepositoryInterface;
 use App\Repositories\Contracts\SiteSettingRepositoryInterface;
 use App\Repositories\Contracts\StaffRepositoryInterface;
 use App\Repositories\Contracts\TenancyRepositoryInterface;
@@ -23,6 +24,7 @@ use App\Repositories\DocumentRepository;
 use App\Repositories\EmailTemplateRepository;
 use App\Repositories\PropertyRepository;
 use App\Repositories\PropertyTypeRepository;
+use App\Repositories\RoomRepository;
 use App\Repositories\SiteSettingRepository;
 use App\Repositories\StaffRepository;
 use App\Repositories\TenancyRepository;
@@ -48,6 +50,7 @@ class RepositoryServiceProvider extends ServiceProvider
         PropertyTypeRepositoryInterface::class => PropertyTypeRepository::class,
         TenantRepositoryInterface::class => TenantRepository::class,
         PropertyRepositoryInterface::class => PropertyRepository::class,
+        RoomRepositoryInterface::class => RoomRepository::class,
         TenancyRepositoryInterface::class => TenancyRepository::class,
     ];
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Backend\Admin\PropertyController;
+use App\Http\Controllers\Backend\Admin\RoomController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function () {
@@ -8,6 +9,18 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
         ->name('properties.tenancies.store');
     Route::put('properties/{property}/tenancies/current', [PropertyController::class, 'endTenancy'])
         ->name('properties.tenancies.end');
+
+    Route::post('properties/{property}/rooms', [RoomController::class, 'store'])
+        ->name('properties.rooms.store');
+    Route::put('properties/{property}/rooms/{room}', [RoomController::class, 'update'])
+        ->name('properties.rooms.update');
+    Route::delete('properties/{property}/rooms/{room}', [RoomController::class, 'destroy'])
+        ->name('properties.rooms.destroy');
+    Route::post('properties/{property}/rooms/{room}/tenancies', [RoomController::class, 'storeTenancy'])
+        ->name('properties.rooms.tenancies.store');
+    Route::put('properties/{property}/rooms/{room}/tenancies/current', [RoomController::class, 'endTenancy'])
+        ->name('properties.rooms.tenancies.end');
+
     Route::delete('properties/{property}/images/{property_image}', [PropertyController::class, 'destroyImage'])
         ->name('properties.images.destroy');
     Route::post('properties/{property}/images', [PropertyController::class, 'storeImages'])

@@ -4,7 +4,7 @@
 
 @php
     $activeTab = request('tab', 'overview');
-    if ($errors->has('property_id') || $errors->has('tenant_id') || $errors->has('started_on') || $errors->has('ended_on')) {
+    if ($errors->has('property_id') || $errors->has('room_id') || $errors->has('tenant_id') || $errors->has('started_on') || $errors->has('ended_on')) {
         $activeTab = 'current';
     }
     if ($errors->has('documents') || $errors->has('documents.*')) {
@@ -39,7 +39,9 @@
                                 <div>
                                     <p class="lms-occupancy-strip__label">Current property</p>
                                     <p class="lms-occupancy-strip__title">{{ $current->property->name }}</p>
-                                    <p class="lms-occupancy-strip__meta">{{ $current->property->postcode }} · started {{ $current->started_on->format('d M Y') }}</p>
+                                    <p class="lms-occupancy-strip__meta">
+                                        {{ $current->locationLabel() }} · {{ $current->property->postcode }} · started {{ $current->started_on->format('d M Y') }}
+                                    </p>
                                 </div>
                             </div>
                             <div class="d-flex flex-wrap gap-2">
@@ -141,6 +143,10 @@
                                             <p class="lms-meta-grid__value">{{ $current->property->name }}</p>
                                         </div>
                                         <div>
+                                            <span class="lms-meta-grid__label">Location</span>
+                                            <p class="lms-meta-grid__value">{{ $current->locationLabel() }}</p>
+                                        </div>
+                                        <div>
                                             <span class="lms-meta-grid__label">Address</span>
                                             <p class="lms-meta-grid__value">{{ $current->property->formattedAddress() }}</p>
                                         </div>
@@ -183,26 +189,36 @@
                             @else
                                 <div class="lms-panel">
                                     <h6 class="lms-panel__title">Assign property</h6>
-                                    <p class="lms-panel__lede">Choose a vacant property and a start date. You can also do this from the property record.</p>
-                                    @if ($vacantProperties->isEmpty())
-                                        <p class="mb-0">There are no vacant properties to assign. Create a property first, or end another current tenancy.</p>
+                                    <p class="lms-panel__lede">Choose an assignable property (whole vacant, or per-room with a vacant room) and a start date.</p>
+                                    @if ($assignableProperties->isEmpty())
+                                        <p class="mb-0">There are no assignable properties. Create a property first, or free up a vacancy.</p>
                                     @else
-                                        <form action="{{ route('admin.tenants.tenancies.store', $tenant) }}" method="POST" class="row g-3 align-items-end">
+                                        <form action="{{ route('admin.tenants.tenancies.store', $tenant) }}" method="POST" class="row g-3 align-items-end" id="tenant-assign-form">
                                             @csrf
-                                            <div class="col-md-6">
+                                            <div class="col-md-5">
                                                 <label for="property_id" class="form-label">Property <span class="text-danger">*</span></label>
                                                 <select name="property_id" id="property_id" class="form-select @error('property_id') is-invalid @enderror">
                                                     <option value="">Select property</option>
-                                                    @foreach ($vacantProperties as $property)
-                                                        <option value="{{ $property->id }}" @selected((string) old('property_id') === (string) $property->id)>
-                                                            {{ $property->name }} ({{ $property->postcode }})
+                                                    @foreach ($assignableProperties as $property)
+                                                        <option value="{{ $property->id }}"
+                                                            data-mode="{{ $property->rental_mode->value }}"
+                                                            data-rooms='@json($property->rooms->map(fn ($room) => ["id" => $room->id, "name" => $room->name])->values())'
+                                                            @selected((string) old('property_id') === (string) $property->id)>
+                                                            {{ $property->name }} ({{ $property->postcode }}) · {{ $property->rental_mode->label() }}
                                                         </option>
                                                     @endforeach
                                                 </select>
                                                 @error('property_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                                                 @error('tenant_id')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                                             </div>
-                                            <div class="col-md-4">
+                                            <div class="col-md-3" id="room-select-wrap" style="display:none">
+                                                <label for="room_id" class="form-label">Room <span class="text-danger">*</span></label>
+                                                <select name="room_id" id="room_id" class="form-select @error('room_id') is-invalid @enderror">
+                                                    <option value="">Select room</option>
+                                                </select>
+                                                @error('room_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                                            </div>
+                                            <div class="col-md-3">
                                                 <label for="started_on" class="form-label">Start date <span class="text-danger">*</span></label>
                                                 <input type="date" class="form-control @error('started_on') is-invalid @enderror" id="started_on" name="started_on" value="{{ old('started_on') }}">
                                                 @error('started_on')<div class="invalid-feedback">{{ $message }}</div>@enderror
@@ -223,6 +239,7 @@
                                         <thead>
                                             <tr>
                                                 <th>Property</th>
+                                                <th>Location</th>
                                                 <th>Start</th>
                                                 <th>End</th>
                                                 <th>Status</th>
@@ -235,6 +252,7 @@
                                                         <a href="{{ route('admin.properties.edit', $tenancy->property) }}">{{ $tenancy->property->name }}</a>
                                                         <div class="small text-muted">{{ $tenancy->property->postcode }}</div>
                                                     </td>
+                                                    <td>{{ $tenancy->locationLabel() }}</td>
                                                     <td>{{ $tenancy->started_on->format('d M Y') }}</td>
                                                     <td>{{ $tenancy->ended_on?->format('d M Y') ?? '—' }}</td>
                                                     <td>
@@ -281,4 +299,49 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('scripts')
+    <script>
+        (function () {
+            var propertySelect = document.getElementById('property_id');
+            var roomWrap = document.getElementById('room-select-wrap');
+            var roomSelect = document.getElementById('room_id');
+            if (!propertySelect || !roomWrap || !roomSelect) return;
+
+            var oldRoomId = @json(old('room_id'));
+
+            function syncRooms() {
+                var option = propertySelect.options[propertySelect.selectedIndex];
+                var mode = option ? option.getAttribute('data-mode') : null;
+                var rooms = [];
+                try {
+                    rooms = option && option.getAttribute('data-rooms') ? JSON.parse(option.getAttribute('data-rooms')) : [];
+                } catch (e) {
+                    rooms = [];
+                }
+
+                roomSelect.innerHTML = '<option value="">Select room</option>';
+                if (mode === 'per_room') {
+                    roomWrap.style.display = '';
+                    rooms.forEach(function (room) {
+                        var opt = document.createElement('option');
+                        opt.value = room.id;
+                        opt.textContent = room.name;
+                        if (String(oldRoomId) === String(room.id)) opt.selected = true;
+                        roomSelect.appendChild(opt);
+                    });
+                } else {
+                    roomWrap.style.display = 'none';
+                    roomSelect.value = '';
+                }
+            }
+
+            propertySelect.addEventListener('change', function () {
+                oldRoomId = null;
+                syncRooms();
+            });
+            syncRooms();
+        })();
+    </script>
 @endsection

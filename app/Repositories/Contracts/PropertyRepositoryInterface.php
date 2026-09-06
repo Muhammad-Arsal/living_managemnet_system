@@ -13,6 +13,8 @@ interface PropertyRepositoryInterface
 
     public function listVacant(): Collection;
 
+    public function listAssignable(): Collection;
+
     public function create(array $data): Property;
 
     public function update(Property $property, array $data): Property;

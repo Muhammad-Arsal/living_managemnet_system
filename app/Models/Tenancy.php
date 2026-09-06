@@ -14,10 +14,12 @@ class Tenancy extends Model implements Auditable
     protected $fillable = [
         'tenant_id',
         'property_id',
+        'room_id',
         'started_on',
         'ended_on',
-        'active_property_id',
         'active_tenant_id',
+        'active_whole_property_id',
+        'active_room_id',
     ];
 
     protected function casts(): array
@@ -32,11 +34,19 @@ class Tenancy extends Model implements Auditable
     {
         static::saving(function (Tenancy $tenancy): void {
             if ($tenancy->ended_on === null) {
-                $tenancy->active_property_id = $tenancy->property_id;
                 $tenancy->active_tenant_id = $tenancy->tenant_id;
+
+                if ($tenancy->room_id === null) {
+                    $tenancy->active_whole_property_id = $tenancy->property_id;
+                    $tenancy->active_room_id = null;
+                } else {
+                    $tenancy->active_room_id = $tenancy->room_id;
+                    $tenancy->active_whole_property_id = null;
+                }
             } else {
-                $tenancy->active_property_id = null;
                 $tenancy->active_tenant_id = null;
+                $tenancy->active_whole_property_id = null;
+                $tenancy->active_room_id = null;
             }
         });
     }
@@ -51,9 +61,32 @@ class Tenancy extends Model implements Auditable
         return $this->belongsTo(Property::class);
     }
 
+    public function room(): BelongsTo
+    {
+        return $this->belongsTo(Room::class);
+    }
+
     public function isCurrent(): bool
     {
         return $this->ended_on === null;
+    }
+
+    public function isWhole(): bool
+    {
+        return $this->room_id === null;
+    }
+
+    public function locationLabel(): string
+    {
+        if ($this->room_id === null) {
+            return 'Whole property';
+        }
+
+        if ($this->relationLoaded('room') && $this->room !== null) {
+            return $this->room->name;
+        }
+
+        return $this->room?->name ?? 'Room';
     }
 
     public function statusLabel(): string

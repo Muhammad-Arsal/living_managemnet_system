@@ -77,8 +77,10 @@ class PropertyController extends Controller
             'propertyType',
             'images',
             'documents',
+            'rooms.currentTenancy.tenant',
             'currentTenancy.tenant',
             'tenancies.tenant',
+            'tenancies.room',
         ]);
 
         $propertyTypes = $this->propertyTypeRepository->listForPropertyForm($property->property_type_id);
@@ -157,7 +159,7 @@ class PropertyController extends Controller
         $tenant = Tenant::query()->findOrFail($request->validated('tenant_id'));
 
         try {
-            $this->tenancyService->assign($property, $tenant, $request->validated('started_on'));
+            $this->tenancyService->assignWhole($property, $tenant, $request->validated('started_on'));
         } catch (ValidationException $exception) {
             return back()
                 ->withInput()
@@ -173,7 +175,7 @@ class PropertyController extends Controller
     public function endTenancy(EndTenancyRequest $request, Property $property): RedirectResponse
     {
         try {
-            $this->tenancyService->endCurrent($property, $request->validated('ended_on'));
+            $this->tenancyService->endCurrentWhole($property, $request->validated('ended_on'));
         } catch (ValidationException $exception) {
             return back()
                 ->withInput()

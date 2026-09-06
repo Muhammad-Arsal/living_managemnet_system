@@ -48,7 +48,8 @@
                             <label for="occupancy" class="form-label">Occupancy</label>
                             <select name="occupancy" id="occupancy" class="form-select">
                                 <option value="">All</option>
-                                <option value="occupied" @selected(request('occupancy') === 'occupied')>Occupied</option>
+                                <option value="occupied" @selected(request('occupancy') === 'occupied')>Occupied / fully occupied</option>
+                                <option value="partial" @selected(request('occupancy') === 'partial')>Partially occupied</option>
                                 <option value="vacant" @selected(request('occupancy') === 'vacant')>Vacant</option>
                             </select>
                         </div>
@@ -71,8 +72,9 @@
                                     <tr>
                                         <th>Property</th>
                                         <th class="d-none d-md-table-cell">Type</th>
+                                        <th class="d-none d-lg-table-cell">Mode</th>
                                         <th>Occupancy</th>
-                                        <th class="d-none d-lg-table-cell">Current tenant</th>
+                                        <th class="d-none d-xl-table-cell">Current</th>
                                         <th class="text-end">Actions</th>
                                     </tr>
                                 </thead>
@@ -93,20 +95,28 @@
                                                 </div>
                                             </td>
                                             <td class="d-none d-md-table-cell">{{ $property->propertyType?->name ?? '—' }}</td>
+                                            <td class="d-none d-lg-table-cell">{{ $property->rental_mode->label() }}</td>
                                             <td>
-                                                @if ($property->isOccupied())
-                                                    <span class="lms-badge lms-badge--success"><span class="lms-badge__dot"></span>Occupied</span>
+                                                @if ($property->isPartiallyOccupied())
+                                                    <span class="lms-badge lms-badge--warning"><span class="lms-badge__dot"></span>Partial</span>
+                                                    <div class="small text-muted">{{ $property->occupancySummary() }}</div>
+                                                @elseif ($property->isOccupied())
+                                                    <span class="lms-badge lms-badge--success"><span class="lms-badge__dot"></span>{{ $property->isPerRoom() ? 'Fully occupied' : 'Occupied' }}</span>
                                                 @else
                                                     <span class="lms-badge lms-badge--muted"><span class="lms-badge__dot"></span>Vacant</span>
                                                 @endif
                                             </td>
-                                            <td class="d-none d-lg-table-cell">
-                                                {{ $property->currentTenancy?->tenant?->full_name ?? '—' }}
+                                            <td class="d-none d-xl-table-cell">
+                                                @if ($property->isPerRoom())
+                                                    {{ $property->occupancySummary() }}
+                                                @else
+                                                    {{ $property->currentTenancy?->tenant?->full_name ?? '—' }}
+                                                @endif
                                             </td>
                                             <td class="text-end">
                                                 <div class="lms-actions justify-content-end">
-                                                    @if (! $property->isOccupied())
-                                                        <a href="{{ route('admin.properties.edit', ['property' => $property, 'tab' => 'current']) }}" class="lms-action-btn lms-action-btn--edit">
+                                                    @if ($property->hasAssignableVacancy())
+                                                        <a href="{{ route('admin.properties.edit', ['property' => $property, 'tab' => $property->isPerRoom() ? 'rooms' : 'current']) }}" class="lms-action-btn lms-action-btn--edit">
                                                             <i class="iconify" data-icon="bx:bx-user-plus"></i>
                                                             <span>Assign</span>
                                                         </a>

@@ -15,13 +15,14 @@ class PropertyRepository implements PropertyRepositoryInterface
         $allowed = ['name', 'postcode', 'city'];
 
         return Property::query()
-            ->with(['propertyType', 'coverImage', 'currentTenancy.tenant'])
+            ->with(['propertyType', 'coverImage', 'currentTenancy.tenant', 'rooms.currentTenancy.tenant'])
             ->when(
                 $search !== null && $search !== '' && $column !== null && in_array($column, $allowed, true),
                 fn ($query) => $query->where($column, 'like', '%'.$search.'%')
             )
             ->when($occupancy === 'occupied', fn ($query) => $query->occupied())
             ->when($occupancy === 'vacant', fn ($query) => $query->vacant())
+            ->when($occupancy === 'partial', fn ($query) => $query->partiallyOccupied())
             ->when($propertyTypeId, fn ($query) => $query->where('property_type_id', $propertyTypeId))
             ->latest()
             ->paginate($perPage)
@@ -32,6 +33,15 @@ class PropertyRepository implements PropertyRepositoryInterface
     {
         return Property::query()
             ->vacant()
+            ->orderBy('name')
+            ->get();
+    }
+
+    public function listAssignable(): Collection
+    {
+        return Property::query()
+            ->assignable()
+            ->with(['rooms' => fn ($query) => $query->whereDoesntHave('currentTenancy')->orderBy('sort_order')->orderBy('id')])
             ->orderBy('name')
             ->get();
     }
