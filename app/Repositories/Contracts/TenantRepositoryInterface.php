@@ -12,6 +12,8 @@ interface TenantRepositoryInterface
 
     public function listAssignable(?int $includeId = null): Collection;
 
+    public function listForSelect(): Collection;
+
     public function create(array $data): Tenant;
 
     public function update(Tenant $tenant, array $data): Tenant;

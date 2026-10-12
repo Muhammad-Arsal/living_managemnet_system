@@ -44,6 +44,28 @@ class DocumentService
         }
     }
 
+    public function storeGenerated(
+        Model $documentable,
+        string $binary,
+        string $originalName,
+        string $mimeType = 'application/pdf',
+    ): Document {
+        $disk = (string) config('documents.disk', 'local');
+        $directory = $this->directory($documentable);
+        $extension = pathinfo($originalName, PATHINFO_EXTENSION) ?: 'pdf';
+        $path = $directory.'/'.uniqid('generated_', true).'.'.$extension;
+
+        Storage::disk($disk)->put($path, $binary);
+
+        return $this->documentRepository->add($documentable, [
+            'original_name' => $originalName,
+            'disk' => $disk,
+            'path' => $path,
+            'mime_type' => $mimeType,
+            'size' => strlen($binary),
+        ]);
+    }
+
     public function download(Model $documentable, Document $document): StreamedResponse
     {
         abort_unless(

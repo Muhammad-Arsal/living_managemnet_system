@@ -49,6 +49,14 @@ class TenantRepository implements TenantRepositoryInterface
             ->get();
     }
 
+    public function listForSelect(): Collection
+    {
+        return Tenant::query()
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->get(['id', 'first_name', 'last_name', 'email']);
+    }
+
     public function create(array $data): Tenant
     {
         return Tenant::query()->create($data);
