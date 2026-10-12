@@ -21,7 +21,7 @@ class PropertyDocumentGenerationController extends Controller
         private readonly TenantRepositoryInterface $tenantRepository,
     ) {}
 
-    public function create(Request $request, Property $property): View
+    public function create(Request $request, Property $property): View|Response
     {
         $templates = $this->documentGenerationService->availableTemplates();
         $selectedTemplate = DocumentTemplateKey::tryFrom((string) $request->query('template', ''));
@@ -44,7 +44,7 @@ class PropertyDocumentGenerationController extends Controller
 
         $fieldValues = old('fields', $resolved['values']);
 
-        return view('backend::admin.properties.documents.generate', [
+        $data = [
             'property' => $property,
             'templates' => $templates,
             'selectedTemplate' => $selectedTemplate,
@@ -53,7 +53,15 @@ class PropertyDocumentGenerationController extends Controller
             'selectedTenant' => $tenant,
             'fieldValues' => $fieldValues,
             'fieldMeta' => $resolved['meta'],
-        ]);
+        ];
+
+        if ($request->boolean('partial')) {
+            return response()
+                ->view('backend::admin.properties.documents.partials.generate-workspace', $data)
+                ->header('Cache-Control', 'no-store');
+        }
+
+        return view('backend::admin.properties.documents.generate', $data);
     }
 
     public function preview(GenerateDocumentRequest $request, Property $property): Response
@@ -68,6 +76,7 @@ class PropertyDocumentGenerationController extends Controller
 
         return response($html, 200, [
             'Content-Type' => 'text/html; charset=UTF-8',
+            'Cache-Control' => 'no-store',
         ]);
     }
 

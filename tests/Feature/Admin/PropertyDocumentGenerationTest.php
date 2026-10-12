@@ -87,6 +87,54 @@ class PropertyDocumentGenerationTest extends TestCase
         $response->assertSee('02400000000');
     }
 
+    public function test_partial_workspace_loads_selected_template_without_full_page_chrome(): void
+    {
+        $response = $this->actingAs($this->admin, 'admin')
+            ->get(route('admin.properties.documents.generate', [
+                'property' => $this->property,
+                'template' => DocumentTemplateKey::ServiceChargeNotice->value,
+                'tenant_id' => $this->tenant->id,
+                'partial' => 1,
+            ]));
+
+        $response->assertOk();
+        $response->assertSee('document-generate-form', false);
+        $response->assertSee('Weekly service charge amount', false);
+        $response->assertDontSee('Documents · Generate');
+    }
+
+    public function test_invalid_preview_returns_json_errors_for_ajax(): void
+    {
+        $response = $this->actingAs($this->admin, 'admin')
+            ->withHeaders([
+                'Accept' => 'application/json',
+                'X-Requested-With' => 'XMLHttpRequest',
+            ])
+            ->post(route('admin.properties.documents.generate.preview', $this->property), [
+                'template' => DocumentTemplateKey::ServiceChargeNotice->value,
+                'tenant_id' => $this->tenant->id,
+                'fields' => [
+                    'provider_name' => 'Rneyz Housing',
+                    'date_issued' => now()->toDateString(),
+                    'tenant_name' => 'Jane Resident',
+                    'property_address' => '12 High Street',
+                    'dear_name' => 'Jane',
+                    'service_charge_amount' => '',
+                    'payment_day' => '',
+                    'first_payment_due' => '',
+                    'account_name' => '',
+                    'sort_code' => '',
+                    'account_number' => '',
+                ],
+            ]);
+
+        $this->assertSame(422, $response->status(), $response->getContent());
+        $errors = $response->json('errors');
+        $this->assertIsArray($errors);
+        $this->assertArrayHasKey('fields.service_charge_amount', $errors);
+        $this->assertArrayHasKey('fields.payment_day', $errors);
+    }
+
     #[DataProvider('templateKeysProvider')]
     public function test_each_template_can_be_previewed(string $templateKey): void
     {

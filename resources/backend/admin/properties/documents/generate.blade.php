@@ -22,15 +22,20 @@
                         <div class="alert alert-danger" role="alert">{{ session('error') }}</div>
                     @endif
 
-                    <div class="lms-docgen">
+                    <div class="lms-docgen"
+                         id="lms-docgen"
+                         data-base-url="{{ route('admin.properties.documents.generate', $property) }}"
+                         data-preview-url="{{ route('admin.properties.documents.generate.preview', $property) }}">
                         <div class="lms-docgen__step">
                             <h6 class="property-form-section__title">1. Choose a template</h6>
                             <p class="text-muted small mb-3">Select a document template. Available property and tenant details will be filled in automatically where possible.</p>
-                            <div class="lms-docgen-grid">
+                            <div class="lms-docgen-grid" id="lms-docgen-templates">
                                 @foreach ($templates as $template)
                                     @php $key = $template['key']; @endphp
-                                    <a href="{{ route('admin.properties.documents.generate', ['property' => $property, 'template' => $key->value, 'tenant_id' => $selectedTenant?->id]) }}"
-                                       class="lms-docgen-card @if ($selectedTemplate === $key) is-active @endif">
+                                    <button type="button"
+                                            class="lms-docgen-card @if ($selectedTemplate === $key) is-active @endif"
+                                            data-docgen-template="{{ $key->value }}"
+                                            aria-pressed="{{ $selectedTemplate === $key ? 'true' : 'false' }}">
                                         <span class="lms-docgen-card__icon">
                                             <i class="iconify" data-icon="{{ $template['icon'] }}"></i>
                                         </span>
@@ -38,145 +43,14 @@
                                             <span class="lms-docgen-card__title">{{ $template['label'] }}</span>
                                             <span class="lms-docgen-card__desc">{{ $template['description'] }}</span>
                                         </span>
-                                    </a>
+                                    </button>
                                 @endforeach
                             </div>
                         </div>
 
-                        @if ($selectedTemplate)
-                            <form method="POST"
-                                  action="{{ route('admin.properties.documents.generate.store', $property) }}"
-                                  id="document-generate-form"
-                                  class="lms-docgen__form">
-                                @csrf
-                                <input type="hidden" name="template" value="{{ $selectedTemplate->value }}">
-
-                                <div class="lms-docgen__step">
-                                    <h6 class="property-form-section__title">2. Select resident</h6>
-                                    <p class="text-muted small mb-3">Documents are generated for a specific resident linked to this property.</p>
-                                    <div class="row g-3">
-                                        <div class="col-12 col-lg-6">
-                                            <label class="form-label" for="tenant_id">Resident <span class="text-danger">*</span></label>
-                                            <select name="tenant_id" id="tenant_id" class="form-select @error('tenant_id') is-invalid @enderror" required
-                                                    onchange="window.location='{{ route('admin.properties.documents.generate', ['property' => $property, 'template' => $selectedTemplate->value]) }}&tenant_id=' + this.value;">
-                                                <option value="">Select resident…</option>
-                                                @if ($currentTenants->isNotEmpty())
-                                                    <optgroup label="Current at this property">
-                                                        @foreach ($currentTenants as $tenant)
-                                                            <option value="{{ $tenant->id }}" @selected((string) old('tenant_id', $selectedTenant?->id) === (string) $tenant->id)>
-                                                                {{ $tenant->full_name }} ({{ $tenant->email }})
-                                                            </option>
-                                                        @endforeach
-                                                    </optgroup>
-                                                @endif
-                                                <optgroup label="All tenants">
-                                                    @foreach ($allTenants as $tenant)
-                                                        <option value="{{ $tenant->id }}" @selected((string) old('tenant_id', $selectedTenant?->id) === (string) $tenant->id)>
-                                                            {{ $tenant->full_name }} ({{ $tenant->email }})
-                                                        </option>
-                                                    @endforeach
-                                                </optgroup>
-                                            </select>
-                                            @error('tenant_id')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="lms-docgen__step">
-                                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-2">
-                                        <h6 class="property-form-section__title mb-0">3. Review &amp; edit fields</h6>
-                                        <div class="lms-docgen-legend">
-                                            <span class="lms-field-badge lms-field-badge--prefilled">Prefilled</span>
-                                            <span class="lms-field-badge lms-field-badge--editable">Editable</span>
-                                            <span class="lms-field-badge lms-field-badge--missing">Missing required</span>
-                                        </div>
-                                    </div>
-                                    <p class="text-muted small mb-3">Prefilled values come from property, tenant, tenancy, or site settings. Edit anything before generating.</p>
-
-                                    <div class="row g-3">
-                                        @foreach ($fieldMeta as $key => $meta)
-                                            @php
-                                                $status = $meta['status'];
-                                                if (old('fields.'.$key) !== null) {
-                                                    $status = filled(old('fields.'.$key))
-                                                        ? ($meta['source_label'] ? 'prefilled' : 'editable')
-                                                        : ($meta['required'] ? 'missing' : 'editable');
-                                                }
-                                                $value = old('fields.'.$key, $fieldValues[$key] ?? '');
-                                            @endphp
-                                            <div class="col-12 @if ($meta['type'] !== 'textarea') col-md-6 @endif">
-                                                <label class="form-label d-flex flex-wrap align-items-center gap-2" for="field_{{ $key }}">
-                                                    <span>{{ $meta['label'] }} @if ($meta['required']) <span class="text-danger">*</span> @endif</span>
-                                                    <span class="lms-field-badge lms-field-badge--{{ $status }}">
-                                                        @if ($status === 'prefilled')
-                                                            Prefilled{{ $meta['source_label'] ? ' · '.$meta['source_label'] : '' }}
-                                                        @elseif ($status === 'missing')
-                                                            Missing
-                                                        @else
-                                                            Manual
-                                                        @endif
-                                                    </span>
-                                                </label>
-                                                @if ($meta['type'] === 'textarea')
-                                                    <textarea
-                                                        name="fields[{{ $key }}]"
-                                                        id="field_{{ $key }}"
-                                                        rows="3"
-                                                        class="form-control @error('fields.'.$key) is-invalid @enderror @if ($status === 'missing') is-invalid @endif"
-                                                        @if ($meta['required']) required @endif
-                                                    >{{ $value }}</textarea>
-                                                @elseif ($meta['type'] === 'date')
-                                                    <input
-                                                        type="date"
-                                                        name="fields[{{ $key }}]"
-                                                        id="field_{{ $key }}"
-                                                        value="{{ $value }}"
-                                                        class="form-control @error('fields.'.$key) is-invalid @enderror @if ($status === 'missing') is-invalid @endif"
-                                                        @if ($meta['required']) required @endif
-                                                    >
-                                                @else
-                                                    <input
-                                                        type="text"
-                                                        name="fields[{{ $key }}]"
-                                                        id="field_{{ $key }}"
-                                                        value="{{ $value }}"
-                                                        class="form-control @error('fields.'.$key) is-invalid @enderror @if ($status === 'missing') is-invalid @endif"
-                                                        @if ($meta['required']) required @endif
-                                                    >
-                                                @endif
-                                                @error('fields.'.$key)
-                                                    <div class="invalid-feedback d-block">{{ $message }}</div>
-                                                @enderror
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-
-                                <div class="lms-docgen__step">
-                                    <h6 class="property-form-section__title">4. Preview &amp; generate</h6>
-                                    <p class="text-muted small mb-3">Preview the document in a new tab, then generate a PDF saved to this property’s documents.</p>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <button type="button" class="lms-filter-btn lms-filter-btn--ghost" id="document-preview-btn">
-                                            <i class="iconify" data-icon="bx:bx-show"></i>
-                                            Preview
-                                        </button>
-                                        <button type="submit" class="btn btn-primary lms-btn-add">
-                                            <i class="iconify" data-icon="bx:bx-file"></i>
-                                            Generate &amp; save PDF
-                                        </button>
-                                    </div>
-                                </div>
-                            </form>
-                        @else
-                            <div class="lms-empty-state py-4">
-                                <div class="lms-empty-state__icon">
-                                    <i class="iconify" data-icon="bx:bx-file"></i>
-                                </div>
-                                <p class="mb-0">Select a template above to continue.</p>
-                            </div>
-                        @endif
+                        <div id="lms-docgen-workspace" class="lms-docgen__workspace" aria-live="polite">
+                            @include('backend::admin.properties.documents.partials.generate-workspace')
+                        </div>
                     </div>
                 </div>
             </div>
@@ -185,27 +59,230 @@
 @endsection
 
 @section('scripts')
-    @if ($selectedTemplate)
-        <script>
-            (function () {
-                var form = document.getElementById('document-generate-form');
-                var previewBtn = document.getElementById('document-preview-btn');
-                if (!form || !previewBtn) return;
+    <script>
+        (function () {
+            var root = document.getElementById('lms-docgen');
+            if (!root) return;
 
-                previewBtn.addEventListener('click', function () {
-                    var originalAction = form.getAttribute('action');
-                    var originalTarget = form.getAttribute('target');
-                    form.setAttribute('action', @json(route('admin.properties.documents.generate.preview', $property)));
-                    form.setAttribute('target', '_blank');
-                    form.submit();
-                    form.setAttribute('action', originalAction);
-                    if (originalTarget) {
-                        form.setAttribute('target', originalTarget);
-                    } else {
-                        form.removeAttribute('target');
+            var baseUrl = root.getAttribute('data-base-url');
+            var previewUrl = root.getAttribute('data-preview-url');
+            var workspace = document.getElementById('lms-docgen-workspace');
+            var templates = document.getElementById('lms-docgen-templates');
+            var loading = false;
+
+            function selectedTemplate() {
+                var active = templates.querySelector('.lms-docgen-card.is-active');
+                return active ? active.getAttribute('data-docgen-template') : '';
+            }
+
+            function selectedTenantId() {
+                var select = workspace.querySelector('[data-docgen-tenant]');
+                return select ? select.value : '';
+            }
+
+            function setActiveTemplate(templateKey) {
+                templates.querySelectorAll('.lms-docgen-card').forEach(function (card) {
+                    var isActive = card.getAttribute('data-docgen-template') === templateKey;
+                    card.classList.toggle('is-active', isActive);
+                    card.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+                });
+            }
+
+            function updateUrl(templateKey, tenantId) {
+                var url = new URL(baseUrl, window.location.origin);
+                if (templateKey) url.searchParams.set('template', templateKey);
+                if (tenantId) url.searchParams.set('tenant_id', tenantId);
+                window.history.replaceState({}, '', url.pathname + url.search);
+            }
+
+            function refreshIconify(scope) {
+                if (window.Iconify && typeof window.Iconify.scan === 'function') {
+                    window.Iconify.scan(scope);
+                }
+            }
+
+            function loadWorkspace(templateKey, tenantId) {
+                if (loading) return Promise.resolve();
+                loading = true;
+                workspace.classList.add('is-loading');
+
+                var url = new URL(baseUrl, window.location.origin);
+                url.searchParams.set('partial', '1');
+                if (templateKey) url.searchParams.set('template', templateKey);
+                if (tenantId) url.searchParams.set('tenant_id', tenantId);
+
+                return fetch(url.toString(), {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'text/html'
+                    },
+                    credentials: 'same-origin'
+                })
+                    .then(function (response) {
+                        if (!response.ok) throw new Error('Failed to load template form.');
+                        return response.text();
+                    })
+                    .then(function (html) {
+                        workspace.innerHTML = html;
+                        refreshIconify(workspace);
+                        bindWorkspace();
+                        updateUrl(templateKey, tenantId);
+                    })
+                    .catch(function () {
+                        workspace.innerHTML = '<div class="alert alert-danger mb-0">Could not load the template form. Please try again.</div>';
+                    })
+                    .finally(function () {
+                        loading = false;
+                        workspace.classList.remove('is-loading');
+                    });
+            }
+
+            function firstInvalidField(form) {
+                var fields = form.querySelectorAll('input, select, textarea');
+                for (var i = 0; i < fields.length; i++) {
+                    if (!fields[i].checkValidity()) return fields[i];
+                }
+                return null;
+            }
+
+            function showPreviewAlert(message) {
+                var alert = document.getElementById('document-preview-alert');
+                if (!alert) return;
+                alert.textContent = message;
+                alert.classList.remove('d-none');
+            }
+
+            function hidePreviewAlert() {
+                var alert = document.getElementById('document-preview-alert');
+                if (!alert) return;
+                alert.classList.add('d-none');
+                alert.textContent = '';
+            }
+
+            function openPreview(form) {
+                hidePreviewAlert();
+
+                if (!form.checkValidity()) {
+                    var invalid = firstInvalidField(form);
+                    form.reportValidity();
+                    if (invalid) invalid.focus({ preventScroll: false });
+                    showPreviewAlert('Complete all required fields before previewing the document.');
+                    return;
+                }
+
+                var previewBtn = document.getElementById('document-preview-btn');
+                if (previewBtn) {
+                    previewBtn.disabled = true;
+                    previewBtn.classList.add('is-busy');
+                }
+
+                fetch(previewUrl, {
+                    method: 'POST',
+                    body: new FormData(form),
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin',
+                    redirect: 'manual'
+                })
+                    .then(function (response) {
+                        if (response.status === 422) {
+                            return response.json().then(function (data) {
+                                var message = 'Complete all required fields before previewing the document.';
+                                if (data && data.errors) {
+                                    var firstKey = Object.keys(data.errors)[0];
+                                    if (firstKey && data.errors[firstKey] && data.errors[firstKey][0]) {
+                                        message = data.errors[firstKey][0];
+                                    }
+                                } else if (data && data.message) {
+                                    message = data.message;
+                                }
+                                showPreviewAlert(message);
+                                form.reportValidity();
+                                throw new Error('validation');
+                            });
+                        }
+                        if (response.type === 'opaqueredirect' || (response.status >= 300 && response.status < 400)) {
+                            showPreviewAlert('Complete all required fields before previewing the document.');
+                            form.reportValidity();
+                            throw new Error('validation');
+                        }
+                        if (!response.ok) throw new Error('preview-failed');
+                        var contentType = response.headers.get('content-type') || '';
+                        return response.text().then(function (body) {
+                            if (contentType.indexOf('application/json') !== -1) {
+                                throw new Error('preview-failed');
+                            }
+                            if (!body || body.indexOf('<html') === -1) {
+                                throw new Error('preview-failed');
+                            }
+                            return body;
+                        });
+                    })
+                    .then(function (html) {
+                        var previewWindow = window.open('', '_blank');
+                        if (!previewWindow) {
+                            showPreviewAlert('Pop-up blocked. Allow pop-ups for this site to preview documents.');
+                            return;
+                        }
+                        previewWindow.document.open();
+                        previewWindow.document.write(html);
+                        previewWindow.document.close();
+                    })
+                    .catch(function (error) {
+                        if (error && error.message === 'validation') return;
+                        showPreviewAlert('Preview could not be generated. Please check the fields and try again.');
+                    })
+                    .finally(function () {
+                        if (previewBtn) {
+                            previewBtn.disabled = false;
+                            previewBtn.classList.remove('is-busy');
+                        }
+                    });
+            }
+
+            function bindWorkspace() {
+                var form = document.getElementById('document-generate-form');
+                if (!form) return;
+
+                var tenantSelect = form.querySelector('[data-docgen-tenant]');
+                if (tenantSelect) {
+                    tenantSelect.addEventListener('change', function () {
+                        loadWorkspace(selectedTemplate(), tenantSelect.value);
+                    });
+                }
+
+                var previewBtn = document.getElementById('document-preview-btn');
+                if (previewBtn) {
+                    previewBtn.addEventListener('click', function () {
+                        openPreview(form);
+                    });
+                }
+
+                form.addEventListener('submit', function (event) {
+                    hidePreviewAlert();
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        form.reportValidity();
+                        showPreviewAlert('Complete all required fields before generating the document.');
                     }
                 });
-            })();
-        </script>
-    @endif
+            }
+
+            templates.addEventListener('click', function (event) {
+                var card = event.target.closest('[data-docgen-template]');
+                if (!card || !templates.contains(card)) return;
+
+                var templateKey = card.getAttribute('data-docgen-template');
+                if (!templateKey || templateKey === selectedTemplate()) return;
+
+                var tenantId = selectedTenantId();
+                setActiveTemplate(templateKey);
+                loadWorkspace(templateKey, tenantId);
+            });
+
+            bindWorkspace();
+        })();
+    </script>
 @endsection
