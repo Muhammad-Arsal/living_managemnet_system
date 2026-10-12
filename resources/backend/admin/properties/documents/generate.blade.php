@@ -101,9 +101,40 @@
                 }
             }
 
-            function loadWorkspace(templateKey, tenantId) {
+            function prefersReducedMotion() {
+                return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            }
+
+            function revealWorkspace(shouldScroll) {
+                workspace.classList.remove('is-loading');
+                workspace.classList.add('is-revealing');
+
+                if (shouldScroll) {
+                    var anchor = workspace.querySelector('.lms-docgen__anchor') || workspace;
+                    requestAnimationFrame(function () {
+                        anchor.scrollIntoView({
+                            behavior: prefersReducedMotion() ? 'auto' : 'smooth',
+                            block: 'start'
+                        });
+                        workspace.classList.add('is-focused');
+                        window.setTimeout(function () {
+                            workspace.classList.remove('is-focused');
+                        }, 900);
+                    });
+                }
+
+                window.setTimeout(function () {
+                    workspace.classList.remove('is-revealing');
+                }, prefersReducedMotion() ? 0 : 700);
+            }
+
+            function loadWorkspace(templateKey, tenantId, options) {
+                options = options || {};
+                var shouldScroll = options.scroll !== false;
+
                 if (loading) return Promise.resolve();
                 loading = true;
+                workspace.classList.remove('is-revealing', 'is-focused');
                 workspace.classList.add('is-loading');
 
                 var url = new URL(baseUrl, window.location.origin);
@@ -127,13 +158,14 @@
                         refreshIconify(workspace);
                         bindWorkspace();
                         updateUrl(templateKey, tenantId);
+                        revealWorkspace(shouldScroll);
                     })
                     .catch(function () {
                         workspace.innerHTML = '<div class="alert alert-danger mb-0">Could not load the template form. Please try again.</div>';
+                        workspace.classList.remove('is-loading');
                     })
                     .finally(function () {
                         loading = false;
-                        workspace.classList.remove('is-loading');
                     });
             }
 
@@ -249,7 +281,7 @@
                 var tenantSelect = form.querySelector('[data-docgen-tenant]');
                 if (tenantSelect) {
                     tenantSelect.addEventListener('change', function () {
-                        loadWorkspace(selectedTemplate(), tenantSelect.value);
+                        loadWorkspace(selectedTemplate(), tenantSelect.value, { scroll: false });
                     });
                 }
 
@@ -279,7 +311,7 @@
 
                 var tenantId = selectedTenantId();
                 setActiveTemplate(templateKey);
-                loadWorkspace(templateKey, tenantId);
+                loadWorkspace(templateKey, tenantId, { scroll: true });
             });
 
             bindWorkspace();

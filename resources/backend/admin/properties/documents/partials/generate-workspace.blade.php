@@ -1,4 +1,5 @@
 @if ($selectedTemplate)
+    <div class="lms-docgen__focus-ring">
     <form method="POST"
           action="{{ route('admin.properties.documents.generate.store', $property) }}"
           id="document-generate-form"
@@ -7,7 +8,7 @@
         @csrf
         <input type="hidden" name="template" value="{{ $selectedTemplate->value }}">
 
-        <div class="lms-docgen__step" id="docgen-step-resident">
+        <div class="lms-docgen__step lms-docgen__anchor" id="docgen-step-resident">
             <h6 class="property-form-section__title">2. Select resident</h6>
             <p class="text-muted small mb-3">Documents are generated for a specific resident linked to this property.</p>
             <div class="row g-3">
@@ -125,6 +126,7 @@
             </div>
         </div>
     </form>
+    </div>
 @else
     <div class="lms-empty-state py-4">
         <div class="lms-empty-state__icon">
