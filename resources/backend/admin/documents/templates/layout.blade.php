@@ -40,6 +40,8 @@
         table.risk th { background: #f3f3f3; text-align: left; }
         ul { margin: 4px 0 10px 18px; padding: 0; }
         li { margin-bottom: 3px; }
+        ul.option-list { list-style: none; margin: 6px 0 10px; padding: 0; }
+        ul.option-list li { margin: 0 0 4px; }
         .center { text-align: center; }
         .mt { margin-top: 16px; }
     </style>

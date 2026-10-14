@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Storage;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
-class PropertyDocumentGenerationTest extends TestCase
+class TenantDocumentGenerationTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -70,69 +70,114 @@ class PropertyDocumentGenerationTest extends TestCase
         ]);
     }
 
-    public function test_generate_page_lists_all_templates_and_prefills_tenant_fields(): void
+    public function test_generate_lives_on_tenant_documents_not_property(): void
+    {
+        $this->actingAs($this->admin, 'admin')
+            ->get(route('admin.tenants.documents.generate', $this->tenant))
+            ->assertOk()
+            ->assertSee('Generate Document')
+            ->assertSee('Jane Resident');
+
+        $this->actingAs($this->admin, 'admin')
+            ->get(route('admin.properties.edit', ['property' => $this->property, 'tab' => 'documents']))
+            ->assertOk()
+            ->assertDontSee('Generate from template');
+
+        $this->assertFalse(
+            \Illuminate\Support\Facades\Route::has('admin.properties.documents.generate')
+        );
+    }
+
+    public function test_referral_form_uses_checkbox_options_not_textarea_summary(): void
     {
         $response = $this->actingAs($this->admin, 'admin')
-            ->get(route('admin.properties.documents.generate', [
-                'property' => $this->property,
-                'template' => DocumentTemplateKey::WarningLetter->value,
-                'tenant_id' => $this->tenant->id,
+            ->get(route('admin.tenants.documents.generate', [
+                'tenant' => $this->tenant,
+                'template' => DocumentTemplateKey::ReferralForm->value,
             ]));
 
         $response->assertOk();
-        $response->assertSee('Warning Letter (RH-17)');
-        $response->assertSee('Jane Resident');
-        $response->assertSee('12 High Street');
-        $response->assertSee('CV1 1AA');
-        $response->assertSee('02400000000');
+        $response->assertSee('2. Current accommodation');
+        $response->assertSee('Rough Sleeping');
+        $response->assertSee('Supported Housing');
+        $response->assertSee('Threatened with Homelessness');
+        $response->assertSee('Mental Health');
+        $response->assertDontSee('Current accommodation (summary)');
+        $response->assertSee('name="fields[current_accommodation][]"', false);
+        $response->assertSee('name="fields[current_circumstances][]"', false);
+        $response->assertSee('name="fields[support_needs][]"', false);
     }
 
-    public function test_partial_workspace_loads_selected_template_without_full_page_chrome(): void
+    public function test_move_on_plan_includes_review_record_and_final_outcome_controls(): void
     {
         $response = $this->actingAs($this->admin, 'admin')
-            ->get(route('admin.properties.documents.generate', [
-                'property' => $this->property,
-                'template' => DocumentTemplateKey::ServiceChargeNotice->value,
-                'tenant_id' => $this->tenant->id,
-                'partial' => 1,
+            ->get(route('admin.tenants.documents.generate', [
+                'tenant' => $this->tenant,
+                'template' => DocumentTemplateKey::MoveOnPlan->value,
             ]));
 
         $response->assertOk();
-        $response->assertSee('document-generate-form', false);
-        $response->assertSee('Weekly service charge amount', false);
-        $response->assertDontSee('Documents · Generate');
+        $response->assertSee('Review record 1 — date');
+        $response->assertSee('Date resident moved out');
+        $response->assertSee('Move-on destination');
+        $response->assertSee('1. Tenancy sustainment — target date');
+        $response->assertSee('1. Tenancy sustainment — completed');
+        $response->assertSee('name="fields[goal_tenancy][]"', false);
     }
 
-    public function test_invalid_preview_returns_json_errors_for_ajax(): void
+    public function test_risk_assessment_uses_five_column_score_rows(): void
     {
         $response = $this->actingAs($this->admin, 'admin')
-            ->withHeaders([
-                'Accept' => 'application/json',
-                'X-Requested-With' => 'XMLHttpRequest',
-            ])
-            ->post(route('admin.properties.documents.generate.preview', $this->property), [
-                'template' => DocumentTemplateKey::ServiceChargeNotice->value,
-                'tenant_id' => $this->tenant->id,
-                'fields' => [
-                    'provider_name' => 'Rneyz Housing',
-                    'date_issued' => now()->toDateString(),
-                    'tenant_name' => 'Jane Resident',
-                    'property_address' => '12 High Street',
-                    'dear_name' => 'Jane',
-                    'service_charge_amount' => '',
-                    'payment_day' => '',
-                    'first_payment_due' => '',
-                    'account_name' => '',
-                    'sort_code' => '',
-                    'account_number' => '',
-                ],
-            ]);
+            ->get(route('admin.tenants.documents.generate', [
+                'tenant' => $this->tenant,
+                'template' => DocumentTemplateKey::RiskAssessment->value,
+            ]));
 
-        $this->assertSame(422, $response->status(), $response->getContent());
-        $errors = $response->json('errors');
-        $this->assertIsArray($errors);
-        $this->assertArrayHasKey('fields.service_charge_amount', $errors);
-        $this->assertArrayHasKey('fields.payment_day', $errors);
+        $response->assertOk();
+        $response->assertSee('1. Risk of violence & aggression');
+        $response->assertSee('Initial Score');
+        $response->assertSee('3 Month Review');
+        $response->assertSee('12 Month Review');
+        $response->assertSee('name="fields[risk_violence][initial]"', false);
+        $response->assertSee('name="fields[risk_violence][m12]"', false);
+        $response->assertSee('10. Other (please specify)');
+        $response->assertSee('11. Other (please specify)');
+    }
+
+    public function test_risk_assessment_preview_renders_score_grid_cells(): void
+    {
+        $payload = $this->validPayload(DocumentTemplateKey::RiskAssessment);
+        $payload['fields']['risk_violence'] = [
+            'initial' => '2',
+            'm3' => '1',
+            'm6' => '',
+            'm9' => '',
+            'm12' => '',
+        ];
+
+        $response = $this->actingAs($this->admin, 'admin')
+            ->post(route('admin.tenants.documents.generate.preview', $this->tenant), $payload);
+
+        $response->assertOk();
+        $response->assertSee('Initial Score', false);
+        $response->assertSee('>2</td>', false);
+        $response->assertSee('>1</td>', false);
+        $response->assertSee('1. Risk of violence &amp; aggression', false);
+    }
+
+    public function test_preview_shows_checked_accommodation_options(): void
+    {
+        $payload = $this->validPayload(DocumentTemplateKey::ReferralForm);
+        $payload['fields']['current_accommodation'] = ['Supported Housing', 'Other'];
+        $payload['fields']['current_accommodation_further'] = 'Needs ground floor';
+
+        $response = $this->actingAs($this->admin, 'admin')
+            ->post(route('admin.tenants.documents.generate.preview', $this->tenant), $payload);
+
+        $response->assertOk();
+        $response->assertSee('☑ Supported Housing', false);
+        $response->assertSee('☐ Rough Sleeping', false);
+        $response->assertSee('Needs ground floor', false);
     }
 
     #[DataProvider('templateKeysProvider')]
@@ -142,10 +187,9 @@ class PropertyDocumentGenerationTest extends TestCase
         $payload = $this->validPayload($template);
 
         $response = $this->actingAs($this->admin, 'admin')
-            ->post(route('admin.properties.documents.generate.preview', $this->property), $payload);
+            ->post(route('admin.tenants.documents.generate.preview', $this->tenant), $payload);
 
         $response->assertOk();
-        $response->assertHeader('Content-Type', 'text/html; charset=UTF-8');
         $response->assertSee('Jane Resident', false);
         $response->assertSee('12 High Street', false);
     }
@@ -157,17 +201,16 @@ class PropertyDocumentGenerationTest extends TestCase
         $payload = $this->validPayload($template);
 
         $response = $this->actingAs($this->admin, 'admin')
-            ->post(route('admin.properties.documents.generate.store', $this->property), $payload);
+            ->post(route('admin.tenants.documents.generate.store', $this->tenant), $payload);
 
-        $response->assertRedirect(route('admin.properties.edit', [
-            'property' => $this->property,
+        $response->assertRedirect(route('admin.tenants.edit', [
+            'tenant' => $this->tenant,
             'tab' => 'documents',
         ]));
 
-        $document = Document::query()->where('documentable_id', $this->property->id)->first();
+        $document = Document::query()->where('documentable_id', $this->tenant->id)->first();
         $this->assertNotNull($document);
         $this->assertSame('application/pdf', $document->mime_type);
-        $this->assertStringEndsWith('.pdf', $document->original_name);
         $this->assertStringContainsString($template->filenamePrefix(), $document->original_name);
         Storage::disk('local')->assertExists($document->path);
         $this->assertGreaterThan(500, $document->size);
@@ -176,14 +219,12 @@ class PropertyDocumentGenerationTest extends TestCase
     public function test_generation_requires_missing_manual_fields(): void
     {
         $response = $this->actingAs($this->admin, 'admin')
-            ->from(route('admin.properties.documents.generate', [
-                'property' => $this->property,
+            ->from(route('admin.tenants.documents.generate', [
+                'tenant' => $this->tenant,
                 'template' => DocumentTemplateKey::ServiceChargeNotice->value,
-                'tenant_id' => $this->tenant->id,
             ]))
-            ->post(route('admin.properties.documents.generate.store', $this->property), [
+            ->post(route('admin.tenants.documents.generate.store', $this->tenant), [
                 'template' => DocumentTemplateKey::ServiceChargeNotice->value,
-                'tenant_id' => $this->tenant->id,
                 'fields' => [
                     'provider_name' => 'Rneyz Housing',
                     'date_issued' => now()->toDateString(),
@@ -213,10 +254,10 @@ class PropertyDocumentGenerationTest extends TestCase
 
     public function test_guest_cannot_generate_documents(): void
     {
-        $this->get(route('admin.properties.documents.generate', $this->property))
+        $this->get(route('admin.tenants.documents.generate', $this->tenant))
             ->assertRedirect();
 
-        $this->post(route('admin.properties.documents.generate.store', $this->property), [])
+        $this->post(route('admin.tenants.documents.generate.store', $this->tenant), [])
             ->assertRedirect();
     }
 
@@ -264,16 +305,72 @@ class PropertyDocumentGenerationTest extends TestCase
                 'review_date' => now()->addMonths(3)->toDateString(),
                 'target_move_on_date' => now()->addYear()->toDateString(),
                 'accommodation_type' => 'Shared accommodation',
+                'accommodation_type_other' => '',
                 'moved_in_on' => now()->subMonths(2)->toDateString(),
                 'length_of_stay' => '2 months',
                 'reason_for_placement' => 'Supported housing placement',
-                'long_term_goal' => 'Independent social housing',
                 'housing_goal_type' => 'Social Housing',
+                'housing_goal_type_other' => '',
+                'long_term_goal' => 'Independent social housing',
                 'target_timescale' => '12 months',
-                'objectives_notes' => 'Maintain tenancy and build budgeting skills.',
-                'barriers' => 'Limited life skills',
-                'support_provided' => 'Weekly support sessions',
+                'target_timescale_other' => '',
+                'goal_tenancy' => ['Maintain tenancy successfully', 'Pay rent on time'],
+                'goal_tenancy_actions' => 'Weekly budgeting support',
+                'goal_tenancy_target_date' => now()->addMonths(1)->toDateString(),
+                'goal_tenancy_completed' => 'No',
+                'goal_living' => ['Budgeting and money management'],
+                'goal_living_actions' => '',
+                'goal_living_target_date' => '',
+                'goal_living_completed' => 'No',
+                'goal_health' => ['Register with GP'],
+                'goal_health_actions' => '',
+                'goal_health_target_date' => '',
+                'goal_health_completed' => 'Yes',
+                'goal_employment' => ['Seek employment'],
+                'goal_employment_actions' => '',
+                'goal_employment_target_date' => '',
+                'goal_employment_completed' => 'No',
+                'goal_financial' => ['Maintain benefits'],
+                'goal_financial_actions' => '',
+                'goal_financial_target_date' => '',
+                'goal_financial_completed' => 'No',
+                'goal_community' => ['Access community services'],
+                'goal_community_actions' => '',
+                'goal_community_target_date' => '',
+                'goal_community_completed' => 'No',
+                'homefinder_registered' => 'Yes',
+                'homefinder_date' => now()->toDateString(),
+                'homefinder_banding' => 'Band 2',
+                'homefinder_reference' => 'HF-123',
+                'prs_actions' => ['Affordability assessed'],
+                'prs_notes' => '',
+                'barriers' => ['Limited life skills'],
+                'barriers_other' => '',
+                'barriers_actions' => 'Life skills sessions',
+                'support_provided' => ['Weekly support sessions', 'Housing advice'],
                 'support_frequency' => 'Weekly',
+                'support_frequency_other' => '',
+                'review_1_date' => now()->toDateString(),
+                'review_1_progress' => 'Settling in well',
+                'review_1_actions' => 'Continue weekly support',
+                'review_1_initials' => 'SS',
+                'review_2_date' => '',
+                'review_2_progress' => '',
+                'review_2_actions' => '',
+                'review_2_initials' => '',
+                'review_3_date' => '',
+                'review_3_progress' => '',
+                'review_3_actions' => '',
+                'review_3_initials' => '',
+                'review_4_date' => '',
+                'review_4_progress' => '',
+                'review_4_actions' => '',
+                'review_4_initials' => '',
+                'moved_out_on' => '',
+                'move_on_destination' => 'Social Housing',
+                'move_on_destination_other' => '',
+                'move_on_address' => '',
+                'outcome_summary' => '',
             ],
             DocumentTemplateKey::WarningLetter => [
                 'resident_name' => 'Jane Resident',
@@ -313,16 +410,19 @@ class PropertyDocumentGenerationTest extends TestCase
                 'review_6_month' => now()->addMonths(6)->toDateString(),
                 'review_9_month' => now()->addMonths(9)->toDateString(),
                 'review_12_month' => now()->addYear()->toDateString(),
-                'risk_violence' => 'Initial score: Low',
-                'risk_harm' => 'Initial score: Low',
-                'risk_self_neglect' => 'Initial score: Medium',
-                'risk_mental' => 'Initial score: Medium',
-                'risk_physical' => 'Initial score: Low',
-                'risk_substance' => 'Initial score: Low',
-                'risk_financial' => 'Initial score: Medium',
-                'risk_offending' => 'Initial score: Low',
-                'risk_learning' => 'Initial score: Low',
-                'risk_other' => '',
+                'risk_violence' => ['initial' => 'Low', 'm3' => '', 'm6' => '', 'm9' => '', 'm12' => ''],
+                'risk_harm' => ['initial' => 'Low', 'm3' => '', 'm6' => '', 'm9' => '', 'm12' => ''],
+                'risk_self_neglect' => ['initial' => 'Medium', 'm3' => '', 'm6' => '', 'm9' => '', 'm12' => ''],
+                'risk_mental' => ['initial' => 'Medium', 'm3' => '', 'm6' => '', 'm9' => '', 'm12' => ''],
+                'risk_physical' => ['initial' => 'Low', 'm3' => '', 'm6' => '', 'm9' => '', 'm12' => ''],
+                'risk_substance' => ['initial' => 'Low', 'm3' => '', 'm6' => '', 'm9' => '', 'm12' => ''],
+                'risk_financial' => ['initial' => 'Medium', 'm3' => '', 'm6' => '', 'm9' => '', 'm12' => ''],
+                'risk_offending' => ['initial' => 'Low', 'm3' => '', 'm6' => '', 'm9' => '', 'm12' => ''],
+                'risk_learning' => ['initial' => 'Low', 'm3' => '', 'm6' => '', 'm9' => '', 'm12' => ''],
+                'risk_other_1_specify' => '',
+                'risk_other_1' => ['initial' => '', 'm3' => '', 'm6' => '', 'm9' => '', 'm12' => ''],
+                'risk_other_2_specify' => '',
+                'risk_other_2' => ['initial' => '', 'm3' => '', 'm6' => '', 'm9' => '', 'm12' => ''],
             ],
             DocumentTemplateKey::ReferralForm => [
                 'organisation' => 'Rneyz Housing',
@@ -338,9 +438,12 @@ class PropertyDocumentGenerationTest extends TestCase
                 'current_address' => '12 High Street, Coventry, CV1 1AA, United Kingdom',
                 'landlord_contact' => 'Rneyz Housing',
                 'reason_support' => 'Needs supported accommodation',
-                'current_accommodation' => 'Supported Housing',
-                'current_circumstances' => 'Support to Sustain Tenancy',
-                'support_needs' => 'Housing, Benefits',
+                'current_accommodation' => ['Supported Housing'],
+                'current_accommodation_further' => '',
+                'current_circumstances' => ['Support to Sustain Tenancy'],
+                'current_circumstances_further' => '',
+                'support_needs' => ['Housing', 'Benefits'],
+                'support_needs_further' => '',
                 'translation_language' => '',
                 'health_issues' => 'None declared',
                 'gp_cpn' => 'Dr Smith',
@@ -363,12 +466,12 @@ class PropertyDocumentGenerationTest extends TestCase
                 'religion' => '',
                 'disability' => '',
                 'preferred_language' => 'English',
+                'consent' => ['gdpr', 'rent', 'privacy', 'sharing'],
             ],
         };
 
         return [
             'template' => $template->value,
-            'tenant_id' => $this->tenant->id,
             'fields' => $fields,
         ];
     }

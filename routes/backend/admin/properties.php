@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Controllers\Backend\Admin\PropertyController;
-use App\Http\Controllers\Backend\Admin\PropertyDocumentGenerationController;
 use App\Http\Controllers\Backend\Admin\RoomController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,13 +25,6 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
         ->name('properties.images.destroy');
     Route::post('properties/{property}/images', [PropertyController::class, 'storeImages'])
         ->name('properties.images.store');
-    Route::get('properties/{property}/documents/generate', [PropertyDocumentGenerationController::class, 'create'])
-        ->name('properties.documents.generate');
-    Route::post('properties/{property}/documents/generate/preview', [PropertyDocumentGenerationController::class, 'preview'])
-        ->name('properties.documents.generate.preview');
-    Route::post('properties/{property}/documents/generate', [PropertyDocumentGenerationController::class, 'store'])
-        ->name('properties.documents.generate.store');
-
     Route::post('properties/{property}/documents', [PropertyController::class, 'storeDocuments'])
         ->name('properties.documents.store');
     Route::get('properties/{property}/documents/{document}/download', [PropertyController::class, 'downloadDocument'])

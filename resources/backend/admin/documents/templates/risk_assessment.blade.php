@@ -1,7 +1,28 @@
 @extends('backend::admin.documents.templates.layout')
 
 @section('content')
-    @php $f = $fields; @endphp
+    @php
+        $f = $fields;
+        $defs = $definitions ?? [];
+        $scoreCell = function (string $key, string $column) use ($f): string {
+            $row = $f[$key] ?? [];
+
+            return is_array($row) ? (string) ($row[$column] ?? '') : '';
+        };
+        $risks = [
+            ['key' => 'risk_violence', 'title' => '1. Risk of violence & aggression'],
+            ['key' => 'risk_harm', 'title' => '2. Risk of harm to/from others'],
+            ['key' => 'risk_self_neglect', 'title' => '3. Risk of self-neglect or self-harm'],
+            ['key' => 'risk_mental', 'title' => '4. Risk of deterioration in mental and emotional health'],
+            ['key' => 'risk_physical', 'title' => '5. Risk of deterioration in physical health'],
+            ['key' => 'risk_substance', 'title' => '6. Risk associated with substance misuse or other addiction'],
+            ['key' => 'risk_financial', 'title' => '7. Risk of financial hardship or difficulties managing finances'],
+            ['key' => 'risk_offending', 'title' => '8. Risk of offending and/or anti-social behaviour'],
+            ['key' => 'risk_learning', 'title' => '9. Risk associated with learning, understanding or communication difficulties'],
+            ['key' => 'risk_other_1', 'title' => '10. Other (please specify):', 'specify' => 'risk_other_1_specify'],
+            ['key' => 'risk_other_2', 'title' => '11. Other (please specify):', 'specify' => 'risk_other_2_specify'],
+        ];
+    @endphp
 
     <h1>Your Risk Assessment (RH-9)</h1>
 
@@ -26,23 +47,8 @@
     <p>We at {{ $f['provider_name'] ?? '' }} want to help keep you safe. For us to do this, we need to understand what possible risks you may encounter during your stay with us.</p>
     <p>Identifying risk related behaviour and situations.</p>
 
-    @php
-        $risks = [
-            'risk_violence' => '1. Risk of violence & aggression',
-            'risk_harm' => '2. Risk of harm to/from others',
-            'risk_self_neglect' => '3. Risk of self-neglect or self-harm',
-            'risk_mental' => '4. Risk of deterioration in mental and emotional health',
-            'risk_physical' => '5. Risk of deterioration in physical health',
-            'risk_substance' => '6. Risk associated with substance misuse or other addiction',
-            'risk_financial' => '7. Risk of financial hardship or difficulties managing finances',
-            'risk_offending' => '8. Risk of offending and/or anti-social behaviour',
-            'risk_learning' => '9. Risk associated with learning, understanding or communication difficulties',
-            'risk_other' => '10–11. Other (please specify)',
-        ];
-    @endphp
-
-    @foreach ($risks as $key => $title)
-        <h3>{{ $title }}</h3>
+    @foreach ($risks as $risk)
+        <h3>{{ $risk['title'] }}@if (! empty($risk['specify'])) {{ $f[$risk['specify']] ?? '' }}@endif</h3>
         <table class="risk">
             <thead>
                 <tr>
@@ -55,7 +61,11 @@
             </thead>
             <tbody>
                 <tr>
-                    <td colspan="5">{{ $f[$key] ?? '' }}</td>
+                    <td>{{ $scoreCell($risk['key'], 'initial') }}</td>
+                    <td>{{ $scoreCell($risk['key'], 'm3') }}</td>
+                    <td>{{ $scoreCell($risk['key'], 'm6') }}</td>
+                    <td>{{ $scoreCell($risk['key'], 'm9') }}</td>
+                    <td>{{ $scoreCell($risk['key'], 'm12') }}</td>
                 </tr>
             </tbody>
         </table>

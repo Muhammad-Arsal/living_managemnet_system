@@ -9,10 +9,10 @@
                 <div class="card-header lms-page-header">
                     <div class="lms-page-header__copy">
                         <p class="lms-page-header__eyebrow">Documents · Generate</p>
-                        <h5 class="lms-page-header__title">{{ $property->name }}</h5>
-                        <p class="lms-page-header__subtitle">{{ $property->formattedAddress() }}</p>
+                        <h5 class="lms-page-header__title">{{ $tenant->full_name }}</h5>
+                        <p class="lms-page-header__subtitle">{{ $tenant->email }}@if ($property) · {{ $property->name }}@endif</p>
                     </div>
-                    <a href="{{ route('admin.properties.edit', ['property' => $property, 'tab' => 'documents']) }}" class="lms-filter-btn lms-filter-btn--ghost">
+                    <a href="{{ route('admin.tenants.edit', ['tenant' => $tenant, 'tab' => 'documents']) }}" class="lms-filter-btn lms-filter-btn--ghost">
                         <i class="iconify" data-icon="bx:bx-arrow-back"></i>
                         Back to documents
                     </a>
@@ -24,11 +24,11 @@
 
                     <div class="lms-docgen"
                          id="lms-docgen"
-                         data-base-url="{{ route('admin.properties.documents.generate', $property) }}"
-                         data-preview-url="{{ route('admin.properties.documents.generate.preview', $property) }}">
+                         data-base-url="{{ route('admin.tenants.documents.generate', $tenant) }}"
+                         data-preview-url="{{ route('admin.tenants.documents.generate.preview', $tenant) }}">
                         <div class="lms-docgen__step">
                             <h6 class="property-form-section__title">1. Choose a template</h6>
-                            <p class="text-muted small mb-3">Select a document template. Available property and tenant details will be filled in automatically where possible.</p>
+                            <p class="text-muted small mb-3">Select a document template. Tenant and property details are filled in automatically where possible.</p>
                             <div class="lms-docgen-grid" id="lms-docgen-templates">
                                 @foreach ($templates as $template)
                                     @php $key = $template['key']; @endphp
@@ -49,7 +49,7 @@
                         </div>
 
                         <div id="lms-docgen-workspace" class="lms-docgen__workspace" aria-live="polite">
-                            @include('backend::admin.properties.documents.partials.generate-workspace')
+                            @include('backend::admin.tenants.documents.partials.generate-workspace')
                         </div>
                     </div>
                 </div>
@@ -75,8 +75,8 @@
                 return active ? active.getAttribute('data-docgen-template') : '';
             }
 
-            function selectedTenantId() {
-                var select = workspace.querySelector('[data-docgen-tenant]');
+            function selectedTenancyId() {
+                var select = workspace.querySelector('[data-docgen-tenancy]');
                 return select ? select.value : '';
             }
 
@@ -88,10 +88,11 @@
                 });
             }
 
-            function updateUrl(templateKey, tenantId) {
+            function updateUrl(templateKey, tenancyId) {
                 var url = new URL(baseUrl, window.location.origin);
                 if (templateKey) url.searchParams.set('template', templateKey);
-                if (tenantId) url.searchParams.set('tenant_id', tenantId);
+                if (tenancyId) url.searchParams.set('tenancy_id', tenancyId);
+                else url.searchParams.delete('tenancy_id');
                 window.history.replaceState({}, '', url.pathname + url.search);
             }
 
@@ -128,7 +129,7 @@
                 }, prefersReducedMotion() ? 0 : 700);
             }
 
-            function loadWorkspace(templateKey, tenantId, options) {
+            function loadWorkspace(templateKey, tenancyId, options) {
                 options = options || {};
                 var shouldScroll = options.scroll !== false;
 
@@ -140,7 +141,7 @@
                 var url = new URL(baseUrl, window.location.origin);
                 url.searchParams.set('partial', '1');
                 if (templateKey) url.searchParams.set('template', templateKey);
-                if (tenantId) url.searchParams.set('tenant_id', tenantId);
+                if (tenancyId) url.searchParams.set('tenancy_id', tenancyId);
 
                 return fetch(url.toString(), {
                     headers: {
@@ -157,7 +158,7 @@
                         workspace.innerHTML = html;
                         refreshIconify(workspace);
                         bindWorkspace();
-                        updateUrl(templateKey, tenantId);
+                        updateUrl(templateKey, tenancyId);
                         revealWorkspace(shouldScroll);
                     })
                     .catch(function () {
@@ -278,10 +279,10 @@
                 var form = document.getElementById('document-generate-form');
                 if (!form) return;
 
-                var tenantSelect = form.querySelector('[data-docgen-tenant]');
-                if (tenantSelect) {
-                    tenantSelect.addEventListener('change', function () {
-                        loadWorkspace(selectedTemplate(), tenantSelect.value, { scroll: false });
+                var tenancySelect = form.querySelector('[data-docgen-tenancy]');
+                if (tenancySelect) {
+                    tenancySelect.addEventListener('change', function () {
+                        loadWorkspace(selectedTemplate(), tenancySelect.value, { scroll: false });
                     });
                 }
 
@@ -309,9 +310,8 @@
                 var templateKey = card.getAttribute('data-docgen-template');
                 if (!templateKey || templateKey === selectedTemplate()) return;
 
-                var tenantId = selectedTenantId();
                 setActiveTemplate(templateKey);
-                loadWorkspace(templateKey, tenantId, { scroll: true });
+                loadWorkspace(templateKey, selectedTenancyId(), { scroll: true });
             });
 
             bindWorkspace();

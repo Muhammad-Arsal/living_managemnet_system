@@ -274,7 +274,19 @@
 
                         <div class="tab-pane fade @if ($activeTab === 'documents') show active @endif" id="tenant-documents">
                             <div class="property-form-section">
-                                <h6 class="property-form-section__title">Uploaded documents</h6>
+                                <div class="d-flex flex-wrap align-items-start justify-content-between gap-3 mb-3">
+                                    <div>
+                                        <h6 class="property-form-section__title mb-1">Generate document</h6>
+                                        <p class="text-muted small mb-0">Create a supported-housing document from a template. Tenant and property details are filled in automatically where available.</p>
+                                    </div>
+                                    <a href="{{ route('admin.tenants.documents.generate', $tenant) }}" class="btn btn-primary lms-btn-add">
+                                        <i class="iconify" data-icon="bx:bx-file"></i>
+                                        Generate from template
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="property-form-section">
+                                <h6 class="property-form-section__title">Saved documents</h6>
                                 @include('backend::admin.partials.documents-list', [
                                     'documents' => $tenant->documents,
                                     'downloadRouteName' => 'admin.tenants.documents.download',
@@ -285,7 +297,7 @@
                             <form action="{{ route('admin.tenants.documents.store', $tenant) }}" method="POST" enctype="multipart/form-data">
                                 @csrf
                                 <div class="property-form-section">
-                                    <h6 class="property-form-section__title">Add documents</h6>
+                                    <h6 class="property-form-section__title">Upload documents</h6>
                                     <p class="text-muted small">Existing files are kept. Upload additional documents below.</p>
                                     @include('backend::admin.partials.documents-field', ['required' => true])
                                 </div>

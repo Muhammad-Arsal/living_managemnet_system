@@ -1,7 +1,10 @@
 @extends('backend::admin.documents.templates.layout')
 
 @section('content')
-    @php $f = $fields; @endphp
+    @php
+        $f = $fields;
+        $defs = $definitions ?? [];
+    @endphp
 
     <h1>REFERRAL &amp; SUPPORT ASSESSMENT FORM</h1>
     <p><span class="label">Organisation:</span> {{ $f['organisation'] ?? '' }}</p>
@@ -24,13 +27,28 @@
     <div class="box">{{ $f['reason_support'] ?? '' }}</div>
 
     <h2>2. Current Accommodation</h2>
-    <div class="box">{{ $f['current_accommodation'] ?? '' }}</div>
+    @include('backend::admin.documents.templates.partials.option-list', [
+        'options' => $defs['current_accommodation']['options'] ?? [],
+        'selected' => $f['current_accommodation'] ?? [],
+    ])
+    <p class="label">Further information:</p>
+    <div class="box">{{ $f['current_accommodation_further'] ?? '' }}</div>
 
     <h2>3. Current Circumstances</h2>
-    <div class="box">{{ $f['current_circumstances'] ?? '' }}</div>
+    @include('backend::admin.documents.templates.partials.option-list', [
+        'options' => $defs['current_circumstances']['options'] ?? [],
+        'selected' => $f['current_circumstances'] ?? [],
+    ])
+    <p class="label">Further information:</p>
+    <div class="box">{{ $f['current_circumstances_further'] ?? '' }}</div>
 
     <h2>4. Support Needs</h2>
-    <div class="box">{{ $f['support_needs'] ?? '' }}</div>
+    @include('backend::admin.documents.templates.partials.option-list', [
+        'options' => $defs['support_needs']['options'] ?? [],
+        'selected' => $f['support_needs'] ?? [],
+    ])
+    <p class="label">Further information:</p>
+    <div class="box">{{ $f['support_needs_further'] ?? '' }}</div>
 
     <h2>5. Health &amp; Risk</h2>
     <p class="meta-row"><span class="label">Translation Language:</span> {{ $f['translation_language'] ?? '' }}</p>
@@ -70,12 +88,10 @@
     <p class="meta-row"><span class="label">Preferred Language:</span> {{ $f['preferred_language'] ?? '' }}</p>
 
     <h2>10. Consent &amp; Declaration</h2>
-    <ul>
-        <li>I consent to my information being processed in accordance with GDPR.</li>
-        <li>I agree to pay my rent and comply with tenancy/licence conditions.</li>
-        <li>I have read the Privacy Notice.</li>
-        <li>I consent to information being shared with relevant partner agencies where necessary.</li>
-    </ul>
+    @include('backend::admin.documents.templates.partials.option-list', [
+        'options' => $defs['consent']['options'] ?? [],
+        'selected' => $f['consent'] ?? [],
+    ])
     <p class="signature-line"><span class="label">Client Signature:</span> __________________ &nbsp;&nbsp; <span class="label">Date:</span> __________</p>
     <p class="signature-line"><span class="label">Referrer Signature:</span> ________________ &nbsp;&nbsp; <span class="label">Date:</span> __________</p>
     <p class="muted mt">Office Use Only — Assessment Date / Outcome / Allocated Worker to be completed after generation.</p>

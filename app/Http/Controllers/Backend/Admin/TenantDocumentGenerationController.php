@@ -4,67 +4,62 @@ namespace App\Http\Controllers\Backend\Admin;
 
 use App\Enums\DocumentTemplateKey;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Backend\Admin\Property\GenerateDocumentRequest;
-use App\Models\Property;
+use App\Http\Requests\Backend\Admin\Tenant\GenerateDocumentRequest;
 use App\Models\Tenant;
-use App\Repositories\Contracts\TenantRepositoryInterface;
 use App\Services\Admin\DocumentGenerationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
 
-class PropertyDocumentGenerationController extends Controller
+class TenantDocumentGenerationController extends Controller
 {
     public function __construct(
         private readonly DocumentGenerationService $documentGenerationService,
-        private readonly TenantRepositoryInterface $tenantRepository,
     ) {}
 
-    public function create(Request $request, Property $property): View|Response
+    public function create(Request $request, Tenant $tenant): View|Response
     {
         $templates = $this->documentGenerationService->availableTemplates();
         $selectedTemplate = DocumentTemplateKey::tryFrom((string) $request->query('template', ''));
 
-        $currentTenants = $this->documentGenerationService->currentTenantsForProperty($property);
-        $allTenants = $this->tenantRepository->listForSelect();
-
-        $tenantId = $request->integer('tenant_id') ?: null;
-        $tenant = $tenantId
-            ? Tenant::query()->find($tenantId)
-            : ($currentTenants->count() === 1 ? $currentTenants->first() : null);
-
-        $tenancy = $tenant
-            ? $this->documentGenerationService->findTenancyForTenant($property, $tenant)
-            : null;
+        $context = $this->documentGenerationService->resolveTenancyContext(
+            $tenant,
+            $request->integer('tenancy_id') ?: null
+        );
 
         $resolved = $selectedTemplate
-            ? $this->documentGenerationService->resolveFields($selectedTemplate, $property, $tenant, $tenancy)
+            ? $this->documentGenerationService->resolveFields(
+                $selectedTemplate,
+                $tenant,
+                $context['property'],
+                $context['tenancy']
+            )
             : ['values' => [], 'meta' => []];
 
         $fieldValues = old('fields', $resolved['values']);
 
         $data = [
-            'property' => $property,
+            'tenant' => $tenant,
             'templates' => $templates,
             'selectedTemplate' => $selectedTemplate,
-            'currentTenants' => $currentTenants,
-            'allTenants' => $allTenants,
-            'selectedTenant' => $tenant,
+            'tenancies' => $context['tenancies'],
+            'selectedTenancy' => $context['tenancy'],
+            'property' => $context['property'],
             'fieldValues' => $fieldValues,
             'fieldMeta' => $resolved['meta'],
         ];
 
         if ($request->boolean('partial')) {
             return response()
-                ->view('backend::admin.properties.documents.partials.generate-workspace', $data)
+                ->view('backend::admin.tenants.documents.partials.generate-workspace', $data)
                 ->header('Cache-Control', 'no-store');
         }
 
-        return view('backend::admin.properties.documents.generate', $data);
+        return view('backend::admin.tenants.documents.generate', $data);
     }
 
-    public function preview(GenerateDocumentRequest $request, Property $property): Response
+    public function preview(GenerateDocumentRequest $request, Tenant $tenant): Response
     {
         $template = DocumentTemplateKey::from($request->validated('template'));
         $fields = $this->documentGenerationService->mergeFieldValues(
@@ -80,10 +75,9 @@ class PropertyDocumentGenerationController extends Controller
         ]);
     }
 
-    public function store(GenerateDocumentRequest $request, Property $property): RedirectResponse
+    public function store(GenerateDocumentRequest $request, Tenant $tenant): RedirectResponse
     {
         $template = DocumentTemplateKey::from($request->validated('template'));
-        $tenant = Tenant::query()->findOrFail($request->validated('tenant_id'));
         $fields = $this->documentGenerationService->mergeFieldValues(
             $template,
             $request->validated('fields')
@@ -91,10 +85,9 @@ class PropertyDocumentGenerationController extends Controller
 
         try {
             $document = $this->documentGenerationService->generateAndStore(
-                $property,
+                $tenant,
                 $template,
-                $fields,
-                $tenant
+                $fields
             );
         } catch (\Throwable $exception) {
             report($exception);
@@ -105,7 +98,7 @@ class PropertyDocumentGenerationController extends Controller
         }
 
         return redirect()
-            ->route('admin.properties.edit', ['property' => $property, 'tab' => 'documents'])
-            ->with('success', $document->original_name.' was generated and saved to this property.');
+            ->route('admin.tenants.edit', ['tenant' => $tenant, 'tab' => 'documents'])
+            ->with('success', $document->original_name.' was generated and saved to this tenant.');
     }
 }

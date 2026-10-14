@@ -37,7 +37,7 @@ class DocumentGenerationService
     }
 
     /**
-     * @return array<string, array{label: string, type: string, source: ?string, required: bool, default?: string}>
+     * @return array<string, array<string, mixed>>
      */
     public function fieldDefinitions(DocumentTemplateKey $template): array
     {
@@ -53,26 +53,40 @@ class DocumentGenerationService
     }
 
     /**
-     * Resolve auto-fill values and field status for the generate form.
-     *
-     * @return array{values: array<string, string>, meta: array<string, array{status: string, source_label: ?string, required: bool, label: string, type: string}>}
+     * @return array{values: array<string, mixed>, meta: array<string, array<string, mixed>>}
      */
-    public function resolveFields(DocumentTemplateKey $template, Property $property, ?Tenant $tenant, ?Tenancy $tenancy = null): array
+    public function resolveFields(DocumentTemplateKey $template, Tenant $tenant, ?Property $property = null, ?Tenancy $tenancy = null): array
     {
         $definitions = $this->fieldDefinitions($template);
-        $context = $this->buildContext($property, $tenant, $tenancy);
+        $context = $this->buildContext($tenant, $property, $tenancy);
 
         $values = [];
         $meta = [];
 
         foreach ($definitions as $key => $definition) {
+            $type = (string) ($definition['type'] ?? 'text');
             $source = $definition['source'] ?? null;
-            $default = (string) ($definition['default'] ?? '');
-            $resolved = $source ? $this->resolveSource($source, $context) : '';
-            $value = $resolved !== '' ? $resolved : $default;
             $required = (bool) ($definition['required'] ?? false);
+            $columns = is_array($definition['columns'] ?? null) ? $definition['columns'] : [];
 
-            if ($value !== '') {
+            if ($type === 'checkboxes') {
+                $default = is_array($definition['default'] ?? null) ? $definition['default'] : [];
+                $value = $default;
+                $filled = $value !== [];
+            } elseif ($type === 'score_row') {
+                $value = [];
+                foreach (array_keys($columns) as $column) {
+                    $value[$column] = '';
+                }
+                $filled = false;
+            } else {
+                $default = (string) ($definition['default'] ?? '');
+                $resolved = $source ? $this->resolveSource($source, $context) : '';
+                $value = $resolved !== '' ? $resolved : $default;
+                $filled = $value !== '';
+            }
+
+            if ($filled) {
                 $status = $source ? 'prefilled' : 'editable';
             } else {
                 $status = $required ? 'missing' : 'editable';
@@ -81,10 +95,12 @@ class DocumentGenerationService
             $values[$key] = $value;
             $meta[$key] = [
                 'label' => (string) $definition['label'],
-                'type' => (string) ($definition['type'] ?? 'text'),
+                'type' => $type,
                 'required' => $required,
                 'status' => $status,
-                'source_label' => $this->sourceLabel($source),
+                'source_label' => $this->sourceLabel(is_string($source) ? $source : null),
+                'options' => is_array($definition['options'] ?? null) ? $definition['options'] : [],
+                'columns' => $columns,
             ];
         }
 
@@ -93,7 +109,7 @@ class DocumentGenerationService
 
     /**
      * @param  array<string, mixed>  $input
-     * @return array<string, string>
+     * @return array<string, mixed>
      */
     public function mergeFieldValues(DocumentTemplateKey $template, array $input): array
     {
@@ -101,7 +117,41 @@ class DocumentGenerationService
         $merged = [];
 
         foreach ($definitions as $key => $definition) {
-            $raw = $input[$key] ?? ($definition['default'] ?? '');
+            $type = (string) ($definition['type'] ?? 'text');
+            $raw = $input[$key] ?? ($definition['default'] ?? ($type === 'checkboxes' ? [] : ''));
+
+            if ($type === 'checkboxes') {
+                $allowed = array_values(array_unique(array_merge(
+                    array_map('strval', array_keys($definition['options'] ?? [])),
+                    array_map('strval', array_values($definition['options'] ?? []))
+                )));
+                $selected = is_array($raw) ? $raw : [];
+                $merged[$key] = array_values(array_filter(
+                    array_map(static fn ($value) => trim((string) $value), $selected),
+                    static fn (string $value) => $value !== '' && in_array($value, $allowed, true)
+                ));
+
+                continue;
+            }
+
+            if ($type === 'score_row') {
+                $columns = array_keys($definition['columns'] ?? [
+                    'initial' => 'Initial Score',
+                    'm3' => '3 Month Review',
+                    'm6' => '6 Month Review',
+                    'm9' => '9 Month Review',
+                    'm12' => '12 Month Review',
+                ]);
+                $row = is_array($raw) ? $raw : [];
+                $merged[$key] = [];
+                foreach ($columns as $column) {
+                    $cell = $row[$column] ?? '';
+                    $merged[$key][$column] = is_scalar($cell) ? trim((string) $cell) : '';
+                }
+
+                continue;
+            }
+
             $merged[$key] = is_scalar($raw) ? trim((string) $raw) : '';
         }
 
@@ -109,29 +159,31 @@ class DocumentGenerationService
     }
 
     /**
-     * Format date fields for human-readable document output.
-     *
-     * @param  array<string, string>  $fields
-     * @return array<string, string>
+     * @param  array<string, mixed>  $fields
+     * @return array<string, mixed>
      */
     public function presentFields(DocumentTemplateKey $template, array $fields): array
     {
         $definitions = $this->fieldDefinitions($template);
 
         foreach ($definitions as $key => $definition) {
-            if (($definition['type'] ?? '') !== 'date') {
-                continue;
+            $type = (string) ($definition['type'] ?? 'text');
+
+            if ($type === 'date') {
+                $value = $fields[$key] ?? '';
+                if (! is_string($value) || $value === '') {
+                    continue;
+                }
+
+                try {
+                    $fields[$key] = Carbon::parse($value)->format('d M Y');
+                } catch (\Throwable) {
+                    // Keep raw value.
+                }
             }
 
-            $value = $fields[$key] ?? '';
-            if ($value === '') {
-                continue;
-            }
-
-            try {
-                $fields[$key] = Carbon::parse($value)->format('d M Y');
-            } catch (\Throwable) {
-                // Keep the raw value if it is not a parseable date.
+            if (in_array($type, ['radio', 'select'], true) && isset($definition['options']) && is_string($fields[$key] ?? null)) {
+                $fields[$key.'_label'] = $definition['options'][$fields[$key]] ?? $fields[$key];
             }
         }
 
@@ -139,18 +191,19 @@ class DocumentGenerationService
     }
 
     /**
-     * @param  array<string, string>  $fields
+     * @param  array<string, mixed>  $fields
      */
     public function renderHtml(DocumentTemplateKey $template, array $fields): string
     {
         return view($template->view(), [
             'fields' => $this->presentFields($template, $fields),
+            'definitions' => $this->fieldDefinitions($template),
             'template' => $template,
         ])->render();
     }
 
     /**
-     * @param  array<string, string>  $fields
+     * @param  array<string, mixed>  $fields
      */
     public function generatePdf(DocumentTemplateKey $template, array $fields): string
     {
@@ -160,52 +213,54 @@ class DocumentGenerationService
     }
 
     /**
-     * @param  array<string, string>  $fields
+     * @param  array<string, mixed>  $fields
      */
     public function generateAndStore(
-        Property $property,
+        Tenant $tenant,
         DocumentTemplateKey $template,
         array $fields,
-        ?Tenant $tenant = null,
     ): Document {
         $pdf = $this->generatePdf($template, $fields);
         $originalName = $this->buildFilename($template, $tenant);
 
-        return $this->documentService->storeGenerated($property, $pdf, $originalName, 'application/pdf');
+        return $this->documentService->storeGenerated($tenant, $pdf, $originalName, 'application/pdf');
     }
 
     /**
-     * Current tenants on the property (whole or per-room) for the resident picker.
-     *
-     * @return Collection<int, Tenant>
+     * @return Collection<int, Tenancy>
      */
-    public function currentTenantsForProperty(Property $property): Collection
+    public function tenanciesForTenant(Tenant $tenant): Collection
     {
-        $property->loadMissing([
-            'currentTenancy.tenant',
-            'rooms.currentTenancy.tenant',
-            'currentTenancies.tenant',
-        ]);
-
-        return $property->currentTenancies
-            ->map(fn (Tenancy $tenancy) => $tenancy->tenant)
-            ->filter()
-            ->unique('id')
-            ->values();
+        return $tenant->tenancies()
+            ->with(['property', 'room'])
+            ->orderByDesc('started_on')
+            ->get();
     }
 
-    public function findTenancyForTenant(Property $property, Tenant $tenant): ?Tenancy
+    public function resolveTenancyContext(Tenant $tenant, ?int $tenancyId = null): array
     {
-        return $property->currentTenancies()
-            ->where('tenant_id', $tenant->id)
-            ->with('room')
-            ->first();
+        $tenancies = $this->tenanciesForTenant($tenant);
+
+        $tenancy = null;
+        if ($tenancyId) {
+            $tenancy = $tenancies->firstWhere('id', $tenancyId);
+        }
+
+        if (! $tenancy) {
+            $tenancy = $tenancies->first(fn (Tenancy $item) => $item->ended_on === null) ?? $tenancies->first();
+        }
+
+        return [
+            'tenancies' => $tenancies,
+            'tenancy' => $tenancy,
+            'property' => $tenancy?->property,
+        ];
     }
 
     /**
      * @return array<string, mixed>
      */
-    private function buildContext(Property $property, ?Tenant $tenant, ?Tenancy $tenancy): array
+    private function buildContext(Tenant $tenant, ?Property $property, ?Tenancy $tenancy): array
     {
         return [
             'property' => $property,
@@ -222,6 +277,9 @@ class DocumentGenerationService
      */
     private function resolveSource(string $source, array $context): string
     {
+        /** @var ?Property $property */
+        $property = $context['property'];
+
         return match ($source) {
             'today' => (string) $context['today'],
             'site_name' => (string) $context['site_name'],
@@ -230,9 +288,9 @@ class DocumentGenerationService
             'tenant.first_name' => (string) ($context['tenant']?->first_name ?? ''),
             'tenant.email' => (string) ($context['tenant']?->email ?? ''),
             'tenant.mobile_number' => (string) ($context['tenant']?->mobile_number ?? ''),
-            'property.formatted_address' => (string) $context['property']->formattedAddress(),
-            'property.postcode' => (string) ($context['property']->postcode ?? ''),
-            'property.name' => (string) ($context['property']->name ?? ''),
+            'property.formatted_address' => $property ? $property->formattedAddress() : '',
+            'property.postcode' => (string) ($property?->postcode ?? ''),
+            'property.name' => (string) ($property?->name ?? ''),
             'tenancy.started_on' => $context['tenancy']?->started_on
                 ? $context['tenancy']->started_on->format('Y-m-d')
                 : '',
@@ -248,8 +306,7 @@ class DocumentGenerationService
 
         return match ($source) {
             'today' => 'Today',
-            'site_name' => 'Site settings',
-            'site_phone' => 'Site settings',
+            'site_name', 'site_phone' => 'Site settings',
             'tenant.full_name', 'tenant.first_name', 'tenant.email', 'tenant.mobile_number' => 'Tenant record',
             'property.formatted_address', 'property.postcode', 'property.name' => 'Property record',
             'tenancy.started_on' => 'Tenancy record',
@@ -257,17 +314,14 @@ class DocumentGenerationService
         };
     }
 
-    private function buildFilename(DocumentTemplateKey $template, ?Tenant $tenant): string
+    private function buildFilename(DocumentTemplateKey $template, Tenant $tenant): string
     {
-        $parts = [$template->filenamePrefix()];
+        $safe = preg_replace('/[^A-Za-z0-9\-]+/', '-', $tenant->full_name) ?: 'resident';
 
-        if ($tenant) {
-            $safe = preg_replace('/[^A-Za-z0-9\-]+/', '-', $tenant->full_name) ?: 'resident';
-            $parts[] = trim($safe, '-');
-        }
-
-        $parts[] = Carbon::now()->format('Y-m-d-His');
-
-        return implode('-', $parts).'.pdf';
+        return implode('-', [
+            $template->filenamePrefix(),
+            trim($safe, '-'),
+            Carbon::now()->format('Y-m-d-His'),
+        ]).'.pdf';
     }
 }
