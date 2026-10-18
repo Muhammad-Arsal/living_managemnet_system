@@ -144,6 +144,51 @@ class TenantDocumentGenerationTest extends TestCase
         $response->assertSee('11. Other (please specify)');
     }
 
+    public function test_new_rh_templates_render_key_controls_on_form(): void
+    {
+        $this->actingAs($this->admin, 'admin')
+            ->get(route('admin.tenants.documents.generate', [
+                'tenant' => $this->tenant,
+                'template' => DocumentTemplateKey::IncidentReport->value,
+            ]))
+            ->assertOk()
+            ->assertSee('Incident Form (RH-15)')
+            ->assertSee('Police')
+            ->assertSee('Ambulance')
+            ->assertSee('Fire')
+            ->assertSee('name="fields[emergency_services][]"', false);
+
+        $this->actingAs($this->admin, 'admin')
+            ->get(route('admin.tenants.documents.generate', [
+                'tenant' => $this->tenant,
+                'template' => DocumentTemplateKey::MissedMeetingLetter->value,
+            ]))
+            ->assertOk()
+            ->assertSee('Missed Meeting Letter (RH-16)')
+            ->assertSee('We were due to meet on');
+
+        $this->actingAs($this->admin, 'admin')
+            ->get(route('admin.tenants.documents.generate', [
+                'tenant' => $this->tenant,
+                'template' => DocumentTemplateKey::KnowingYourRights->value,
+            ]))
+            ->assertOk()
+            ->assertSee('Knowing Your Rights (RH-19)')
+            ->assertSee('I understand I have the right to live in a clean, safe and secure home')
+            ->assertSee('name="fields[statements][]"', false);
+
+        $this->actingAs($this->admin, 'admin')
+            ->get(route('admin.tenants.documents.generate', [
+                'tenant' => $this->tenant,
+                'template' => DocumentTemplateKey::ResidentExitForm->value,
+            ]))
+            ->assertOk()
+            ->assertSee('Resident Exit Form (RH-20)')
+            ->assertSee('Move onto independent living')
+            ->assertSee('Unknown / lost contact')
+            ->assertSee('name="fields[leave_reasons][]"', false);
+    }
+
     public function test_risk_assessment_preview_renders_score_grid_cells(): void
     {
         $payload = $this->validPayload(DocumentTemplateKey::RiskAssessment);
@@ -191,7 +236,13 @@ class TenantDocumentGenerationTest extends TestCase
 
         $response->assertOk();
         $response->assertSee('Jane Resident', false);
-        $response->assertSee('12 High Street', false);
+
+        if ($template === DocumentTemplateKey::ResidentExitForm) {
+            $response->assertSee('1 New Street, Coventry', false);
+            $response->assertSee('Move onto independent living', false);
+        } else {
+            $response->assertSee('12 High Street', false);
+        }
     }
 
     #[DataProvider('templateKeysProvider')]
@@ -467,6 +518,68 @@ class TenantDocumentGenerationTest extends TestCase
                 'disability' => '',
                 'preferred_language' => 'English',
                 'consent' => ['gdpr', 'rent', 'privacy', 'sharing'],
+            ],
+            DocumentTemplateKey::IncidentReport => [
+                'provider_name' => 'Rneyz Housing',
+                'completed_by' => 'Sam Support',
+                'date_of_completion' => now()->toDateString(),
+                'email' => 'sam@example.com',
+                'contact_number' => '02400000000',
+                'incident_location' => '12 High Street, Coventry, CV1 1AA, United Kingdom',
+                'incident_details' => 'Resident fell in the hallway at 10:00. First aid administered.',
+                'persons_involved' => 'Jane Resident; Sam Support 07123456789',
+                'emergency_services' => ['Ambulance'],
+                'emergency_details' => 'Ambulance ref AMB-123',
+                'follow_up_details' => 'Review risk assessment within 48 hours',
+                'other_comments' => 'None',
+            ],
+            DocumentTemplateKey::MissedMeetingLetter => [
+                'resident_name' => 'Jane Resident',
+                'address' => '12 High Street, Coventry, CV1 1AA, United Kingdom',
+                'postcode' => 'CV1 1AA',
+                'date' => now()->toDateString(),
+                'dear_name' => 'Jane Resident',
+                'missed_meeting_on' => 'Monday 6 October 2026',
+                'new_appointment_on' => 'Monday 20 October 2026 at 10:00',
+                'meeting_location' => 'Alpha House office',
+                'contact_phone' => '02400000000',
+                'support_worker_name' => 'Sam Support',
+                'support_worker_title' => 'Support Worker',
+            ],
+            DocumentTemplateKey::KnowingYourRights => [
+                'provider_name' => 'Rneyz Housing',
+                'resident_name' => 'Jane Resident',
+                'address' => '12 High Street, Coventry, CV1 1AA, United Kingdom',
+                'statements' => [
+                    'clean_safe_home',
+                    'landlord',
+                    'engage_support',
+                    'fire',
+                    'licence',
+                    'support_plan',
+                    'risk_assessment',
+                    'pay_service_charge',
+                    'service_charge_for',
+                    'complaint',
+                    'contact_support',
+                    'appeal',
+                ],
+                'support_worker' => 'Sam Support',
+                'date_of_completion' => now()->toDateString(),
+            ],
+            DocumentTemplateKey::ResidentExitForm => [
+                'resident_name' => 'Jane Resident',
+                'completed_by' => 'Sam Support',
+                'date_of_completion' => now()->toDateString(),
+                'leave_reasons' => ['Move onto independent living'],
+                'leave_reason_other' => '',
+                'new_address' => '1 New Street, Coventry',
+                'housing_benefit_cancelled' => 'Yes',
+                'left_belongings' => 'No',
+                'belongings_list' => '',
+                'next_of_kin_contacted' => 'N/A',
+                'follow_up_required' => 'No',
+                'follow_up_details' => '',
             ],
         };
 
