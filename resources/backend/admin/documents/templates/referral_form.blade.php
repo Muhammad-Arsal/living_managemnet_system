@@ -13,6 +13,7 @@
     <p class="meta-row"><span class="label">Full Name:</span> {{ $f['full_name'] ?? '' }}</p>
     <p class="meta-row"><span class="label">DOB &amp; Age:</span> {{ $f['dob_age'] ?? '' }}</p>
     <p class="meta-row"><span class="label">Financial Status:</span></p>
+    <p class="muted">Eg receiving benefits, working, whether entitled to public funds</p>
     <div class="box">{{ $f['financial_status'] ?? '' }}</div>
     <p class="meta-row"><span class="label">NI Number:</span> {{ $f['ni_number'] ?? '' }}</p>
     <p class="meta-row"><span class="label">Telephone:</span> {{ $f['telephone'] ?? '' }}</p>
@@ -21,6 +22,7 @@
     <p class="meta-row"><span class="label">Client Number:</span> {{ $f['client_number'] ?? '' }}</p>
     <p class="meta-row"><span class="label">Previous Contact with organisation:</span> {{ $f['previous_contact'] ?? '' }}</p>
     <p class="meta-row"><span class="label">Current Address:</span></p>
+    <p class="muted">Including housing status e.g. tenant, living with family. If no current address please give "care of" address where information can be sent to</p>
     <div class="box">{{ $f['current_address'] ?? '' }}</div>
     <p class="meta-row"><span class="label">Landlord Name &amp; Contact:</span> {{ $f['landlord_contact'] ?? '' }}</p>
     <p class="label">Reason Support Required:</p>
@@ -74,6 +76,7 @@
     <p class="meta-row"><span class="label">Referral Date:</span> {{ $f['referral_date'] ?? '' }}</p>
 
     <h2>7. Safeguarding</h2>
+    <p class="label">Any safeguarding concerns or risks:</p>
     <div class="box">{{ $f['safeguarding'] ?? '' }}</div>
 
     <h2>8. Emergency Contact</h2>
@@ -94,5 +97,9 @@
     ])
     <p class="signature-line"><span class="label">Client Signature:</span> __________________ &nbsp;&nbsp; <span class="label">Date:</span> __________</p>
     <p class="signature-line"><span class="label">Referrer Signature:</span> ________________ &nbsp;&nbsp; <span class="label">Date:</span> __________</p>
-    <p class="muted mt">Office Use Only — Assessment Date / Outcome / Allocated Worker to be completed after generation.</p>
+
+    <h2>Office Use Only</h2>
+    <p class="meta-row"><span class="label">Assessment Date:</span> {{ $f['office_assessment_date'] ?? '' }}</p>
+    <p class="meta-row"><span class="label">Outcome:</span> {{ $f['office_outcome'] ?? '' }}</p>
+    <p class="meta-row"><span class="label">Allocated Worker:</span> {{ $f['office_allocated_worker'] ?? '' }}</p>
 @endsection

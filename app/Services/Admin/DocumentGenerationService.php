@@ -286,6 +286,7 @@ class DocumentGenerationService
             'site_phone' => (string) $context['site_phone'],
             'tenant.full_name' => (string) ($context['tenant']?->full_name ?? ''),
             'tenant.first_name' => (string) ($context['tenant']?->first_name ?? ''),
+            'tenant.last_name' => (string) ($context['tenant']?->last_name ?? ''),
             'tenant.email' => (string) ($context['tenant']?->email ?? ''),
             'tenant.mobile_number' => (string) ($context['tenant']?->mobile_number ?? ''),
             'property.formatted_address' => $property ? $property->formattedAddress() : '',
@@ -307,7 +308,7 @@ class DocumentGenerationService
         return match ($source) {
             'today' => 'Today',
             'site_name', 'site_phone' => 'Site settings',
-            'tenant.full_name', 'tenant.first_name', 'tenant.email', 'tenant.mobile_number' => 'Tenant record',
+            'tenant.full_name', 'tenant.first_name', 'tenant.last_name', 'tenant.email', 'tenant.mobile_number' => 'Tenant record',
             'property.formatted_address', 'property.postcode', 'property.name' => 'Property record',
             'tenancy.started_on' => 'Tenancy record',
             default => 'System',

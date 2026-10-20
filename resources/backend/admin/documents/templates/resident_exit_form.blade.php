@@ -42,7 +42,7 @@
         <p class="meta-row"><span class="label">Other (please specify):</span> {{ $f['leave_reason_other'] }}</p>
     @endif
 
-    <h2>Residents new address (if disclosed)</h2>
+    <h2>Residents new address (if disclosed):</h2>
     <div class="box">{{ $f['new_address'] ?? '' }}</div>
 
     <p class="meta-row"><span class="label">Has the housing benefit claim been cancelled?</span> {{ $yn($f['housing_benefit_cancelled'] ?? null) }}</p>

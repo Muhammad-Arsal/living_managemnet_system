@@ -24,7 +24,7 @@
     <h2>Payment Due Date</h2>
     <p>Your weekly service charge is due every <strong>{{ $f['payment_day'] ?? '' }}</strong> (day of the week).</p>
     <p><span class="label">First Payment Due:</span> {{ $f['first_payment_due'] ?? '' }}</p>
-    <p>Thereafter, payment must be received every {{ $f['payment_day'] ?? '' }} for the duration of your licence agreement unless otherwise agreed in writing.</p>
+    <p>Thereafter, payment must be received every {{ $f['payment_day'] ?? '' }} (e.g. every Monday) for the duration of your licence agreement unless otherwise agreed in writing.</p>
 
     <h2>Payment Details</h2>
     <p class="meta-row"><span class="label">Account Name:</span> {{ $f['account_name'] ?? '' }}</p>

@@ -95,17 +95,20 @@
     @endforeach
 
     <h2>HOUSING APPLICATIONS</h2>
+    <h3>Housing Register</h3>
     <p class="label">Registered with Coventry Homefinder:</p>
     @include('backend::admin.documents.templates.partials.option-list', ['options' => $defs['homefinder_registered']['options'] ?? [], 'selected' => $f['homefinder_registered'] ?? ''])
     <p class="meta-row"><span class="label">Date Registered:</span> {{ $f['homefinder_date'] ?? '' }}</p>
     <p class="meta-row"><span class="label">Banding:</span> {{ $f['homefinder_banding'] ?? '' }}</p>
     <p class="meta-row"><span class="label">Reference Number:</span> {{ $f['homefinder_reference'] ?? '' }}</p>
-    <p class="label">Private Rented Sector — Actions Taken:</p>
+    <h3>Private Rented Sector</h3>
+    <p class="label">Actions Taken:</p>
     @include('backend::admin.documents.templates.partials.option-list', ['options' => $defs['prs_actions']['options'] ?? [], 'selected' => $f['prs_actions'] ?? []])
     <p class="label">Notes:</p>
     <div class="box">{{ $f['prs_notes'] ?? '' }}</div>
 
     <h2>BARRIERS TO MOVE-ON</h2>
+    <p class="label">Identify barriers preventing independent living:</p>
     @include('backend::admin.documents.templates.partials.option-list', ['options' => $defs['barriers']['options'] ?? [], 'selected' => $f['barriers'] ?? []])
     @if (! empty($f['barriers_other']))
         <p class="meta-row"><span class="label">Other:</span> {{ $f['barriers_other'] }}</p>
@@ -114,6 +117,7 @@
     <div class="box">{{ $f['barriers_actions'] ?? '' }}</div>
 
     <h2>SUPPORT PROVIDED</h2>
+    <p class="label">Support to be delivered by provider:</p>
     @include('backend::admin.documents.templates.partials.option-list', ['options' => $defs['support_provided']['options'] ?? [], 'selected' => $f['support_provided'] ?? []])
     <p class="label">Frequency of Support:</p>
     @include('backend::admin.documents.templates.partials.option-list', ['options' => $defs['support_frequency']['options'] ?? [], 'selected' => $f['support_frequency'] ?? ''])

@@ -43,7 +43,6 @@
 
     <p class="muted">Please refer to RH-8 Risk Assessment Guidance before completing the sections below.</p>
 
-    <h2>Welcome to your Support Plan</h2>
     <p>We at {{ $f['provider_name'] ?? '' }} want to help keep you safe. For us to do this, we need to understand what possible risks you may encounter during your stay with us.</p>
     <p>Identifying risk related behaviour and situations.</p>
 
@@ -71,6 +70,26 @@
         </table>
         <p class="muted">New risk assessment to be completed as required.</p>
     @endforeach
+
+    <h2>Understanding risk factors, triggers and how to reduce the risk.</h2>
+    <p>For each risk with a score of 5 or above, discuss how and why you reached that decision, and what action plan can be agreed to reduce the risk.</p>
+    <p>By understanding your risks you can help reduce the likelihood of them happening and help keep you and others you live with safe.</p>
+    <p>If during your stay with us you feel your risk rating has increased or reduced, please discuss this with your support worker and together you can amend the risk management plan as needed.</p>
+    <p>If your support worker feels that your risk rating needs to be amended, they will discuss this with you at your support session.</p>
+    <p>This risk assessment will be reviewed every 3 months at your Quarterly Review support session.</p>
+
+    @for ($i = 1; $i <= 7; $i++)
+        <div class="section mt">
+            <p class="meta-row"><span class="label">Risk:</span> {{ $f['detail_'.$i.'_risk'] ?? '' }}</p>
+            <p class="meta-row"><span class="label">Score:</span> {{ $f['detail_'.$i.'_score'] ?? '' }}</p>
+            <p class="label">Please explain why you have chosen the score:</p>
+            <div class="box">{{ $f['detail_'.$i.'_why'] ?? '' }}</div>
+            <p class="label">Are there any triggers associated with the risk?</p>
+            <div class="box">{{ $f['detail_'.$i.'_triggers'] ?? '' }}</div>
+            <p class="label">Are there any ways we can minimize the risk? (Risk Management Plan)</p>
+            <div class="box">{{ $f['detail_'.$i.'_plan'] ?? '' }}</div>
+        </div>
+    @endfor
 
     <div class="signature">
         <p class="signature-line"><span class="label">Resident Signature:</span> ______________________________</p>

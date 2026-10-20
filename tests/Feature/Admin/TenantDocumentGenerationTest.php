@@ -208,6 +208,9 @@ class TenantDocumentGenerationTest extends TestCase
         $response->assertSee('>2</td>', false);
         $response->assertSee('>1</td>', false);
         $response->assertSee('1. Risk of violence &amp; aggression', false);
+        $response->assertSee('Understanding risk factors, triggers and how to reduce the risk.', false);
+        $response->assertSee('Are there any ways we can minimize the risk? (Risk Management Plan)', false);
+        $response->assertSee('This risk assessment will be reviewed every 3 months at your Quarterly Review support session.', false);
     }
 
     public function test_preview_shows_checked_accommodation_options(): void
@@ -235,14 +238,45 @@ class TenantDocumentGenerationTest extends TestCase
             ->post(route('admin.tenants.documents.generate.preview', $this->tenant), $payload);
 
         $response->assertOk();
-        $response->assertSee('Jane Resident', false);
 
-        if ($template === DocumentTemplateKey::ResidentExitForm) {
+        if ($template === DocumentTemplateKey::InitialNeedsAssessment) {
+            $response->assertSee('INITIAL NEEDS ASSESSMENT (RH-1)', false);
+            $response->assertSee('Jane', false);
+            $response->assertSee('Resident', false);
+            $response->assertSee('12 High Street', false);
+        } elseif ($template === DocumentTemplateKey::ResidentExitForm) {
+            $response->assertSee('Jane Resident', false);
             $response->assertSee('1 New Street, Coventry', false);
             $response->assertSee('Move onto independent living', false);
         } else {
+            $response->assertSee('Jane Resident', false);
             $response->assertSee('12 High Street', false);
         }
+    }
+
+    public function test_templates_are_ordered_by_rh_number(): void
+    {
+        $labels = array_map(
+            static fn (DocumentTemplateKey $key) => $key->label(),
+            DocumentTemplateKey::cases()
+        );
+
+        $this->assertSame('Initial Needs Assessment (RH-1)', $labels[0]);
+        $this->assertSame('Excluded License Agreement (RH-2)', $labels[1]);
+        $this->assertSame('Nil Income Form (RH-6)', $labels[2]);
+        $this->assertSame('Your Risk Assessment (RH-9)', $labels[3]);
+        $this->assertSame('Resident Review Form (RH-12)', $labels[4]);
+        $this->assertSame('Incident Form (RH-15)', $labels[5]);
+        $this->assertSame('Missed Meeting Letter (RH-16)', $labels[6]);
+        $this->assertSame('Warning Letter (RH-17)', $labels[7]);
+        $this->assertSame('Final Warning for Non-Engagement (RH-18)', $labels[8]);
+        $this->assertSame('Knowing Your Rights (RH-19)', $labels[9]);
+        $this->assertSame('Resident Exit Form (RH-20)', $labels[10]);
+        $this->assertSame('List of Inventory (RH-21)', $labels[11]);
+        $this->assertSame('ID Check List (RH-22)', $labels[12]);
+        $this->assertSame('Referral & Support Assessment Form', $labels[13]);
+        $this->assertSame('Resident Move-On Plan', $labels[14]);
+        $this->assertSame('Weekly Service Charge Notice', $labels[15]);
     }
 
     #[DataProvider('templateKeysProvider')]
@@ -474,6 +508,41 @@ class TenantDocumentGenerationTest extends TestCase
                 'risk_other_1' => ['initial' => '', 'm3' => '', 'm6' => '', 'm9' => '', 'm12' => ''],
                 'risk_other_2_specify' => '',
                 'risk_other_2' => ['initial' => '', 'm3' => '', 'm6' => '', 'm9' => '', 'm12' => ''],
+                'detail_1_risk' => 'Violence & aggression',
+                'detail_1_score' => '2',
+                'detail_1_why' => 'Historical incident only',
+                'detail_1_triggers' => 'Conflict with peers',
+                'detail_1_plan' => 'De-escalation support',
+                'detail_2_risk' => '',
+                'detail_2_score' => '',
+                'detail_2_why' => '',
+                'detail_2_triggers' => '',
+                'detail_2_plan' => '',
+                'detail_3_risk' => '',
+                'detail_3_score' => '',
+                'detail_3_why' => '',
+                'detail_3_triggers' => '',
+                'detail_3_plan' => '',
+                'detail_4_risk' => '',
+                'detail_4_score' => '',
+                'detail_4_why' => '',
+                'detail_4_triggers' => '',
+                'detail_4_plan' => '',
+                'detail_5_risk' => '',
+                'detail_5_score' => '',
+                'detail_5_why' => '',
+                'detail_5_triggers' => '',
+                'detail_5_plan' => '',
+                'detail_6_risk' => '',
+                'detail_6_score' => '',
+                'detail_6_why' => '',
+                'detail_6_triggers' => '',
+                'detail_6_plan' => '',
+                'detail_7_risk' => '',
+                'detail_7_score' => '',
+                'detail_7_why' => '',
+                'detail_7_triggers' => '',
+                'detail_7_plan' => '',
             ],
             DocumentTemplateKey::ReferralForm => [
                 'organisation' => 'Rneyz Housing',
@@ -518,6 +587,9 @@ class TenantDocumentGenerationTest extends TestCase
                 'disability' => '',
                 'preferred_language' => 'English',
                 'consent' => ['gdpr', 'rent', 'privacy', 'sharing'],
+                'office_assessment_date' => now()->toDateString(),
+                'office_outcome' => 'Accepted',
+                'office_allocated_worker' => 'Sam Support',
             ],
             DocumentTemplateKey::IncidentReport => [
                 'provider_name' => 'Rneyz Housing',
@@ -581,12 +653,225 @@ class TenantDocumentGenerationTest extends TestCase
                 'follow_up_required' => 'No',
                 'follow_up_details' => '',
             ],
+            DocumentTemplateKey::InitialNeedsAssessment => $this->initialNeedsAssessmentPayload(),
+            DocumentTemplateKey::ExcludedLicenseAgreement => [
+                'provider_name' => 'Rneyz Housing',
+                'names' => 'Jane Resident',
+                'room_no' => '1',
+                'address' => '12 High Street, Coventry, CV1 1AA, United Kingdom',
+                'postcode' => 'CV1 1AA',
+                'date_of_birth' => '1990-01-01',
+                'ni_number' => 'AB123456C',
+                'phone_email' => '07123456789 / jane.resident@example.com',
+                'license_start_date' => now()->toDateString(),
+                'license_begins_on' => now()->toDateString(),
+                'total_core_rent' => '100.00',
+                'total_eligible_service_charges' => '35.00',
+                'total_eligible_service_charge_and_rent' => '135.00',
+                'electric_meter' => '1000',
+                'gas_meter' => '2000',
+                'water_meter' => '3000',
+                'licensee_print_name' => 'Jane Resident',
+                'licensee_dated_1' => now()->toDateString(),
+                'licensee_dated_2' => now()->toDateString(),
+                'provider_signatory_name' => 'Sam Support',
+                'provider_dated_1' => now()->toDateString(),
+                'provider_dated_2' => now()->toDateString(),
+            ],
+            DocumentTemplateKey::NilIncomeForm => [
+                'claimant_name' => 'Jane Resident',
+                'period_from' => now()->subMonth()->toDateString(),
+                'period_to' => now()->toDateString(),
+                'address' => '12 High Street, Coventry, CV1 1AA, United Kingdom',
+                'support_methods' => ['Using Savings'],
+                'support_details' => 'Using personal savings',
+                'savings_value' => '250.00',
+                'other_information' => 'None',
+                'claimant_date' => now()->toDateString(),
+                'filled_by_reason' => '',
+                'filled_by_name' => '',
+                'filled_by_relationship' => '',
+                'filled_by_date' => '',
+            ],
+            DocumentTemplateKey::ResidentReviewForm => [
+                'resident_name' => 'Jane Resident',
+                'date_of_completion' => now()->toDateString(),
+                'address' => '12 High Street, Coventry, CV1 1AA, United Kingdom',
+                'happy_with_support' => 'Yes',
+                'happy_with_support_why' => 'Support is helpful',
+                'see_support_worker' => 'Weekly',
+                'goal_1' => 'Budgeting',
+                'goal_2' => 'Job search',
+                'goal_3' => 'Health',
+                'goal_4' => 'Social networks',
+                'goal_5' => 'Move-on readiness',
+                'next_3_months' => 'Apply for social housing',
+                'anything_else' => 'No',
+                'anything_else_details' => '',
+                'support_worker_name' => 'Sam Support',
+            ],
+            DocumentTemplateKey::ListOfInventory => [
+                'resident_name' => 'Jane Resident',
+                'property_address' => '12 High Street, Coventry, CV1 1AA, United Kingdom',
+                'date_moved_in' => now()->subMonths(2)->toDateString(),
+                'inv_1' => ['item' => 'Bed', 'description' => 'Single bed with mattress', 'quantity' => '1'],
+                'inv_2' => ['item' => 'Wardrobe', 'description' => 'Wooden wardrobe', 'quantity' => '1'],
+                'inv_3' => ['item' => '', 'description' => '', 'quantity' => ''],
+                'inv_4' => ['item' => '', 'description' => '', 'quantity' => ''],
+                'inv_5' => ['item' => '', 'description' => '', 'quantity' => ''],
+                'inv_6' => ['item' => '', 'description' => '', 'quantity' => ''],
+                'inv_7' => ['item' => '', 'description' => '', 'quantity' => ''],
+                'inv_8' => ['item' => '', 'description' => '', 'quantity' => ''],
+                'inv_9' => ['item' => '', 'description' => '', 'quantity' => ''],
+                'inv_10' => ['item' => '', 'description' => '', 'quantity' => ''],
+            ],
+            DocumentTemplateKey::IdChecklist => [
+                'resident_name' => 'Jane Resident',
+                'address' => '12 High Street, Coventry, CV1 1AA, United Kingdom',
+                'date_moved_in' => now()->subMonths(2)->toDateString(),
+                'support_worker_name' => 'Sam Support',
+                'previous_rp_landlord' => 'Previous Landlord',
+                'previous_housing_provider' => 'Previous Provider',
+                'previous_address' => 'Old Address',
+                'documents_completed' => ['ID-1', 'ID-5', 'ID-6'],
+            ],
         };
 
         return [
             'template' => $template->value,
             'fields' => $fields,
         ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function initialNeedsAssessmentPayload(): array
+    {
+        $fields = [
+            'completed_by' => 'Sam Support',
+            'date_of_completion' => now()->toDateString(),
+            'preferred_title' => 'Miss',
+            'preferred_title_other' => '',
+            'surname' => 'Resident',
+            'first_name' => 'Jane',
+            'gender' => 'Female',
+            'ni_number' => 'AB123456C',
+            'previous_address' => '12 High Street, Coventry, CV1 1AA, United Kingdom',
+            'date_of_birth' => '1990-01-01',
+            'contact_number' => '07123456789',
+            'email' => 'jane.resident@example.com',
+            'reason_homelessness' => 'Loss of previous accommodation',
+            'family_contact' => 'Yes',
+            'family_support_details' => 'Occasional support',
+            'has_next_of_kin' => 'Yes',
+            'nok_name' => 'John Resident',
+            'nok_contact' => '07999999999',
+            'nok_relationship' => 'Brother',
+            'uses_substances' => 'No',
+            'drugs_details' => '',
+            'alcohol_details' => '',
+            'has_substance_worker' => 'No',
+            'substance_worker_details' => '',
+            'want_substance_help' => 'No',
+            'substance_help_no_reason' => 'N/A',
+            'physical_health' => 'No',
+            'physical_health_details' => '',
+            'physical_influences_daily' => 'No',
+            'physical_daily_details' => '',
+            'need_physical_help' => 'No',
+            'mental_health' => 'No',
+            'mental_health_details' => '',
+            'mental_influences_daily' => 'No',
+            'mental_daily_details' => '',
+            'self_harm_history' => 'No',
+            'self_harm_details' => '',
+            'prescribed_medication' => 'No',
+            'medication_details' => '',
+            'medication_reminder' => 'No',
+            'registered_gp' => 'Yes',
+            'gp_details' => 'City Surgery',
+            'need_healthcare_register' => 'No',
+            'healthcare_services' => [],
+            'criminal_convictions' => 'No',
+            'convictions_details' => '',
+            'subject_to_orders' => 'No',
+            'orders_details' => '',
+            'need_reduce_asb' => 'No',
+            'reduce_asb_details' => '',
+            'need_positive_networks' => 'No',
+            'positive_networks_details' => '',
+            'violence_history' => 'No',
+            'violence_details' => '',
+            'arson_history' => 'No',
+            'arson_details' => '',
+            'claims_benefits' => 'Yes',
+            'benefits_details' => 'Universal Credit',
+            'other_income' => 'No',
+            'other_income_details' => '',
+            'has_debts' => 'No',
+            'debts_details' => '',
+            'repaying_debts' => 'No',
+            'want_debt_help' => 'No',
+            'debt_help_no_reason' => '',
+            'owed_money' => 'No',
+            'owed_money_details' => '',
+            'need_recoup_money' => 'No',
+            'has_bank_account' => 'Yes',
+            'want_bank_help' => 'No',
+            'currently_working' => 'No',
+            'working_details' => '',
+            'want_employment_access' => 'Yes',
+            'employment_type_wanted' => 'Retail',
+            'employment_history' => 'Yes',
+            'employment_history_details' => 'Previous retail work',
+            'has_cv' => 'No',
+            'want_cv_help' => 'Yes',
+            'want_leisure_help' => 'No',
+            'leisure_details' => '',
+            'own_accommodation_before' => 'Yes',
+            'able_manage_accommodation' => 'No',
+            'manage_accommodation_why' => 'Needs support',
+            'registered_social_housing' => 'No',
+            'social_housing_details' => '',
+            'interested_social_housing' => 'Yes',
+            'interested_social_details' => 'Local authority waiting list',
+            'skill_budget' => 'Yes',
+            'skill_hygiene' => 'No',
+            'skill_housekeeping' => 'Yes',
+            'skill_laundry' => 'No',
+            'skill_cook' => 'Yes',
+            'skill_shop' => 'No',
+            'skill_asb' => 'No',
+            'skill_communicate' => 'No',
+            'skill_organise' => 'Yes',
+            'skill_perspective' => 'No',
+            'risk_violence' => 'No',
+            'risk_offending' => 'No',
+            'risk_harm' => 'No',
+            'risk_learning' => 'No',
+            'risk_self_neglect' => 'No',
+            'risk_sex_offences' => 'No',
+            'risk_mental_deterioration' => 'No',
+            'risk_domestic_abuse' => 'No',
+            'risk_physical_deterioration' => 'No',
+            'risk_suicide' => 'No',
+            'risk_substance' => 'No',
+            'risk_arson' => 'No',
+            'risk_financial' => 'No',
+            'risk_other' => 'No',
+            'risk_other_text' => '',
+            'risk_explanation' => 'No significant risks identified',
+            'ethnic_origin' => 'White: British',
+            'ethnic_origin_other' => '',
+            'religion' => 'No religion /Atheist',
+            'religion_other' => '',
+            'sexual_orientation' => 'Heterosexual',
+            'sexual_orientation_other' => '',
+            'support_worker_name' => 'Sam Support',
+        ];
+
+        return $fields;
     }
 
     private function makeAdmin(): Admin
