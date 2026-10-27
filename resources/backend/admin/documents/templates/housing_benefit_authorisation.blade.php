@@ -8,7 +8,7 @@
 
     <h1>Housing Benefit Authorisation Form (RH-4)</h1>
 
-    <p class="muted">Coventry City Council – Benefits Service<br>
+    <p class="muted">Coventry City Council   Benefits Service<br>
         PO Box 7097<br>
         Coventry<br>
         CV6 9SL</p>

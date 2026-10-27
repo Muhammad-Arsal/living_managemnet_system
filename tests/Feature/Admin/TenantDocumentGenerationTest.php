@@ -117,11 +117,11 @@ class TenantDocumentGenerationTest extends TestCase
             ]));
 
         $response->assertOk();
-        $response->assertSee('Review record 1 — date');
+        $response->assertSee('Review record 1 date');
         $response->assertSee('Date resident moved out');
         $response->assertSee('Move-on destination');
-        $response->assertSee('1. Tenancy sustainment — target date');
-        $response->assertSee('1. Tenancy sustainment — completed');
+        $response->assertSee('1. Tenancy sustainment target date');
+        $response->assertSee('1. Tenancy sustainment completed');
         $response->assertSee('name="fields[goal_tenancy][]"', false);
     }
 
@@ -252,6 +252,10 @@ class TenantDocumentGenerationTest extends TestCase
             $response->assertSee('Jane Resident', false);
             $response->assertSee('Risk Assessment for Staff Eyes Only (RH-10)', false);
             $response->assertSee('Risk Management Plan', false);
+        } elseif ($template === DocumentTemplateKey::SupportPlanSchedule) {
+            $response->assertSee('A. SUPPORT PLAN', false);
+            $response->assertSee('B. SUPPORT SCHEDULE', false);
+            $response->assertSee('Keywork sessions', false);
         } else {
             $response->assertSee('Jane Resident', false);
             $response->assertSee('12 High Street', false);
@@ -273,6 +277,7 @@ class TenantDocumentGenerationTest extends TestCase
             'Your Risk Assessment (RH-9)',
             'Risk Assessment for Staff Eyes Only (RH-10)',
             'Your Support Plan (RH-11)',
+            'Support Plan Schedule',
             'Resident Review Form (RH-12)',
             'Incident Form (RH-15)',
             'Missed Meeting Letter (RH-16)',
@@ -771,6 +776,7 @@ class TenantDocumentGenerationTest extends TestCase
                 'further_comments' => 'None',
             ],
             DocumentTemplateKey::SupportPlan => $this->supportPlanPayload(),
+            DocumentTemplateKey::SupportPlanSchedule => [],
         };
 
         return [

@@ -12,6 +12,7 @@ enum DocumentTemplateKey: string
     case RiskAssessment = 'risk_assessment';
     case StaffRiskAssessment = 'staff_risk_assessment';
     case SupportPlan = 'support_plan';
+    case SupportPlanSchedule = 'support_plan_schedule';
     case ResidentReviewForm = 'resident_review_form';
     case IncidentReport = 'incident_report';
     case MissedMeetingLetter = 'missed_meeting_letter';
@@ -35,6 +36,7 @@ enum DocumentTemplateKey: string
             self::RiskAssessment => 'Your Risk Assessment (RH-9)',
             self::StaffRiskAssessment => 'Risk Assessment for Staff Eyes Only (RH-10)',
             self::SupportPlan => 'Your Support Plan (RH-11)',
+            self::SupportPlanSchedule => 'Support Plan Schedule',
             self::ResidentReviewForm => 'Resident Review Form (RH-12)',
             self::IncidentReport => 'Incident Form (RH-15)',
             self::MissedMeetingLetter => 'Missed Meeting Letter (RH-16)',
@@ -60,6 +62,7 @@ enum DocumentTemplateKey: string
             self::RiskAssessment => 'Resident risk assessment and support-plan scores across key risk areas.',
             self::StaffRiskAssessment => 'Staff-only risk management plans where resident scores are disputed or sensitive.',
             self::SupportPlan => 'Resident support plan with goals, review dates, and engagement commitments.',
+            self::SupportPlanSchedule => 'Fixed support plan and schedule PDF with no fields to fill. Download as-is.',
             self::ResidentReviewForm => 'Resident support review covering goals, contact frequency, and next steps.',
             self::IncidentReport => 'Incident report with details, witnesses, emergency services, and follow-up.',
             self::MissedMeetingLetter => 'Letter confirming a missed support session and rearranged appointment.',
@@ -85,6 +88,7 @@ enum DocumentTemplateKey: string
             self::RiskAssessment => 'bx:bx-shield-quarter',
             self::StaffRiskAssessment => 'bx:bx-show-alt',
             self::SupportPlan => 'bx:bx-target-lock',
+            self::SupportPlanSchedule => 'bx:bx-download',
             self::ResidentReviewForm => 'bx:bx-revision',
             self::IncidentReport => 'bx:bx-first-aid',
             self::MissedMeetingLetter => 'bx:bx-calendar-x',
@@ -105,6 +109,17 @@ enum DocumentTemplateKey: string
         return 'backend::admin.documents.templates.'.$this->value;
     }
 
+    /**
+     * Static templates have no fillable fields. Download/generate the fixed PDF as-is.
+     */
+    public function isStatic(): bool
+    {
+        return match ($this) {
+            self::SupportPlanSchedule => true,
+            default => false,
+        };
+    }
+
     public function filenamePrefix(): string
     {
         return match ($this) {
@@ -115,6 +130,7 @@ enum DocumentTemplateKey: string
             self::RiskAssessment => 'Risk-Assessment-RH-9',
             self::StaffRiskAssessment => 'Staff-Risk-Assessment-RH-10',
             self::SupportPlan => 'Support-Plan-RH-11',
+            self::SupportPlanSchedule => 'Support-Plan-Schedule',
             self::ResidentReviewForm => 'Resident-Review-Form-RH-12',
             self::IncidentReport => 'Incident-Report-RH-15',
             self::MissedMeetingLetter => 'Missed-Meeting-Letter-RH-16',

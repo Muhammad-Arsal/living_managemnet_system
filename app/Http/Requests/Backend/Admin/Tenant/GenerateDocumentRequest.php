@@ -14,23 +14,34 @@ class GenerateDocumentRequest extends FormRequest
         return true;
     }
 
+    protected function prepareForValidation(): void
+    {
+        $template = is_string($this->input('template'))
+            ? DocumentTemplateKey::tryFrom((string) $this->input('template'))
+            : null;
+
+        if ($template?->isStatic() && ! $this->has('fields')) {
+            $this->merge(['fields' => []]);
+        }
+    }
+
     /**
      * @return array<string, mixed>
      */
     public function rules(): array
     {
-        $rules = [
-            'template' => ['required', Rule::enum(DocumentTemplateKey::class)],
-            'tenancy_id' => ['nullable', 'integer', 'exists:tenancies,id'],
-            'fields' => ['required', 'array'],
-        ];
-
         $templateValue = $this->input('template');
         $template = is_string($templateValue)
             ? DocumentTemplateKey::tryFrom($templateValue)
             : null;
 
-        if ($template === null) {
+        $rules = [
+            'template' => ['required', Rule::enum(DocumentTemplateKey::class)],
+            'tenancy_id' => ['nullable', 'integer', 'exists:tenancies,id'],
+            'fields' => [$template?->isStatic() ? 'nullable' : 'required', 'array'],
+        ];
+
+        if ($template === null || $template->isStatic()) {
             return $rules;
         }
 

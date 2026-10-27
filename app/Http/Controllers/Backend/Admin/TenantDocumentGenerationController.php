@@ -62,10 +62,12 @@ class TenantDocumentGenerationController extends Controller
     public function preview(GenerateDocumentRequest $request, Tenant $tenant): Response
     {
         $template = DocumentTemplateKey::from($request->validated('template'));
-        $fields = $this->documentGenerationService->mergeFieldValues(
-            $template,
-            $request->validated('fields')
-        );
+        $fields = $template->isStatic()
+            ? []
+            : $this->documentGenerationService->mergeFieldValues(
+                $template,
+                $request->validated('fields') ?? []
+            );
 
         $html = $this->documentGenerationService->renderHtml($template, $fields);
 
@@ -78,10 +80,12 @@ class TenantDocumentGenerationController extends Controller
     public function store(GenerateDocumentRequest $request, Tenant $tenant): RedirectResponse
     {
         $template = DocumentTemplateKey::from($request->validated('template'));
-        $fields = $this->documentGenerationService->mergeFieldValues(
-            $template,
-            $request->validated('fields')
-        );
+        $fields = $template->isStatic()
+            ? []
+            : $this->documentGenerationService->mergeFieldValues(
+                $template,
+                $request->validated('fields') ?? []
+            );
 
         try {
             $document = $this->documentGenerationService->generateAndStore(

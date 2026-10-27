@@ -5,8 +5,8 @@
         $f = $fields;
         $defs = $definitions ?? [];
         $items = [
-            'ID-1' => 'Proof of ID – Passport',
-            'ID-2' => 'Proof of ID – Driving Licence',
+            'ID-1' => 'Proof of ID   Passport',
+            'ID-2' => 'Proof of ID   Driving Licence',
             'ID-3' => 'Proof of Income',
             'ID-4' => 'UC Account Statement',
             'ID-5' => 'Proof of NI Number',

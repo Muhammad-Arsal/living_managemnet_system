@@ -99,7 +99,7 @@
     <p class="meta-row"><span class="label">Gas move in meter read:</span> {{ $f['gas_meter'] ?? '' }}</p>
     <p class="meta-row"><span class="label">Water move in meter read:</span> {{ $f['water_meter'] ?? '' }}</p>
 
-    <h2>Schedule 1 – Property Rules</h2>
+    <h2>Schedule 1   Property Rules</h2>
     <p class="muted">1. You are not to bring weapons of any kind into the premises. This includes regular and ornamental/toy weapons. If You bring dangerous weapons on site, we have the right to confiscate the weapon, call the police and evict You.</p>
     <p class="muted">2. Violence will not be tolerated at the property. If You are involved in any violence on site, you may be evicted.</p>
     <p class="muted">3. No illicit substances are to be brought on site. If there is any evidence of such substances Police will be called immediately and You will be evicted.</p>

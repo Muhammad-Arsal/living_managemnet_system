@@ -21,7 +21,7 @@ class DocumentGenerationService
     ) {}
 
     /**
-     * @return list<array{key: DocumentTemplateKey, label: string, description: string, icon: string}>
+     * @return list<array{key: DocumentTemplateKey, label: string, description: string, icon: string, static: bool}>
      */
     public function availableTemplates(): array
     {
@@ -31,6 +31,7 @@ class DocumentGenerationService
                 'label' => $key->label(),
                 'description' => $key->description(),
                 'icon' => $key->icon(),
+                'static' => $key->isStatic(),
             ],
             DocumentTemplateKey::cases()
         );
@@ -43,7 +44,13 @@ class DocumentGenerationService
     {
         $fields = config('document-templates.templates.'.$template->value.'.fields');
 
-        if (! is_array($fields) || $fields === []) {
+        if (! is_array($fields)) {
+            throw ValidationException::withMessages([
+                'template' => 'Unknown document template.',
+            ]);
+        }
+
+        if ($fields === [] && ! $template->isStatic()) {
             throw ValidationException::withMessages([
                 'template' => 'Unknown document template.',
             ]);
