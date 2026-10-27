@@ -57,5 +57,7 @@ class DatabaseSeeder extends Seeder
                 'organization' => 'Local Council',
             ]);
         }
+
+        $this->call(DemoDataSeeder::class);
     }
 }
