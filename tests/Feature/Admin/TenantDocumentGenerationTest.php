@@ -248,6 +248,10 @@ class TenantDocumentGenerationTest extends TestCase
             $response->assertSee('Jane Resident', false);
             $response->assertSee('1 New Street, Coventry', false);
             $response->assertSee('Move onto independent living', false);
+        } elseif ($template === DocumentTemplateKey::StaffRiskAssessment) {
+            $response->assertSee('Jane Resident', false);
+            $response->assertSee('Risk Assessment for Staff Eyes Only (RH-10)', false);
+            $response->assertSee('Risk Management Plan', false);
         } else {
             $response->assertSee('Jane Resident', false);
             $response->assertSee('12 High Street', false);
@@ -261,22 +265,27 @@ class TenantDocumentGenerationTest extends TestCase
             DocumentTemplateKey::cases()
         );
 
-        $this->assertSame('Initial Needs Assessment (RH-1)', $labels[0]);
-        $this->assertSame('Excluded License Agreement (RH-2)', $labels[1]);
-        $this->assertSame('Nil Income Form (RH-6)', $labels[2]);
-        $this->assertSame('Your Risk Assessment (RH-9)', $labels[3]);
-        $this->assertSame('Resident Review Form (RH-12)', $labels[4]);
-        $this->assertSame('Incident Form (RH-15)', $labels[5]);
-        $this->assertSame('Missed Meeting Letter (RH-16)', $labels[6]);
-        $this->assertSame('Warning Letter (RH-17)', $labels[7]);
-        $this->assertSame('Final Warning for Non-Engagement (RH-18)', $labels[8]);
-        $this->assertSame('Knowing Your Rights (RH-19)', $labels[9]);
-        $this->assertSame('Resident Exit Form (RH-20)', $labels[10]);
-        $this->assertSame('List of Inventory (RH-21)', $labels[11]);
-        $this->assertSame('ID Check List (RH-22)', $labels[12]);
-        $this->assertSame('Referral & Support Assessment Form', $labels[13]);
-        $this->assertSame('Resident Move-On Plan', $labels[14]);
-        $this->assertSame('Weekly Service Charge Notice', $labels[15]);
+        $this->assertSame([
+            'Initial Needs Assessment (RH-1)',
+            'Excluded License Agreement (RH-2)',
+            'Housing Benefit Authorisation Form (RH-4)',
+            'Nil Income Form (RH-6)',
+            'Your Risk Assessment (RH-9)',
+            'Risk Assessment for Staff Eyes Only (RH-10)',
+            'Your Support Plan (RH-11)',
+            'Resident Review Form (RH-12)',
+            'Incident Form (RH-15)',
+            'Missed Meeting Letter (RH-16)',
+            'Warning Letter (RH-17)',
+            'Final Warning for Non-Engagement (RH-18)',
+            'Knowing Your Rights (RH-19)',
+            'Resident Exit Form (RH-20)',
+            'List of Inventory (RH-21)',
+            'ID Check List (RH-22)',
+            'Referral & Support Assessment Form',
+            'Resident Move-On Plan',
+            'Weekly Service Charge Notice',
+        ], $labels);
     }
 
     #[DataProvider('templateKeysProvider')]
@@ -735,6 +744,33 @@ class TenantDocumentGenerationTest extends TestCase
                 'previous_address' => 'Old Address',
                 'documents_completed' => ['ID-1', 'ID-5', 'ID-6'],
             ],
+            DocumentTemplateKey::HousingBenefitAuthorisation => [
+                'provider_name' => 'Rneyz Housing',
+                'resident_name' => 'Jane Resident',
+                'address' => '12 High Street, Coventry, CV1 1AA, United Kingdom',
+                'date_of_birth' => '1990-01-01',
+                'ni_number' => 'AB123456C',
+                'authorisation_date' => now()->toDateString(),
+            ],
+            DocumentTemplateKey::StaffRiskAssessment => [
+                'resident_name' => 'Jane Resident',
+                'risk_1_name' => 'Violence & aggression',
+                'risk_1_resident_score' => '1',
+                'risk_1_staff_score' => '3',
+                'risk_1_disagree_reason' => 'Resident minimised history',
+                'risk_1_why_score' => 'Based on previous incidents',
+                'risk_1_triggers' => 'Conflict with peers',
+                'risk_1_plan' => 'Staff present during mediation',
+                'risk_2_name' => '',
+                'risk_2_resident_score' => '',
+                'risk_2_staff_score' => '',
+                'risk_2_disagree_reason' => '',
+                'risk_2_why_score' => '',
+                'risk_2_triggers' => '',
+                'risk_2_plan' => '',
+                'further_comments' => 'None',
+            ],
+            DocumentTemplateKey::SupportPlan => $this->supportPlanPayload(),
         };
 
         return [
@@ -870,6 +906,49 @@ class TenantDocumentGenerationTest extends TestCase
             'sexual_orientation_other' => '',
             'support_worker_name' => 'Sam Support',
         ];
+
+        return $fields;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function supportPlanPayload(): array
+    {
+        $fields = [
+            'resident_name' => 'Jane Resident',
+            'address' => '12 High Street, Coventry, CV1 1AA, United Kingdom',
+            'telephone_number' => '07123456789',
+            'email' => 'jane.resident@example.com',
+            'support_worker' => 'Sam Support',
+            'assessment_date' => now()->toDateString(),
+            'review_3_month' => now()->addMonths(3)->toDateString(),
+            'review_6_month' => now()->addMonths(6)->toDateString(),
+            'review_9_month' => now()->addMonths(9)->toDateString(),
+            'review_12_month' => now()->addYear()->toDateString(),
+            'what_achieve' => 'Live independently',
+            'what_stopping' => 'Needs budgeting support',
+            'goal_bank' => [
+                'st_access_healthcare',
+                'st_open_bank',
+                'st_maximize_income',
+                'mt_reduce_debt',
+                'lt_independent_accommodation',
+            ],
+            'lived_supported_before' => 'No',
+            'did_engage' => 'Yes',
+            'engage_no_reason' => '',
+            'feedback' => 'Support has been helpful',
+        ];
+
+        foreach (['short', 'medium', 'long'] as $term) {
+            for ($i = 1; $i <= 4; $i++) {
+                $fields[$term.'_'.$i.'_goal'] = $i === 1 && $term === 'short' ? 'Open bank account' : '';
+                $fields[$term.'_'.$i.'_how'] = $i === 1 && $term === 'short' ? 'Attend bank appointment with support worker' : '';
+                $fields[$term.'_'.$i.'_target_date'] = $i === 1 && $term === 'short' ? now()->addMonth()->toDateString() : '';
+                $fields[$term.'_'.$i.'_date_completed'] = '';
+            }
+        }
 
         return $fields;
     }

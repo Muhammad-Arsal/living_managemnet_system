@@ -7,8 +7,11 @@ enum DocumentTemplateKey: string
     // RH-numbered templates first (ascending), then unnumbered forms.
     case InitialNeedsAssessment = 'initial_needs_assessment';
     case ExcludedLicenseAgreement = 'excluded_license_agreement';
+    case HousingBenefitAuthorisation = 'housing_benefit_authorisation';
     case NilIncomeForm = 'nil_income_form';
     case RiskAssessment = 'risk_assessment';
+    case StaffRiskAssessment = 'staff_risk_assessment';
+    case SupportPlan = 'support_plan';
     case ResidentReviewForm = 'resident_review_form';
     case IncidentReport = 'incident_report';
     case MissedMeetingLetter = 'missed_meeting_letter';
@@ -27,8 +30,11 @@ enum DocumentTemplateKey: string
         return match ($this) {
             self::InitialNeedsAssessment => 'Initial Needs Assessment (RH-1)',
             self::ExcludedLicenseAgreement => 'Excluded License Agreement (RH-2)',
+            self::HousingBenefitAuthorisation => 'Housing Benefit Authorisation Form (RH-4)',
             self::NilIncomeForm => 'Nil Income Form (RH-6)',
             self::RiskAssessment => 'Your Risk Assessment (RH-9)',
+            self::StaffRiskAssessment => 'Risk Assessment for Staff Eyes Only (RH-10)',
+            self::SupportPlan => 'Your Support Plan (RH-11)',
             self::ResidentReviewForm => 'Resident Review Form (RH-12)',
             self::IncidentReport => 'Incident Form (RH-15)',
             self::MissedMeetingLetter => 'Missed Meeting Letter (RH-16)',
@@ -49,8 +55,11 @@ enum DocumentTemplateKey: string
         return match ($this) {
             self::InitialNeedsAssessment => 'Full initial needs assessment covering health, risk, finances, skills, and equality data.',
             self::ExcludedLicenseAgreement => 'Excluded license agreement with charges, property rules, and signatures.',
+            self::HousingBenefitAuthorisation => 'Authorisation for Coventry City Council to discuss Housing Benefit with the provider.',
             self::NilIncomeForm => 'Nil income declaration with support methods and savings confirmation.',
             self::RiskAssessment => 'Resident risk assessment and support-plan scores across key risk areas.',
+            self::StaffRiskAssessment => 'Staff-only risk management plans where resident scores are disputed or sensitive.',
+            self::SupportPlan => 'Resident support plan with goals, review dates, and engagement commitments.',
             self::ResidentReviewForm => 'Resident support review covering goals, contact frequency, and next steps.',
             self::IncidentReport => 'Incident report with details, witnesses, emergency services, and follow-up.',
             self::MissedMeetingLetter => 'Letter confirming a missed support session and rearranged appointment.',
@@ -71,8 +80,11 @@ enum DocumentTemplateKey: string
         return match ($this) {
             self::InitialNeedsAssessment => 'bx:bx-user-check',
             self::ExcludedLicenseAgreement => 'bx:bx-file',
+            self::HousingBenefitAuthorisation => 'bx:bx-home-alt',
             self::NilIncomeForm => 'bx:bx-wallet',
             self::RiskAssessment => 'bx:bx-shield-quarter',
+            self::StaffRiskAssessment => 'bx:bx-show-alt',
+            self::SupportPlan => 'bx:bx-target-lock',
             self::ResidentReviewForm => 'bx:bx-revision',
             self::IncidentReport => 'bx:bx-first-aid',
             self::MissedMeetingLetter => 'bx:bx-calendar-x',
@@ -98,8 +110,11 @@ enum DocumentTemplateKey: string
         return match ($this) {
             self::InitialNeedsAssessment => 'Initial-Needs-Assessment-RH-1',
             self::ExcludedLicenseAgreement => 'Excluded-License-Agreement-RH-2',
+            self::HousingBenefitAuthorisation => 'Housing-Benefit-Authorisation-RH-4',
             self::NilIncomeForm => 'Nil-Income-Form-RH-6',
             self::RiskAssessment => 'Risk-Assessment-RH-9',
+            self::StaffRiskAssessment => 'Staff-Risk-Assessment-RH-10',
+            self::SupportPlan => 'Support-Plan-RH-11',
             self::ResidentReviewForm => 'Resident-Review-Form-RH-12',
             self::IncidentReport => 'Incident-Report-RH-15',
             self::MissedMeetingLetter => 'Missed-Meeting-Letter-RH-16',
